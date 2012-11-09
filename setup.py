@@ -43,7 +43,7 @@ setuptools.setup(
         'Programming Language :: Python',
     ],
     entry_points={
-        'console_scripts': ['ceilometerclient = ceilometerclient.shell:main']
+        'console_scripts': ['ceilometer = ceilometerclient.shell:main']
     },
     dependency_links=setup.parse_dependency_links(),
     tests_require=setup.parse_requirements(['tools/test-requires']),
