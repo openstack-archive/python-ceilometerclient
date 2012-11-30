@@ -31,7 +31,6 @@ class Client(http.HTTPClient):
         """ Initialize a new client for the Ceilometer v1 API. """
         super(Client, self).__init__(*args, **kwargs)
         self.meters = meters.MeterManager(self)
-        self.events = meters.EventManager(self)
         self.users = meters.UserManager(self)
         self.resources = meters.ResourceManager(self)
         self.projects = meters.ProjectManager(self)

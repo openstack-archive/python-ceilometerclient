@@ -83,37 +83,6 @@ class ResourceManager(base.Manager):
         return self._list('/v1/%s' % path, 'resources')
 
 
-class Event(base.Resource):
-    def __repr__(self):
-        return "<Event %s>" % self._info
-
-    def data(self, **kwargs):
-        return self.manager.data(self, **kwargs)
-
-
-class EventManager(base.Manager):
-    resource_class = Event
-
-    def list(self, **kwargs):
-        c = kwargs['counter_name']
-        r = kwargs.get('resource_id')
-        u = kwargs.get('user_id')
-        p = kwargs.get('project_id')
-        s = kwargs.get('source')
-        if r:
-            path = '/resources/%s/events/%s' % (r, c)
-        elif u:
-            path = '/users/%s/events/%s' % (u, c)
-        elif p:
-            path = '/projects/%s/events/%s' % (p, c)
-        elif s:
-            path = '/sources/%s/events/%s' % (s, c)
-        else:
-            path = '/events'
-
-        self._list('/v1/%s' % path, 'events')
-
-
 class Meter(base.Resource):
     def __repr__(self):
         return "<Meter %s>" % self._info

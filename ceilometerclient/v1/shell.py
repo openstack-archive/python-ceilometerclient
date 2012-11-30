@@ -20,54 +20,33 @@ import ceilometerclient.exc as exc
 
 
 @utils.arg('-s', '--source', metavar='<SOURCE>',
-           help='ID of the resource to show events for.')
+           help='ID of the resource to show meters for.')
 @utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>',
-           help='ID of the resource to show events for.')
+           help='ID of the resource to show meters for.')
 @utils.arg('-u', '--user_id', metavar='<USER_ID>',
-           help='ID of the user to show events for.')
+           help='ID of the user to show meters for.')
 @utils.arg('-p', '--project_id', metavar='<PROJECT_ID>',
-           help='ID of the project to show events for.')
+           help='ID of the project to show meters for.')
 @utils.arg('-c', '--counter_name', metavar='<NAME>',
-           help='Name of meter to show events for.')
-def do_event_list(cc, args):
-    '''List the events for this meters'''
+           help='Name of meter to show meters for.')
+def do_meter_list(cc, args):
+    '''List the meters for this meters'''
     fields = {'counter_name': args.counter_name,
               'resource_id': args.resource_id,
               'user_id': args.user_id,
               'project_id': args.project_id,
               'source': args.source}
     try:
-        events = cc.events.list(**fields)
+        meters = cc.meters.list(**fields)
     except exc.HTTPNotFound:
-        raise exc.CommandError('Events not found: %s' % args.counter_name)
+        raise exc.CommandError('meters not found: %s' % args.counter_name)
     else:
         json_format = lambda js: json.dumps(js, indent=2)
         formatters = {
             'metadata': json_format,
         }
-        for e in events:
+        for e in meters:
             utils.print_dict(e.to_dict(), formatters=formatters)
-
-
-@utils.arg('-s', '--source', metavar='<SOURCE>',
-           help='ID of the resource to show events for.')
-@utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>',
-           help='ID of the resource to show events for.')
-@utils.arg('-u', '--user_id', metavar='<USER_ID>',
-           help='ID of the user to show events for.')
-@utils.arg('-p', '--project_id', metavar='<PROJECT_ID>',
-           help='ID of the project to show events for.')
-def do_metric_list(cc, args={}):
-    '''List the user's metrices'''
-    fields = {'resource_id': args.resource_id,
-              'user_id': args.user_id,
-              'project_id': args.project_id,
-              'source': args.source}
-    metrics = cc.meters.list(**fields)
-    field_labels = ['Name', 'Resource ID', 'User ID']
-    fields = ['counter_name', 'resource_id', 'user_id']
-    utils.print_list(metrics, fields, field_labels,
-                     sortby=0)
 
 
 def do_user_list(cc, args={}):
@@ -81,9 +60,9 @@ def do_user_list(cc, args={}):
 
 
 @utils.arg('-s', '--source', metavar='<SOURCE>',
-           help='ID of the resource to show events for.')
+           help='ID of the resource to show meters for.')
 @utils.arg('-u', '--user_id', metavar='<USER_ID>',
-           help='ID of the user to show events for.')
+           help='ID of the user to show meters for.')
 def do_resource_list(cc, args={}):
     '''List the users'''
     kwargs = {'source': args.source,
@@ -97,7 +76,7 @@ def do_resource_list(cc, args={}):
 
 
 @utils.arg('-s', '--source', metavar='<SOURCE>',
-           help='ID of the resource to show events for.')
+           help='ID of the resource to show meters for.')
 def do_project_list(cc, args={}):
     '''List the projects'''
     kwargs = {'source': args.source}
