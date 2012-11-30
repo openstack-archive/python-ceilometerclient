@@ -32,7 +32,7 @@ class UserManager(base.Manager):
     resource_class = User
 
     def list(self, **kwargs):
-        return self._list('/users', 'users')
+        return self._list('/v1/users', 'users')
 
 
 class Project(base.Resource):
@@ -57,7 +57,7 @@ class ProjectManager(base.Manager):
         else:
             path = '/projects'
 
-        return self._list(path, 'projects')
+        return self._list('/v1/%s' % path, 'projects')
 
 
 class Resource(base.Resource):
@@ -80,7 +80,7 @@ class ResourceManager(base.Manager):
             path = '/sources/%s/resources' % (s)
         else:
             path = '/resources'
-        return self._list(path, 'resources')
+        return self._list('/v1/%s' % path, 'resources')
 
 
 class Event(base.Resource):
@@ -111,7 +111,7 @@ class EventManager(base.Manager):
         else:
             path = '/events'
 
-        self._list(path, 'events')
+        self._list('/v1/%s' % path, 'events')
 
 
 class Meter(base.Resource):
@@ -140,4 +140,4 @@ class MeterManager(base.Manager):
             path = '/sources/%s/meters' % s
         else:
             path = '/meters'
-        return self._list(path, 'meters')
+        return self._list('/v1/%s' % path, 'meters')
