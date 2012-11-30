@@ -213,7 +213,7 @@ class CeilometerShell(object):
     def _get_endpoint(self, client, **kwargs):
         """Get an endpoint using the provided keystone client."""
         return client.service_catalog.url_for(
-                service_type=kwargs.get('service_type') or 'orchestration',
+                service_type=kwargs.get('service_type') or 'metering',
                 endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
 
     def _setup_debugging(self, debug):
