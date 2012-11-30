@@ -17,7 +17,6 @@ from ceilometerclient.common import base
 
 class User(base.Resource):
     def __init__(self, manager, info, loaded=False):
-        print 'user %s' % str(info)
         _d = {unicode('user_id'): info}
         super(User, self).__init__(manager, _d, loaded)
 
@@ -81,6 +80,42 @@ class ResourceManager(base.Manager):
         else:
             path = '/resources'
         return self._list('/v1/%s' % path, 'resources')
+
+
+class Sample(base.Resource):
+    def __init__(self, manager, info, loaded=False):
+        smaller = dict((k, v) for (k, v) in info.iteritems()
+                              if k not in ('metadata', 'message_signature'))
+        super(Sample, self).__init__(manager, smaller, loaded)
+
+    def __repr__(self):
+        return "<Sample %s>" % self._info
+
+    def data(self, **kwargs):
+        return self.manager.data(self, **kwargs)
+
+
+class SampleManager(base.Manager):
+    resource_class = Sample
+
+    def list(self, **kwargs):
+        c = kwargs['counter_name']
+        r = kwargs.get('resource_id')
+        u = kwargs.get('user_id')
+        p = kwargs.get('project_id')
+        s = kwargs.get('source')
+        if r:
+            path = '/resources/%s/meters/%s' % (r, c)
+        elif u:
+            path = '/users/%s/meters/%s' % (u, c)
+        elif p:
+            path = '/projects/%s/meters/%s' % (p, c)
+        elif s:
+            path = '/sources/%s/meters/%s' % (s, c)
+        else:
+            path = '/meters'
+
+        return self._list('/v1/%s' % path, 'events')
 
 
 class Meter(base.Resource):
