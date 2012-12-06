@@ -42,7 +42,8 @@ def do_sample_list(cc, args):
         raise exc.CommandError('Samples not found: %s' % args.counter_name)
     else:
         field_labels = ['Resource ID', 'Name', 'Type', 'Volume', 'Timestamp']
-        fields = ['resource_id', 'counter_name', 'counter_type','counter_volume', 'timestamp']
+        fields = ['resource_id', 'counter_name', 'counter_type',
+                  'counter_volume', 'timestamp']
         utils.print_list(samples, fields, field_labels,
                         sortby=0)
 
@@ -63,7 +64,8 @@ def do_meter_list(cc, args={}):
               'source': args.source}
     meters = cc.meters.list(**fields)
     field_labels = ['Name', 'Type', 'Resource ID', 'User ID', 'Project ID']
-    fields = ['counter_name', 'counter_type', 'resource_id', 'user_id', 'project_id']
+    fields = ['counter_name', 'counter_type', 'resource_id',
+              'user_id', 'project_id']
     utils.print_list(meters, fields, field_labels,
                      sortby=0)
 
