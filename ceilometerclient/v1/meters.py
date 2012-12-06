@@ -15,6 +15,7 @@
 
 from ceilometerclient.common import base
 
+
 class User(base.Resource):
     def __init__(self, manager, info, loaded=False):
         _d = {unicode('user_id'): info}
