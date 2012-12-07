@@ -67,7 +67,7 @@ def do_meter_list(cc, args={}):
               'source': args.source}
     meters = cc.meters.list(**fields)
     field_labels = ['Name', 'Type', 'Resource ID', 'User ID', 'Project ID']
-    fields = ['counter_name', 'counter_type', 'resource_id',
+    fields = ['name', 'type', 'resource_id',
               'user_id', 'project_id']
     utils.print_list(meters, fields, field_labels,
                      sortby=0)
