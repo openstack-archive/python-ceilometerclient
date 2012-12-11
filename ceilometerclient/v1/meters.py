@@ -116,7 +116,12 @@ class SampleManager(base.Manager):
         else:
             path = '/meters'
 
-        return self._list('/v1/%s' % path, 'events')
+        opts = kwargs.get('metaquery')
+        if opts:
+            metaq = '&'.join(opts.split(':'))
+        else:
+            metaq = ''
+        return self._list('/v1/%s?%s' % (path, metaq), 'events')
 
 
 class Meter(base.Resource):
