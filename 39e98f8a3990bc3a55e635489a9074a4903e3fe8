@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: Nick Barcet <nicolas@barcet.com>
+Approved+1: Angus Salkeld <asalkeld@redhat.com>
+Code-Review+2: Angus Salkeld <asalkeld@redhat.com>
+Submitted-by: Jenkins
+Submitted-at: Tue, 11 Dec 2012 10:36:21 +0000
+Reviewed-on: https://review.openstack.org/17599
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
