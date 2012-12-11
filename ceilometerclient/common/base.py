@@ -55,7 +55,10 @@ class Manager(object):
         if obj_class is None:
             obj_class = self.resource_class
 
-        data = body[response_key]
+        if response_key is None:
+            data = body
+        else:
+            data = body[response_key]
         return [obj_class(self, res, loaded=True) for res in data if res]
 
     def _delete(self, url):
