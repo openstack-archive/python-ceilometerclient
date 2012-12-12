@@ -13,12 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from ceilometerclient.common import utils
 import ceilometerclient.exc as exc
 
 
+@utils.arg('-m', '--metaquery', metavar='<METAQUERY>',
+           help='Query into the metadata metadata.key=value:..')
 @utils.arg('-s', '--source', metavar='<SOURCE>',
            help='ID of the resource to show samples for.')
 @utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>',
@@ -35,7 +35,8 @@ def do_sample_list(cc, args):
               'resource_id': args.resource_id,
               'user_id': args.user_id,
               'project_id': args.project_id,
-              'source': args.source}
+              'source': args.source,
+              'metaquery': args.metaquery}
     try:
         samples = cc.samples.list(**fields)
     except exc.HTTPNotFound:
