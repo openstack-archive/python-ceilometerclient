@@ -91,7 +91,7 @@ class ResourceManager(base.Manager):
 class Sample(base.Resource):
     def __init__(self, manager, info, loaded=False):
         smaller = dict((k, v) for (k, v) in info.iteritems()
-                              if k not in ('metadata', 'message_signature'))
+                       if k not in ('metadata', 'message_signature'))
         super(Sample, self).__init__(manager, smaller, loaded)
 
     def __repr__(self):

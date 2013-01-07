@@ -46,7 +46,7 @@ def do_sample_list(cc, args):
         fields = ['resource_id', 'counter_name', 'counter_type',
                   'counter_volume', 'timestamp']
         utils.print_list(samples, fields, field_labels,
-                        sortby=0)
+                         sortby=0)
 
 
 @utils.arg('-s', '--source', metavar='<SOURCE>',
