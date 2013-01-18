@@ -69,6 +69,27 @@ fixtures = {
             ]},
         ),
     },
+    '/v1/sources/openstack/meters': {
+        'GET': (
+            {},
+            {'meters': [
+                {
+                    'resource_id': 'b',
+                    'project_id': 'dig_the_ditch',
+                    'user_id': 'joey',
+                    'name': 'this',
+                    'type': 'counter',
+                },
+                {
+                    'resource_id': 'q',
+                    'project_id': 'dig_the_trench',
+                    'user_id': 'joey',
+                    'name': 'this',
+                    'type': 'counter',
+                },
+            ]},
+        ),
+    },
     '/v1/meters?metadata.zxc_id=foo': {
         'GET': (
             {},
@@ -101,6 +122,16 @@ class MeterManagerTest(unittest.TestCase):
         self.assertEqual(len(resources), 2)
         self.assertEqual(resources[0].resource_id, 'a')
         self.assertEqual(resources[1].resource_id, 'b')
+
+    def test_list_by_source(self):
+        resources = list(self.mgr.list(source='openstack'))
+        expect = [
+            ('GET', '/v1/sources/openstack/meters', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(resources), 2)
+        self.assertEqual(resources[0].resource_id, 'b')
+        self.assertEqual(resources[1].resource_id, 'q')
 
     def test_list_by_user(self):
         resources = list(self.mgr.list(user_id='joey'))
