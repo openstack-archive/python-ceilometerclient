@@ -52,11 +52,15 @@ class ProjectManager(base.Manager):
 
     def list(self, **kwargs):
         s = kwargs.get('source')
+        opts = kwargs.get('metaquery')        
         if s:
             path = '/sources/%s/projects' % (kwargs['source'])
         else:
             path = '/projects'
-
+        if opts:
+            path = '/v1%s?%s' % (path, '&'.join(opts.split(':')))
+        else:
+            path = '/v1%s' % (path)
         return self._list('/v1/%s' % path, 'projects')
 
 
