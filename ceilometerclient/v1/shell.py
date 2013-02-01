@@ -30,7 +30,7 @@ import ceilometerclient.exc as exc
 @utils.arg('-c', '--counter_name', metavar='<NAME>',
            help='Name of meter to show samples for.')
 def do_sample_list(cc, args):
-    '''List the samples for this meters'''
+    '''List the samples for the meters'''
     fields = {'counter_name': args.counter_name,
               'resource_id': args.resource_id,
               'user_id': args.user_id,
@@ -39,9 +39,11 @@ def do_sample_list(cc, args):
               'metaquery': args.metaquery}
     try:
         samples = cc.samples.list(**fields)
-    except exc.HTTPNotFound:
-        raise exc.CommandError('Samples not found: %s' % args.counter_name)
+    except (exc.HTTPNotFound, KeyError):
+        raise exc.CommandError('Samples not found')
     else:
+        if not samples:
+            raise exc.CommandError('Samples not found')
         field_labels = ['Resource ID', 'Name', 'Type', 'Volume', 'Timestamp']
         fields = ['resource_id', 'counter_name', 'counter_type',
                   'counter_volume', 'timestamp']
