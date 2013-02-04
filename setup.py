@@ -15,13 +15,15 @@ import setuptools
 
 from ceilometerclient.openstack.common import setup
 
+project = 'python-ceilometerclient'
+
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setuptools.setup(
-    name="python-ceilometerclient",
-    version=setup.get_post_version('ceilometerclient'),
+    name=project,
+    version=setup.get_version(project),
     author='Ceilometer Developers',
     author_email='openstack-dev@lists.openstack.org',
     description="Client library for ceilometer",

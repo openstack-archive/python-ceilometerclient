@@ -15,7 +15,4 @@
 
 from ceilometerclient.openstack.common import version as common_version
 
-version_info = common_version.VersionInfo(
-    'ceilometerclient',
-    python_package='python-ceilometerclient'
-)
+version_info = common_version.VersionInfo('python-ceilometerclient')
