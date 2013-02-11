@@ -39,11 +39,9 @@ def do_sample_list(cc, args):
               'metaquery': args.metaquery}
     try:
         samples = cc.samples.list(**fields)
-    except (exc.HTTPNotFound, KeyError):
+    except exc.HTTPNotFound:
         raise exc.CommandError('Samples not found')
     else:
-        if not samples:
-            raise exc.CommandError('Samples not found')
         field_labels = ['Resource ID', 'Name', 'Type', 'Volume', 'Timestamp']
         fields = ['resource_id', 'counter_name', 'counter_type',
                   'counter_volume', 'timestamp']
