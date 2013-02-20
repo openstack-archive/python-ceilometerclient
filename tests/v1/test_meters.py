@@ -104,6 +104,49 @@ fixtures = {
             ]},
         ),
     },
+    '/v1/meters?start_timestamp=2013-02-18T10:50:36.000000': {
+        'GET': (
+            {},
+            {'meters': [
+                {
+                    'resource_id': 'b',
+                    'project_id': 'dig_the_ditch',
+                    'user_id': 'joey',
+                    'name': 'this',
+                    'type': 'counter',
+                },
+            ]},
+        ),
+    },
+    '/v1/meters?end_timestamp=2013-02-19T10:50:36.000000': {
+        'GET': (
+            {},
+            {'meters': [
+                {
+                    'resource_id': 'b',
+                    'project_id': 'dig_the_ditch',
+                    'user_id': 'joey',
+                    'name': 'this',
+                    'type': 'counter',
+                },
+            ]},
+        ),
+    },
+    '/v1/meters?metadata.zxc_id=foo&start_timestamp=2013-02-18T10:50:36.000000&end_timestamp=2013-02-19T10:50:36.000000': {
+        'GET': (
+            {},
+            {'meters': [
+                {
+                    'resource_id': 'b',
+                    'project_id': 'dig_the_ditch',
+                    'user_id': 'joey',
+                    'name': 'this',
+                    'type': 'counter',
+                },
+            ]},
+        ),
+    },
+
 }
 
 
@@ -155,6 +198,34 @@ class MeterManagerTest(unittest.TestCase):
         resources = list(self.mgr.list(metaquery='metadata.zxc_id=foo'))
         expect = [
             ('GET', '/v1/meters?metadata.zxc_id=foo', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].resource_id, 'b')
+
+    def test_list_by_start_timestamp(self):
+        resources = list(self.mgr.list(start_timestamp='2013-02-18T10:50:36.000000'))
+        expect = [
+            ('GET', '/v1/meters?start_timestamp=2013-02-18T10:50:36.000000', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].resource_id, 'b')
+
+    def test_list_by_end_timestamp(self):
+        resources = list(self.mgr.list(end_timestamp='2013-02-19T10:50:36.000000'))
+        expect = [
+            ('GET', '/v1/meters?end_timestamp=2013-02-19T10:50:36.000000', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].resource_id, 'b')
+
+
+    def test_list_by_mixing_timestamp_and_metadata(self):
+        resources = list(self.mgr.list(metaquery='metadata.zxc_id=foo', start_timestamp='2013-02-18T10:50:36.000000', end_timestamp='2013-02-19T10:50:36.000000'))
+        expect = [
+            ('GET', '/v1/meters?metadata.zxc_id=foo&start_timestamp=2013-02-18T10:50:36.000000&end_timestamp=2013-02-19T10:50:36.000000', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 1)

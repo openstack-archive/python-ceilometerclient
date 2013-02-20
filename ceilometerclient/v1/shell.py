@@ -29,6 +29,10 @@ import ceilometerclient.exc as exc
            help='ID of the project to show samples for.')
 @utils.arg('-c', '--counter_name', metavar='<NAME>',
            help='Name of meter to show samples for.')
+@utils.arg('--start-timestamp', metavar='<START_TIMESTAMP>',
+           help='The earliest time to include in the calculation')
+@utils.arg('--end-timestamp', metavar='<END_TIMESTAMP>',
+           help='The latest time to include in the calculation')
 def do_sample_list(cc, args):
     '''List the samples for this meters'''
     fields = {'counter_name': args.counter_name,
@@ -36,7 +40,9 @@ def do_sample_list(cc, args):
               'user_id': args.user_id,
               'project_id': args.project_id,
               'source': args.source,
-              'metaquery': args.metaquery}
+              'metaquery': args.metaquery,
+              'start_timestamp': args.start_timestamp,
+              'end_timestamp': args.end_timestamp}
     try:
         samples = cc.samples.list(**fields)
     except exc.HTTPNotFound:

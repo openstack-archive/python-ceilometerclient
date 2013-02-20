@@ -110,7 +110,18 @@ class SampleManager(base.Manager):
         u = kwargs.get('user_id')
         p = kwargs.get('project_id')
         s = kwargs.get('source')
-        opts = kwargs.get('metaquery')
+        metaquery = kwargs.get('metaquery')
+        start_timestamp = kwargs.get('start_timestamp')
+        end_timestamp = kwargs.get('end_timestamp')
+
+        opts = []
+        if metaquery:
+            opts += metaquery.split(":")
+        if start_timestamp:
+            opts.append("start_timestamp=%s"%start_timestamp)
+        if end_timestamp:
+            opts.append("end_timestamp=%s"%end_timestamp)
+
         if r:
             path = '/resources/%s/meters/%s' % (r, c)
         elif u:
@@ -123,7 +134,7 @@ class SampleManager(base.Manager):
             path = '/meters'
 
         if opts:
-            path = '/v1%s?%s' % (path, '&'.join(opts.split(':')))
+            path = '/v1%s?%s' % (path, '&'.join(opts))
         else:
             path = '/v1%s' % (path)
         return self._list(path, 'events')
@@ -145,7 +156,18 @@ class MeterManager(base.Manager):
         u = kwargs.get('user_id')
         p = kwargs.get('project_id')
         s = kwargs.get('source')
-        opts = kwargs.get('metaquery')
+        metaquery = kwargs.get('metaquery')
+        start_timestamp = kwargs.get('start_timestamp')
+        end_timestamp = kwargs.get('end_timestamp')
+
+        opts = []
+        if metaquery:
+            opts += metaquery.split(":")
+        if start_timestamp:
+            opts.append("start_timestamp=%s"%start_timestamp)
+        if end_timestamp:
+            opts.append("end_timestamp=%s"%end_timestamp)
+
         if u:
             path = '/users/%s/meters' % u
         elif r:
@@ -157,7 +179,7 @@ class MeterManager(base.Manager):
         else:
             path = '/meters'
         if opts:
-            path = '/v1%s?%s' % (path, '&'.join(opts.split(':')))
+            path = '/v1%s?%s' % (path, '&'.join(opts))
         else:
             path = '/v1%s' % (path)
         return self._list(path, 'meters')
