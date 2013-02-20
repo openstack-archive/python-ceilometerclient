@@ -105,3 +105,18 @@ class ShellTest(unittest2.TestCase):
             help_text = self.shell(argstr)
             for r in required:
                 self.assertRegexpMatches(help_text, r)
+
+    def test_auth_param(self):
+        class TokenContext(object):
+            def __enter__(self):
+                fake_env = {
+                    'OS_AUTH_TOKEN': 'token',
+                    'CEILOMETER_URL': 'http://no.where'
+                }
+                self.old_env, os.environ = os.environ, fake_env.copy()
+
+            def __exit__(self, exc_type, exc_value, traceback):
+                os.environ = self.old_env
+
+        with TokenContext():
+            self.test_help()
