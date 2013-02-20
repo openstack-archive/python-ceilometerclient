@@ -26,7 +26,7 @@ fixtures = {
             {'resources': [
                 {
                     'resource_id': 'a',
-                    'project_id': 'dig_the_ditch',
+                    'project_id': 'project_bla',
                     'user_id': 'freddy',
                     'timestamp': 'now',
                     'meter': ['this', 'that'],
@@ -73,6 +73,21 @@ fixtures = {
             ]},
         ),
     },
+    '/v1/projects/project_bla/resources': {
+        'GET': (
+            {},
+            {'resources': [
+                {
+                    'resource_id': 'a',
+                    'project_id': 'project_bla',
+                    'user_id': 'freddy',
+                    'timestamp': 'now',
+                    'meter': ['this', 'that'],
+                    'metadata': {'zxc_id': 'bla'},
+                },
+            ]},
+        ),
+    },
 }
 
 
@@ -109,3 +124,12 @@ class ResourceManagerTest(unittest.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0].resource_id, 'b')
+
+    def test_list_by_project(self):
+        resources = list(self.mgr.list(project_id='project_bla'))
+        expect = [
+            ('GET', '/v1/projects/project_bla/resources', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].resource_id, 'a')

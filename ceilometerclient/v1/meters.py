@@ -32,7 +32,12 @@ class UserManager(base.Manager):
     resource_class = User
 
     def list(self, **kwargs):
-        return self._list('/v1/users', 'users')
+        s = kwargs.get('source')
+        if s:
+            path = '/sources/%s/users' % (s)
+        else:
+            path = '/users'
+        return self._list('/v1%s' % path, 'users')
 
 
 class Project(base.Resource):
@@ -57,7 +62,7 @@ class ProjectManager(base.Manager):
         else:
             path = '/projects'
 
-        return self._list('/v1/%s' % path, 'projects')
+        return self._list('/v1%s' % path, 'projects')
 
 
 class Resource(base.Resource):
@@ -74,11 +79,14 @@ class ResourceManager(base.Manager):
     def list(self, **kwargs):
         u = kwargs.get('user_id')
         s = kwargs.get('source')
+        p = kwargs.get('project_id')
         opts = kwargs.get('metaquery')
         if u:
             path = '/users/%s/resources' % (u)
         elif s:
             path = '/sources/%s/resources' % (s)
+        elif p:
+            path = '/projects/%s/resources' % (p)
         else:
             path = '/resources'
         if opts:
