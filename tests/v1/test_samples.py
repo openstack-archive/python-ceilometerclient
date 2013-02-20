@@ -92,6 +92,25 @@ fixtures = {
             ]},
         ),
     },
+    '/v1/users/freddy/meters/balls?start_timestamp=now&end_timestamp=now': {
+        'GET': (
+            {},
+            {'events': [
+                {
+                    'resource_id': 'inst-0045',
+                    'project_id': 'melbourne_open',
+                    'user_id': 'freddy',
+                    'name': 'tennis',
+                    'type': 'counter',
+                    'unit': 'balls',
+                    'volume': 3,
+                    'timestamp': 'now',
+                    'resource_metadata': None,
+                },
+
+            ]},
+        ),
+    },
 }
 
 
@@ -144,3 +163,20 @@ class SampleManagerTest(unittest.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(samples), 1)
         self.assertEqual(samples[0].resource_metadata['zxc_id'], 'foo')
+
+    def test_list_by_timestamp(self):
+        samples = list(self.mgr.list(user_id='freddy',
+                                     counter_name='balls',
+                                     start_timestamp='now',
+                                     end_timestamp='now'))
+        expect = [
+            ('GET',
+             '/v1/users/freddy/meters/balls?' +
+             'start_timestamp=now&end_timestamp=now',
+             {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(samples), 1)
+        self.assertEqual(samples[0].project_id, 'melbourne_open')
+        self.assertEqual(samples[0].user_id, 'freddy')
+        self.assertEqual(samples[0].volume, 3)
