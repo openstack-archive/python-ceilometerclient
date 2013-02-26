@@ -1,3 +1,6 @@
+# -*- encoding: utf-8 -*-
+#
+# Copyright © 2013 Red Hat, Inc
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -15,16 +18,14 @@ from ceilometerclient.common import base
 from ceilometerclient.v2 import options
 
 
-class Sample(base.Resource):
+class Meter(base.Resource):
     def __repr__(self):
-        return "<Sample %s>" % self._info
+        return "<Meter %s>" % self._info
 
 
-class SampleManager(base.Manager):
-    resource_class = Sample
+class MeterManager(base.Manager):
+    resource_class = Meter
 
-    def list(self, meter_name=None, q=None):
+    def list(self, q=None):
         path = '/v2/meters'
-        if meter_name:
-            path += '/' + meter_name
         return self._list(options.build_url(path, q))
