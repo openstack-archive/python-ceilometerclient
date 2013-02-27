@@ -1,5 +1,5 @@
 #
-# Copyright © 2013 Red Hat
+# Copyright 2013 Red Hat
 #
 # Author:  Angus Salkeld <asalkeld@redhat.com>
 #
