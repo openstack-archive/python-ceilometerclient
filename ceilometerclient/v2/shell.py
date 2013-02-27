@@ -1,5 +1,6 @@
+# -*- encoding: utf-8 -*-
 #
-# Copyright © 2013 Red Hat
+# Copyright © 2013 Red Hat, Inc
 #
 # Author:  Angus Salkeld <asalkeld@redhat.com>
 #
@@ -16,6 +17,7 @@
 #    under the License.
 
 from ceilometerclient.common import utils
+from ceilometerclient.v2 import options
 import ceilometerclient.exc as exc
 
 
@@ -26,7 +28,7 @@ import ceilometerclient.exc as exc
 def do_statistics(cc, args):
     '''List the statistics for this meters'''
     fields = {'meter_name': args.meter,
-              'q': args.query}
+              'q': options.cli_to_array(args.query)}
     if args.meter is None:
         raise exc.CommandError('Meter name not provided (-m <meter name>)')
     try:
@@ -50,7 +52,7 @@ def do_statistics(cc, args):
 def do_sample_list(cc, args):
     '''List the samples for this meters'''
     fields = {'meter_name': args.meter,
-              'q': args.query}
+              'q': options.cli_to_array(args.query)}
     if args.meter is None:
         raise exc.CommandError('Meter name not provided (-m <meter name>)')
     try:
@@ -64,3 +66,28 @@ def do_sample_list(cc, args):
                   'counter_volume', 'counter_unit', 'timestamp']
         utils.print_list(samples, fields, field_labels,
                          sortby=0)
+
+
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           help='key[op]value; list.')
+def do_meter_list(cc, args={}):
+    '''List the user's meter'''
+    meters = cc.meters.list(q=options.cli_to_array(args.query))
+    field_labels = ['Name', 'Type', 'Unit', 'Resource ID', 'User ID',
+                    'Project ID']
+    fields = ['name', 'type', 'unit', 'resource_id', 'user_id',
+              'project_id']
+    utils.print_list(meters, fields, field_labels,
+                     sortby=0)
+
+
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           help='key[op]value; list.')
+def do_resource_list(cc, args={}):
+    '''List the resources'''
+    resources = cc.resources.list(q=options.cli_to_array(args.query))
+
+    field_labels = ['Resource ID', 'Source', 'User ID', 'Project ID']
+    fields = ['resource_id', 'source', 'user_id', 'project_id']
+    utils.print_list(resources, fields, field_labels,
+                     sortby=1)
