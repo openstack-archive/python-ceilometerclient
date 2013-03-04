@@ -1,5 +1,3 @@
-# Copyright 2012 OpenStack LLC.
-# All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -13,8 +11,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ceilometerclient.v2 import samples
 from ceilometerclient.common import base
+from ceilometerclient.v2 import options
 
 
 class Statistics(base.Resource):
@@ -22,10 +20,10 @@ class Statistics(base.Resource):
         return "<Statistics %s>" % self._info
 
 
-class StatisticsManager(samples.SampleManager):
+class StatisticsManager(base.Manager):
     resource_class = Statistics
 
     def list(self, meter_name, q=None):
-        return self._list(self.build_url(
+        return self._list(options.build_url(
             '/v2/meters/' + meter_name + '/statistics',
             q))
