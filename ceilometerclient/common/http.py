@@ -118,6 +118,11 @@ class HTTPClient(object):
             dump.extend([body, ''])
         LOG.debug('\n'.join(dump))
 
+    def _make_connection_url(self, url):
+        (_class, _args, _kwargs) = self.connection_params
+        base_url = _args[2]
+        return '%s/%s' % (base_url.rstrip('/'), url.lstrip('/'))
+
     def _http_request(self, url, method, **kwargs):
         """ Send an http request with the specified characteristics.
 
@@ -134,8 +139,7 @@ class HTTPClient(object):
         conn = self.get_connection()
 
         try:
-            conn_params = self.connection_params[1][2]
-            conn_url = os.path.normpath('%s/%s' % (conn_params, url))
+            conn_url = self._make_connection_url(url)
             conn.request(method, conn_url, **kwargs)
             resp = conn.getresponse()
         except socket.gaierror as e:
