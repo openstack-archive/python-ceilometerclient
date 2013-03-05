@@ -1,5 +1,4 @@
 distribute>=0.6.24
-
 mox
 nose
 nose-exclude

@@ -40,7 +40,7 @@ class FakeAPI(object):
 
 
 class FakeResponse(object):
-    def __init__(self, headers, body=None):
+    def __init__(self, headers, body=None, version=None):
         """
         :param headers: dict representing HTTP response headers
         :param body: file-like object
@@ -56,3 +56,4 @@ class FakeResponse(object):
 
     def read(self, amt):
         return self.body.read(amt)
+
