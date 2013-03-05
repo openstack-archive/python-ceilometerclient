@@ -38,9 +38,13 @@ class FakeAPI(object):
         fixture = self._request(*args, **kwargs)
         return FakeResponse(fixture[0]), fixture[1]
 
+    def url_generation(self, method, url, connection_params=""):
+        conn_url = '%s/%s' % (connection_params.rstrip('/'), url.lstrip('/'))
+        return conn_url
+
 
 class FakeResponse(object):
-    def __init__(self, headers, body=None):
+    def __init__(self, headers, body=None, version=None):
         """
         :param headers: dict representing HTTP response headers
         :param body: file-like object
@@ -56,3 +60,4 @@ class FakeResponse(object):
 
     def read(self, amt):
         return self.body.read(amt)
+

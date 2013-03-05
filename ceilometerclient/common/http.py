@@ -135,7 +135,8 @@ class HTTPClient(object):
 
         try:
             conn_params = self.connection_params[1][2]
-            conn_url = os.path.normpath('%s/%s' % (conn_params, url))
+            conn_url = '%s/%s' % (conn_params.rstrip('/'), url.lstrip('/'))
+
             conn.request(method, conn_url, **kwargs)
             resp = conn.getresponse()
         except socket.gaierror as e:
