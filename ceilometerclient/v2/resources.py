@@ -27,5 +27,5 @@ class ResourceManager(base.Manager):
     resource_class = Resource
 
     def list(self, q=None):
-        path = '/v2/resources'
+        path = 'v2/resources'
         return self._list(options.build_url(path, q))

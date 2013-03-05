@@ -24,7 +24,7 @@ class SampleManager(base.Manager):
     resource_class = Sample
 
     def list(self, meter_name=None, q=None):
-        path = '/v2/meters'
+        path = 'v2/meters'
         if meter_name:
             path += '/' + meter_name
         return self._list(options.build_url(path, q))

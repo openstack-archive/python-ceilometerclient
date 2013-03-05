@@ -25,5 +25,5 @@ class StatisticsManager(base.Manager):
 
     def list(self, meter_name, q=None):
         return self._list(options.build_url(
-            '/v2/meters/' + meter_name + '/statistics',
+            'v2/meters/' + meter_name + '/statistics',
             q))

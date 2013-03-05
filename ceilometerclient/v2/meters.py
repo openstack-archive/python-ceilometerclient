@@ -27,5 +27,5 @@ class MeterManager(base.Manager):
     resource_class = Meter
 
     def list(self, q=None):
-        path = '/v2/meters'
+        path = 'v2/meters'
         return self._list(options.build_url(path, q))
