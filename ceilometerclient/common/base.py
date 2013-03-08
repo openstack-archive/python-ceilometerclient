@@ -56,7 +56,10 @@ class Manager(object):
             obj_class = self.resource_class
 
         if response_key:
-            data = body[response_key]
+            try:
+                data = body[response_key]
+            except KeyError:
+                return []
         else:
             data = body
         return [obj_class(self, res, loaded=True) for res in data if res]
