@@ -111,6 +111,12 @@ fixtures = {
             ]},
         ),
     },
+    '/v1/meters': {
+        'GET': (
+            {},
+            {'meters': []},
+        ),
+    },
 }
 
 
@@ -119,6 +125,14 @@ class SampleManagerTest(unittest.TestCase):
     def setUp(self):
         self.api = utils.FakeAPI(fixtures)
         self.mgr = ceilometerclient.v1.meters.SampleManager(self.api)
+
+    def test_list_all(self):
+        samples = list(self.mgr.list(counter_name=None))
+        expect = [
+            ('GET', '/v1/meters', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(samples), 0)
 
     def test_list_by_source(self):
         samples = list(self.mgr.list(source='openstack',
