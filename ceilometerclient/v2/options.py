@@ -59,11 +59,13 @@ def cli_to_array(cli_query):
 
     def split_by_op(string):
         # two character split (<=,!=)
-        fragments = re.findall(r'(\w+)([><!]=)([^ -,\t\n\r\f\v]+)', string)
-        if len(fragments) == 0:
+        frags = re.findall(r'([[a-zA-Z0-9_.]+)([><!]=)([^ -,\t\n\r\f\v]+)',
+                           string)
+        if len(frags) == 0:
             #single char split (<,=)
-            fragments = re.findall(r'(\w+)([><=])([^ -,\t\n\r\f\v]+)', string)
-        return fragments
+            frags = re.findall(r'([a-zA-Z0-9_.]+)([><=])([^ -,\t\n\r\f\v]+)',
+                               string)
+        return frags
 
     opts = []
     queries = cli_query.split(';')

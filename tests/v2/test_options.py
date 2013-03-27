@@ -66,3 +66,7 @@ class CliTest(unittest.TestCase):
 
     def test_invalid_operator(self):
         self.assertRaises(ValueError, options.cli_to_array, 'this=2.4;fooo-doof')
+
+    def test_with_dot(self):
+        ar = options.cli_to_array('metadata.this<=34')
+        self.assertEqual(ar, [{'field': 'metadata.this','op': 'le','value': '34'}])
