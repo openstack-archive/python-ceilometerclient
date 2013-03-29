@@ -91,3 +91,20 @@ def do_resource_list(cc, args={}):
     fields = ['resource_id', 'source', 'user_id', 'project_id']
     utils.print_list(resources, fields, field_labels,
                      sortby=1)
+
+
+@utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>',
+           help='ID of the resource to show.')
+def do_resource_show(cc, args={}):
+    '''Show the resource'''
+    if args.resource_id is None:
+        raise exc.CommandError('Resource id not provided (-r <resource id>)')
+    try:
+        resource = cc.resources.get(args.resource_id)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Resource not found: %s' % args.resource_id)
+    else:
+        fields = ['resource_id', 'source', 'user_id',
+                  'project_id', 'metadata']
+        data = dict([(f, getattr(resource, f, '')) for f in fields])
+        utils.print_dict(data, wrap=72)

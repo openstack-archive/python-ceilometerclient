@@ -49,7 +49,8 @@ class Manager(object):
     def __init__(self, api):
         self.api = api
 
-    def _list(self, url, response_key=None, obj_class=None, body=None):
+    def _list(self, url, response_key=None, obj_class=None, body=None,
+              expect_single=False):
         resp, body = self.api.json_request('GET', url)
 
         if obj_class is None:
@@ -62,6 +63,8 @@ class Manager(object):
                 return []
         else:
             data = body
+        if expect_single:
+            data = [data]
         return [obj_class(self, res, loaded=True) for res in data if res]
 
     def _delete(self, url):

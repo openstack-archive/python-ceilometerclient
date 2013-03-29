@@ -29,3 +29,10 @@ class ResourceManager(base.Manager):
     def list(self, q=None):
         path = '/v2/resources'
         return self._list(options.build_url(path, q))
+
+    def get(self, resource_id):
+        path = '/v2/resources/%s' % resource_id
+        try:
+            return self._list(path, expect_single=True)[0]
+        except IndexError:
+            return None
