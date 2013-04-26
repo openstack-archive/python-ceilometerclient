@@ -1,0 +1,13 @@
+Verified+2: Jenkins
+Approved+1: Nick Barcet <nicolas@barcet.com>
+Code-Review+2: Nick Barcet <nicolas@barcet.com>
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Code-Review+1: Fei Long Wang <flwang@cn.ibm.com>
+Code-Review+1: gordon chung <chungg@ca.ibm.com>
+Code-Review+1: Swann Croiset <swann.croiset@bull.net>
+Code-Review+1: Phil Neal <phil.neal@hp.com>
+Submitted-by: Jenkins
+Submitted-at: Fri, 26 Apr 2013 12:19:34 +0000
+Reviewed-on: https://review.openstack.org/26560
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
