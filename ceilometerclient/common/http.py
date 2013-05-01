@@ -180,8 +180,12 @@ class HTTPClient(object):
             kwargs['body'] = json.dumps(kwargs['body'])
 
         resp, body_iter = self._http_request(url, method, **kwargs)
+        content_type = resp.getheader('content-type', None)
 
-        if 'application/json' in resp.getheader('content-type', None):
+        if resp.status == 204 or resp.status == 205 or content_type is None:
+            return resp, list()
+
+        if 'application/json' in content_type:
             body = ''.join([chunk for chunk in body_iter])
             try:
                 body = json.loads(body)
