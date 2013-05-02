@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Approved+1: Lianhao Lu <lianhao.lu@intel.com>
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Code-Review+2: Angus Salkeld <asalkeld@redhat.com>
+Code-Review+1: Eric Peterson <ericpeterson@hp.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 02 May 2013 03:41:28 +0000
+Reviewed-on: https://review.openstack.org/27963
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
