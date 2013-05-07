@@ -9,23 +9,11 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-import inspect
-import os
+from ceilometer.openstack.common import version 
 
 
-def _get_ceilometerclient_version():
-    """Read version from versioninfo file."""
-    mod_abspath = inspect.getabsfile(inspect.currentframe())
-    ceilometerclient_path = os.path.dirname(mod_abspath)
-    version_path = os.path.join(ceilometerclient_path, 'versioninfo')
-
-    if os.path.exists(version_path):
-        version = open(version_path).read().strip()
-    else:
-        version = "Unknown, couldn't find versioninfo file at %s"\
-                  % version_path
-
-    return version
-
-
-__version__ = _get_ceilometerclient_version()
+version_info = version.VersionInfo('python-ceilometerclient')
+try:
+    __version__ = version_info.version_string()
+except AttributeError:
+    __version__ = None
