@@ -21,11 +21,9 @@ import sys
 
 from keystoneclient.v2_0 import client as ksclient
 
+import ceilometerclient
 from ceilometerclient import exc
-from ceilometerclient import client as ceilometerclient
 from ceilometerclient.common import utils
-
-logger = logging.getLogger(__name__)
 
 
 class CeilometerShell(object):
@@ -45,6 +43,10 @@ class CeilometerShell(object):
                             action='store_true',
                             help=argparse.SUPPRESS,
                             )
+  
+        parser.add_argument('--version',
+                            action='version',
+                            version=ceilometerclient.__version__)
 
         parser.add_argument('-d', '--debug',
                             default=bool(utils.env('CEILOMETERCLIENT_DEBUG')),
