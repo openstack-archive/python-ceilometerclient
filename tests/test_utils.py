@@ -29,11 +29,6 @@ class UtilsTest(unittest2.TestCase):
                 self.__dict__.update(entries)
 
         # test that the prettytable output is wellformatted (left-aligned)
-        columns = ['ID', 'Name']
-        val = ['Name1', 'another', 'veeeery long']
-        images = [Struct(**{'id': i ** 16, 'name': val[i]})
-                  for i in range(len(val))]
-
         saved_stdout = sys.stdout
         try:
             sys.stdout = output_dict = cStringIO.StringIO()
