@@ -24,16 +24,15 @@ def read(fname):
 setuptools.setup(
     name=project,
     version=setup.get_version(project),
-    author='Ceilometer Developers',
+    author='OpenStack',
     author_email='openstack-dev@lists.openstack.org',
     description="Client library for ceilometer",
     long_description=read('README.md'),
-    license='Apache',
+    license="Apache License, Version 2.0",
     url='https://github.com/openstack/python-ceilometerclient',
     packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     install_requires=setup.parse_requirements(),
-    test_suite="nose.collector",
     cmdclass=setup.get_cmdclass(),
     classifiers=[
         'Development Status :: 4 - Beta',
