@@ -1,7 +1,6 @@
 include AUTHORS
-include HACKING
 include LICENSE
-include README.rst
+include README.md
 include ChangeLog
 include tox.ini
 include ceilometerclient/versioninfo
