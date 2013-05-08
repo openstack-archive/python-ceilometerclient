@@ -16,12 +16,12 @@
 
 import cStringIO
 import sys
-import unittest2
 
 from ceilometerclient.common import utils
+from tests import utils as test_utils
 
 
-class UtilsTest(unittest2.TestCase):
+class UtilsTest(test_utils.BaseTestCase):
 
     def test_prettytable(self):
         class Struct:

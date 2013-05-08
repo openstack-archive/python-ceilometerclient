@@ -15,8 +15,17 @@
 
 import copy
 import StringIO
+import mox
+import unittest2
 
 from ceilometerclient.common import http
+
+
+class BaseTestCase(unittest2.TestCase):
+
+    def setUp(self):
+        super(BaseTestCase, self).setUp()
+        self.m = mox.Mox()
 
 
 class FakeAPI(object):
@@ -56,4 +65,3 @@ class FakeResponse(object):
 
     def read(self, amt):
         return self.body.read(amt)
-

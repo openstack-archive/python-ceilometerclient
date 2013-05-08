@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import unittest
-
 import ceilometerclient.v2.resources
 from tests import utils
 
@@ -68,9 +66,10 @@ fixtures = {
 }
 
 
-class ResourceManagerTest(unittest.TestCase):
+class ResourceManagerTest(utils.BaseTestCase):
 
     def setUp(self):
+        super(ResourceManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
         self.mgr = ceilometerclient.v2.resources.ResourceManager(self.api)
 
