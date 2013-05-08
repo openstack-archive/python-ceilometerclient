@@ -150,9 +150,11 @@ class ResourceManagerTest(unittest.TestCase):
         self.assertEqual(resources[0].resource_id, 'a')
 
     def test_list_by_timestamp(self):
-        resources = list(self.mgr.list(start_timestamp='now', end_timestamp='now'))
+        resources = list(self.mgr.list(start_timestamp='now',
+                                       end_timestamp='now'))
         expect = [
-            ('GET', '/v1/resources?start_timestamp=now&end_timestamp=now', {}, None),
+            ('GET', '/v1/resources?start_timestamp=now&end_timestamp=now',
+             {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 1)

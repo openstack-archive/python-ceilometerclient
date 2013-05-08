@@ -32,9 +32,7 @@ fixtures = {
     '/v1/sources/source_b/projects': {
         'GET': (
             {},
-            {'projects': [
-                 'b',
-            ]},
+            {'projects': ['b']},
         ),
     },
 }

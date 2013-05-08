@@ -19,8 +19,10 @@ import ceilometerclient.v2.samples
 from tests import utils
 
 
+base_url = '/v2/meters/instance'
+args = 'q.op=&q.op=&q.value=foo&q.value=bar&q.field=resource_id&q.field=source'
 fixtures = {
-    '/v2/meters/instance':
+    base_url:
     {
         'GET': (
             {},
@@ -40,7 +42,7 @@ fixtures = {
             ]
         ),
     },
-    '/v2/meters/instance?q.op=&q.op=&q.value=foo&q.value=bar&q.field=resource_id&q.field=source':
+    '%s?%s' % (base_url, args):
     {
         'GET': (
             {},
@@ -73,10 +75,6 @@ class SampleManagerTest(unittest.TestCase):
                                          {"field": "source",
                                           "value": "bar"},
                                      ]))
-        expect = [
-            ('GET',
-             '/v2/meters/instance?q.op=&q.op=&q.value=foo&q.value=bar&q.field=resource_id&q.field=source',
-             {}, None),
-        ]
+        expect = [('GET', '%s?%s' % (base_url, args), {}, None)]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(samples), 0)

@@ -18,9 +18,10 @@ import unittest
 import ceilometerclient.v2.statistics
 from tests import utils
 
-
+base_url = '/v2/meters/instance/statistics'
+args = 'q.op=&q.op=&q.value=foo&q.value=bar&q.field=resource_id&q.field=source'
 fixtures = {
-    '/v2/meters/instance/statistics':
+    base_url:
     {
         'GET': (
             {},
@@ -37,7 +38,7 @@ fixtures = {
             }]
         ),
     },
-    '/v2/meters/instance/statistics?q.op=&q.op=&q.value=foo&q.value=bar&q.field=resource_id&q.field=source':
+    '%s?%s' % (base_url, args):
     {
         'GET': (
             {},
@@ -82,8 +83,7 @@ class StatisticsManagerTest(unittest.TestCase):
                                    ]))
         expect = [
             ('GET',
-             '/v2/meters/instance/statistics?q.op=&q.op=&q.value=foo&q.value=bar&q.field=resource_id&q.field=source',
-             {}, None),
+             '%s?%s' % (base_url, args), {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(stats), 1)

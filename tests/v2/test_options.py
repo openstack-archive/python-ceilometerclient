@@ -46,27 +46,31 @@ class CliTest(unittest.TestCase):
 
     def test_one(self):
         ar = options.cli_to_array('this<=34')
-        self.assertEqual(ar, [{'field': 'this','op': 'le','value': '34'}])
+        self.assertEqual(ar, [{'field': 'this', 'op': 'le', 'value': '34'}])
 
     def test_two(self):
         ar = options.cli_to_array('this<=34;that!=foo')
-        self.assertEqual(ar, [{'field': 'this','op': 'le','value': '34'},
-                              {'field': 'that','op': 'ne','value': 'foo'}])
+        self.assertEqual(ar, [{'field': 'this', 'op': 'le', 'value': '34'},
+                              {'field': 'that', 'op': 'ne', 'value': 'foo'}])
 
     def test_negative(self):
         ar = options.cli_to_array('this>=-783')
-        self.assertEqual(ar, [{'field': 'this','op': 'ge','value': '-783'}])
+        self.assertEqual(ar, [{'field': 'this', 'op': 'ge', 'value': '-783'}])
 
     def test_float(self):
         ar = options.cli_to_array('this<=283.347')
-        self.assertEqual(ar, [{'field': 'this','op': 'le','value': '283.347'}])
+        self.assertEqual(ar, [{'field': 'this',
+                               'op': 'le', 'value': '283.347'}])
 
     def test_invalid_seperator(self):
-        self.assertRaises(ValueError, options.cli_to_array, 'this=2.4,fooo=doof')
+        self.assertRaises(ValueError, options.cli_to_array,
+                          'this=2.4,fooo=doof')
 
     def test_invalid_operator(self):
-        self.assertRaises(ValueError, options.cli_to_array, 'this=2.4;fooo-doof')
+        self.assertRaises(ValueError, options.cli_to_array,
+                          'this=2.4;fooo-doof')
 
     def test_with_dot(self):
         ar = options.cli_to_array('metadata.this<=34')
-        self.assertEqual(ar, [{'field': 'metadata.this','op': 'le','value': '34'}])
+        self.assertEqual(ar, [{'field': 'metadata.this',
+                               'op': 'le', 'value': '34'}])
