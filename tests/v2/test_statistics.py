@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import unittest
-
 import ceilometerclient.v2.statistics
 from tests import utils
 
@@ -58,9 +56,10 @@ fixtures = {
 }
 
 
-class StatisticsManagerTest(unittest.TestCase):
+class StatisticsManagerTest(utils.BaseTestCase):
 
     def setUp(self):
+        super(StatisticsManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
         self.mgr = ceilometerclient.v2.statistics.StatisticsManager(self.api)
 

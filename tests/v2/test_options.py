@@ -11,12 +11,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import unittest
-
 from ceilometerclient.v2 import options
+from tests import utils
 
 
-class BuildUrlTest(unittest.TestCase):
+class BuildUrlTest(utils.BaseTestCase):
 
     def test_one(self):
         url = options.build_url('/', [{'field': 'this',
@@ -42,7 +41,7 @@ class BuildUrlTest(unittest.TestCase):
         self.assertEqual(url, '/?q.op=&q.value=43&q.field=this')
 
 
-class CliTest(unittest.TestCase):
+class CliTest(utils.BaseTestCase):
 
     def test_one(self):
         ar = options.cli_to_array('this<=34')

@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import unittest
-
 from tests import utils
 
 from ceilometerclient.common import http
@@ -23,7 +21,7 @@ from ceilometerclient.common import http
 fixtures = {}
 
 
-class HttpClientTest(unittest.TestCase):
+class HttpClientTest(utils.BaseTestCase):
 
     def test_url_generation_trailing_slash_in_base(self):
         client = http.HTTPClient('http://localhost/')

@@ -4,8 +4,6 @@ import httplib2
 import sys
 
 import mox
-import unittest
-import unittest2
 try:
     import json
 except ImportError:
@@ -15,9 +13,10 @@ from keystoneclient.v2_0 import client as ksclient
 from ceilometerclient import exc
 from ceilometerclient.v1 import client as v1client
 import ceilometerclient.shell
+from tests import utils
 
 
-class ShellValidationTest(unittest.TestCase):
+class ShellValidationTest(utils.BaseTestCase):
 
     def shell_error(self, argstr, error_match):
         orig = sys.stderr
@@ -36,11 +35,11 @@ class ShellValidationTest(unittest.TestCase):
         return err
 
 
-class ShellTest(unittest2.TestCase):
+class ShellTest(utils.BaseTestCase):
 
     # Patch os.environ to avoid required auth info.
     def setUp(self):
-        self.m = mox.Mox()
+        super(ShellTest, self).setUp()
         self.m.StubOutWithMock(ksclient, 'Client')
         self.m.StubOutWithMock(v1client.Client, 'json_request')
         self.m.StubOutWithMock(v1client.Client, 'raw_request')
@@ -55,6 +54,7 @@ class ShellTest(unittest2.TestCase):
         _old_env, os.environ = os.environ, fake_env.copy()
 
     def tearDown(self):
+        super(ShellTest, self).tearDown()
         self.m.UnsetStubs()
         global _old_env
         os.environ = _old_env
