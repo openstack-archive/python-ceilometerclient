@@ -86,7 +86,8 @@ class ShellTest(unittest2.TestCase):
     def test_help(self):
         required = [
             '^usage: ceilometer',
-            '(?m)^See "ceilometer help COMMAND" for help on a specific command',
+            '(?m)^See "ceilometer help COMMAND" '
+            'for help on a specific command',
         ]
         for argstr in ['--help', 'help']:
             help_text = self.shell(argstr)
