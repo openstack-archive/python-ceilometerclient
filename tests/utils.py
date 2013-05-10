@@ -14,18 +14,21 @@
 #    under the License.
 
 import copy
+import fixtures
 import StringIO
 import mox
-import unittest2
+import testtools
 
 from ceilometerclient.common import http
 
 
-class BaseTestCase(unittest2.TestCase):
+class BaseTestCase(testtools.TestCase):
 
     def setUp(self):
         super(BaseTestCase, self).setUp()
         self.m = mox.Mox()
+        self.addCleanup(self.m.UnsetStubs)
+        self.useFixture(fixtures.FakeLogger())
 
 
 class FakeAPI(object):
