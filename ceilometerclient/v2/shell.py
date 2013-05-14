@@ -71,13 +71,30 @@ def do_sample_list(cc, args):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 def do_meter_list(cc, args={}):
-    '''List the user's meter'''
+    '''List the user's meters'''
     meters = cc.meters.list(q=options.cli_to_array(args.query))
     field_labels = ['Name', 'Type', 'Unit', 'Resource ID', 'User ID',
                     'Project ID']
     fields = ['name', 'type', 'unit', 'resource_id', 'user_id',
               'project_id']
     utils.print_list(meters, fields, field_labels,
+                     sortby=0)
+
+
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           help='key[op]value; list.')
+def do_alarm_list(cc, args={}):
+    '''List the user's alarms'''
+    alarms = cc.alarms.list(q=options.cli_to_array(args.query))
+    # omit action initially to keep output width sane
+    # (can switch over to vertical formatting when available from CLIFF)
+    field_labels = ['Name', 'Description', 'Metric', 'Period', 'Count',
+                    'Threshold', 'Comparison', 'State', 'Enabled', 'Alarm ID',
+                    'User ID', 'Project ID']
+    fields = ['name', 'description', 'counter_name', 'period',
+              'evaluation_periods', 'threshold', 'comparison_operator',
+              'state', 'enabled', 'alarm_id', 'user_id', 'project_id']
+    utils.print_list(alarms, fields, field_labels,
                      sortby=0)
 
 
