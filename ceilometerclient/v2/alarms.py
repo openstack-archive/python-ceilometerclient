@@ -31,3 +31,10 @@ class AlarmManager(base.Manager):
     def list(self, q=None):
         path = '/v2/alarms'
         return self._list(options.build_url(path, q))
+
+    def get(self, alarm_id):
+        path = '/v2/alarms/%s' % alarm_id
+        try:
+            return self._list(path, expect_single=True)[0]
+        except IndexError:
+            return None
