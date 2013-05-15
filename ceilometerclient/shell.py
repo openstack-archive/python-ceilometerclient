@@ -22,6 +22,7 @@ import sys
 from keystoneclient.v2_0 import client as ksclient
 
 import ceilometerclient
+from ceilometerclient import client as ceiloclient
 from ceilometerclient import exc
 from ceilometerclient.common import utils
 
@@ -302,7 +303,7 @@ class CeilometerShell(object):
             'key_file': args.key_file,
         }
 
-        client = ceilometerclient.Client(api_version, endpoint, **kwargs)
+        client = ceiloclient.Client(api_version, endpoint, **kwargs)
 
         try:
             args.func(client, args)
