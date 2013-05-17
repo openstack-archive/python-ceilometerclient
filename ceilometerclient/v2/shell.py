@@ -98,6 +98,25 @@ def do_alarm_list(cc, args={}):
                      sortby=0)
 
 
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+           help='ID of the alarm to show.')
+def do_alarm_show(cc, args={}):
+    '''Show an alarm'''
+    if args.alarm_id is None:
+        raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
+    try:
+        resource = cc.alarms.get(args.alarm_id)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
+    else:
+        fields = ['name', 'description', 'counter_name', 'period',
+                  'evaluation_periods', 'threshold', 'comparison_operator',
+                  'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
+                  'alarm_actions', 'ok_actions', 'insufficient_data_actions']
+        data = dict([(f, getattr(resource, f, '')) for f in fields])
+        utils.print_dict(data, wrap=72)
+
+
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 def do_resource_list(cc, args={}):

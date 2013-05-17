@@ -50,6 +50,13 @@ fixtures = {
             [AN_ALARM],
         ),
     },
+    '/v2/alarms/alarm-id':
+    {
+        'GET': (
+            {},
+            AN_ALARM,
+        ),
+    },
     '/v2/alarms?q.op=&q.op=&q.value=project-id&q.value=SwiftObjectAlarm'
     '&q.field=project_id&q.field=name':
     {
@@ -92,3 +99,12 @@ class AlarmManagerTest(unittest.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(alarms), 1)
         self.assertEqual(alarms[0].alarm_id, 'alarm-id')
+
+    def test_get(self):
+        alarm = self.mgr.get(alarm_id='alarm-id')
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(alarm)
+        self.assertEqual(alarm.alarm_id, 'alarm-id')
