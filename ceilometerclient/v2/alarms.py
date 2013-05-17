@@ -28,13 +28,18 @@ class Alarm(base.Resource):
 class AlarmManager(base.Manager):
     resource_class = Alarm
 
+    @staticmethod
+    def _path(id=None):
+        return '/v2/alarms/%s' % id if id else '/v2/alarms'
+
     def list(self, q=None):
-        path = '/v2/alarms'
-        return self._list(options.build_url(path, q))
+        return self._list(options.build_url(self._path(), q))
 
     def get(self, alarm_id):
-        path = '/v2/alarms/%s' % alarm_id
         try:
-            return self._list(path, expect_single=True)[0]
+            return self._list(self._path(alarm_id), expect_single=True)[0]
         except IndexError:
             return None
+
+    def delete(self, alarm_id):
+        return self._delete(self._path(alarm_id))
