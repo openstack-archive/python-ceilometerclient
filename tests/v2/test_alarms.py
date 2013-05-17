@@ -64,7 +64,14 @@ fixtures = {
             {},
             [AN_ALARM],
         ),
-    }
+    },
+    '/v2/alarms/victim-id':
+    {
+        'DELETE': (
+            {},
+            None,
+        ),
+    },
 }
 
 
@@ -108,3 +115,11 @@ class AlarmManagerTest(unittest.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
+
+    def test_delete(self):
+        deleted = self.mgr.delete(alarm_id='victim-id')
+        expect = [
+            ('DELETE', '/v2/alarms/victim-id', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertIsNone(deleted)
