@@ -9,10 +9,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-from ceilometerclient.openstack.common import version
 
+__all__ = ['__version__']
 
-version_info = version.VersionInfo('python-ceilometerclient')
+import pbr.version
+
+version_info = pbr.version.VersionInfo('python-ceilometerclient')
 try:
     __version__ = version_info.version_string()
 except AttributeError:
