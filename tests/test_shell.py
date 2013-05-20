@@ -13,8 +13,8 @@ except ImportError:
 from keystoneclient.v2_0 import client as ksclient
 
 from ceilometerclient import exc
+from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.v1 import client as v1client
-import ceilometerclient.shell
 from tests import utils
 
 FAKE_ENV = {'OS_USERNAME': 'username',
@@ -41,7 +41,7 @@ class ShellTest(utils.BaseTestCase):
         orig = sys.stdout
         try:
             sys.stdout = cStringIO.StringIO()
-            _shell = ceilometerclient.shell.CeilometerShell()
+            _shell = ceilometer_shell.CeilometerShell()
             _shell.main(argstr.split())
         except SystemExit:
             exc_type, exc_value, exc_traceback = sys.exc_info()
