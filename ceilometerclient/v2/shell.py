@@ -117,6 +117,18 @@ def do_alarm_show(cc, args={}):
         utils.print_dict(data, wrap=72)
 
 
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+           help='ID of the alarm to show.')
+def do_alarm_delete(cc, args={}):
+    '''Delete an alarm'''
+    if args.alarm_id is None:
+        raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
+    try:
+        resource = cc.alarms.delete(args.alarm_id)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
+
+
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 def do_resource_list(cc, args={}):
