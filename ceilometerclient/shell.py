@@ -23,8 +23,8 @@ from keystoneclient.v2_0 import client as ksclient
 
 import ceilometerclient
 from ceilometerclient import client as ceiloclient
-from ceilometerclient import exc
 from ceilometerclient.common import utils
+from ceilometerclient import exc
 
 
 class CeilometerShell(object):
