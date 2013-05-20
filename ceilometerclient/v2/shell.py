@@ -26,7 +26,7 @@ import ceilometerclient.exc as exc
 @utils.arg('-m', '--meter', metavar='<NAME>',
            help='Name of meter to show samples for.')
 def do_statistics(cc, args):
-    '''List the statistics for this meters'''
+    '''List the statistics for this meters.'''
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query)}
     if args.meter is None:
@@ -50,7 +50,7 @@ def do_statistics(cc, args):
 @utils.arg('-m', '--meter', metavar='<NAME>',
            help='Name of meter to show samples for.')
 def do_sample_list(cc, args):
-    '''List the samples for this meters'''
+    '''List the samples for this meters.'''
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query)}
     if args.meter is None:
@@ -71,7 +71,7 @@ def do_sample_list(cc, args):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 def do_meter_list(cc, args={}):
-    '''List the user's meters'''
+    '''List the user's meters.'''
     meters = cc.meters.list(q=options.cli_to_array(args.query))
     field_labels = ['Name', 'Type', 'Unit', 'Resource ID', 'User ID',
                     'Project ID']
@@ -84,7 +84,7 @@ def do_meter_list(cc, args={}):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 def do_alarm_list(cc, args={}):
-    '''List the user's alarms'''
+    '''List the user's alarms.'''
     alarms = cc.alarms.list(q=options.cli_to_array(args.query))
     # omit action initially to keep output width sane
     # (can switch over to vertical formatting when available from CLIFF)
@@ -101,7 +101,7 @@ def do_alarm_list(cc, args={}):
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
-    '''Show an alarm'''
+    '''Show an alarm.'''
     if args.alarm_id is None:
         raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
     try:
@@ -120,7 +120,7 @@ def do_alarm_show(cc, args={}):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 def do_resource_list(cc, args={}):
-    '''List the resources'''
+    '''List the resources.'''
     resources = cc.resources.list(q=options.cli_to_array(args.query))
 
     field_labels = ['Resource ID', 'Source', 'User ID', 'Project ID']
@@ -132,7 +132,7 @@ def do_resource_list(cc, args={}):
 @utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>',
            help='ID of the resource to show.')
 def do_resource_show(cc, args={}):
-    '''Show the resource'''
+    '''Show the resource.'''
     if args.resource_id is None:
         raise exc.CommandError('Resource id not provided (-r <resource id>)')
     try:
