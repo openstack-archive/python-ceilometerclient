@@ -36,7 +36,7 @@ import ceilometerclient.exc as exc
            help='ISO date in UTC which limits events by '
            'timestamp <= this value')
 def do_sample_list(cc, args):
-    '''List the samples for this meters'''
+    '''List the samples for this meters.'''
     fields = {'counter_name': args.counter_name,
               'resource_id': args.resource_id,
               'user_id': args.user_id,
@@ -84,7 +84,7 @@ def do_meter_list(cc, args={}):
 @utils.arg('-s', '--source', metavar='<SOURCE>',
            help='ID of the resource to show projects for.')
 def do_user_list(cc, args={}):
-    '''List the users'''
+    '''List the users.'''
     kwargs = {'source': args.source}
     users = cc.users.list(**kwargs)
     field_labels = ['User ID']
@@ -108,7 +108,7 @@ def do_user_list(cc, args={}):
            help='ISO date in UTC which limits resouces by '
            'last update time <= this value')
 def do_resource_list(cc, args={}):
-    '''List the resources'''
+    '''List the resources.'''
     kwargs = {'source': args.source,
               'user_id': args.user_id,
               'project_id': args.project_id,
@@ -126,7 +126,7 @@ def do_resource_list(cc, args={}):
 @utils.arg('-s', '--source', metavar='<SOURCE>',
            help='ID of the resource to show projects for.')
 def do_project_list(cc, args={}):
-    '''List the projects'''
+    '''List the projects.'''
     kwargs = {'source': args.source}
     projects = cc.projects.list(**kwargs)
 

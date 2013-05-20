@@ -124,7 +124,7 @@ class HTTPClient(object):
         return '%s/%s' % (base_url.rstrip('/'), url.lstrip('/'))
 
     def _http_request(self, url, method, **kwargs):
-        """ Send an http request with the specified characteristics.
+        """Send an http request with the specified characteristics.
 
         Wrapper around httplib.HTTP(S)Connection.request to handle tasks such
         as setting headers and error handling.
@@ -224,8 +224,7 @@ class VerifiedHTTPSConnection(httplib.HTTPSConnection):
         self.insecure = insecure
 
     def connect(self):
-        """
-        Connect to a host on a given (SSL) port.
+        """Connect to a host on a given (SSL) port.
         If ca_file is pointing somewhere, use it to check Server Certificate.
 
         Redefined/copied and extended from httplib.py:1105 (Python 2.6.x).
@@ -253,7 +252,7 @@ class VerifiedHTTPSConnection(httplib.HTTPSConnection):
 
     @staticmethod
     def get_system_ca_file():
-        """"Return path to system default CA file"""
+        """Return path to system default CA file."""
         # Standard CA file locations for Debian/Ubuntu, RedHat/Fedora,
         # Suse, FreeBSD/OpenBSD
         ca_path = ['/etc/ssl/certs/ca-certificates.crt',

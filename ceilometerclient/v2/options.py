@@ -16,9 +16,7 @@ import urllib
 
 
 def build_url(path, q):
-    '''
-    This converts from a list of dict's to what the rest api needs
-    so from:
+    '''This converts from a list of dict's to what the rest api needs so from:
     "[{field=this,op=le,value=34},{field=that,op=eq,value=foo}]"
     to:
     "?q.field=this&q.op=le&q.value=34&
@@ -39,8 +37,7 @@ def build_url(path, q):
 
 
 def cli_to_array(cli_query):
-    '''
-    This converts from the cli list of queries to what is required
+    '''This converts from the cli list of queries to what is required
     by the python api.
     so from:
     "this<=34;that=foo"
