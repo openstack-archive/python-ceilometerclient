@@ -21,6 +21,11 @@ from ceilometerclient.v2 import options
 import ceilometerclient.exc as exc
 
 
+ALARM_STATES = ['ok', 'alarm', 'insufficient_data']
+ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
+STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
+
+
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 @utils.arg('-m', '--meter', metavar='<NAME>',
@@ -98,6 +103,15 @@ def do_alarm_list(cc, args={}):
                      sortby=0)
 
 
+def _display_alarm(alarm):
+    fields = ['name', 'description', 'counter_name', 'period',
+              'evaluation_periods', 'threshold', 'comparison_operator',
+              'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
+               'alarm_actions', 'ok_actions', 'insufficient_data_actions']
+    data = dict([(f, getattr(alarm, f, '')) for f in fields])
+    utils.print_dict(data, wrap=72)
+
+
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
@@ -105,16 +119,51 @@ def do_alarm_show(cc, args={}):
     if args.alarm_id is None:
         raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
     try:
-        resource = cc.alarms.get(args.alarm_id)
+        alarm = cc.alarms.get(args.alarm_id)
     except exc.HTTPNotFound:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
     else:
-        fields = ['name', 'description', 'counter_name', 'period',
-                  'evaluation_periods', 'threshold', 'comparison_operator',
-                  'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
-                  'alarm_actions', 'ok_actions', 'insufficient_data_actions']
-        data = dict([(f, getattr(resource, f, '')) for f in fields])
-        utils.print_dict(data, wrap=72)
+        _display_alarm(alarm)
+
+
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+           help='ID of the alarm to show.')
+@utils.arg('--description', metavar='<DESCRIPTION>',
+           help='Free text description of the alarm')
+@utils.arg('--period', type=int, metavar='<PERIOD>',
+           help='Length of each period (seconds) to evaluate over')
+@utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
+           help='Number of periods to evaluate over')
+@utils.arg('--state', metavar='<STATE>',
+           help='State of the alarm, one of: ' + str(ALARM_STATES))
+@utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
+           help='True if alarm evaluation/actioning is enabled')
+@utils.arg('--counter-name', metavar='<METRIC>',
+           help='Metric to evaluate against')
+@utils.arg('--statistic', metavar='<STATISTIC>',
+           help='Statistic to evaluate, one of: ' + str(STATISTICS))
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
+           help='Threshold to evaluate against')
+@utils.arg('--alarm-action', dest='alarm_actions',
+           metavar='<Webhook URL>', action='append', default=None,
+           help=('URL to invoke when state transitions to alarm. '
+                 'May be used multiple times.'))
+@utils.arg('--ok-action', dest='ok_actions',
+           metavar='<Webhook URL>', action='append', default=None,
+           help=('URL to invoke when state transitions to OK. '
+                 'May be used multiple times.'))
+@utils.arg('--insufficient-data-action', dest='insufficient_data_actions',
+           metavar='<Webhook URL>', action='append', default=None,
+           help=('URL to invoke when state transitions to unkown. '
+                 'May be used multiple times.'))
+def do_alarm_update(cc, args={}):
+    '''Update an existing alarm'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields.pop('alarm_id')
+    alarm = cc.alarms.update(args.alarm_id, **fields)
+    _display_alarm(alarm)
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',

@@ -20,6 +20,22 @@ from ceilometerclient.common import base
 from ceilometerclient.v2 import options
 
 
+UPDATABLE_ATTRIBUTES = [
+    'description',
+    'period'
+    'evaluation_periods',
+    'state',
+    'enabled',
+    'counter_name',
+    'statistic',
+    'comparison_operator',
+    'threshold',
+    'alarm_actions',
+    'ok_actions',
+    'insufficient_data_actions',
+    ]
+
+
 class Alarm(base.Resource):
     def __repr__(self):
         return "<Alarm %s>" % self._info
@@ -40,6 +56,14 @@ class AlarmManager(base.Manager):
             return self._list(self._path(alarm_id), expect_single=True)[0]
         except IndexError:
             return None
+
+    def update(self, alarm_id, **kwargs):
+        existing = self.get(alarm_id)
+        updated = existing.to_dict()
+        for (key, value) in kwargs.items():
+            if key in updated and key in UPDATABLE_ATTRIBUTES:
+                updated[key] = value
+        return self._update(self._path(alarm_id), updated)
 
     def delete(self, alarm_id):
         return self._delete(self._path(alarm_id))
