@@ -72,7 +72,7 @@ class Manager(object):
         resp, body = self.api.json_request('PUT', url, body=body)
         # PUT requests may not return a body
         if body:
-            return self.resource_class(self, body[response_key])
+            return self.resource_class(self, body)
 
 
 class Resource(object):

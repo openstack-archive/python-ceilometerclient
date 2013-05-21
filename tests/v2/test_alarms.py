@@ -16,6 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import copy
 import unittest
 
 import ceilometerclient.v2.alarms
@@ -41,6 +42,11 @@ AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
             u'state_timestamp': u'2013-05-09T13:41:23.085000',
             u'comparison_operator': 'gt',
             u'name': 'SwiftObjectAlarm'}
+DELTA_ALARM = {u'alarm_actions': ['url1', 'url2'],
+               u'comparison_operator': u'lt',
+               u'threshold': 42.1}
+UPDATED_ALARM = copy.deepcopy(AN_ALARM)
+UPDATED_ALARM.update(DELTA_ALARM)
 
 fixtures = {
     '/v2/alarms':
@@ -55,6 +61,10 @@ fixtures = {
         'GET': (
             {},
             AN_ALARM,
+        ),
+        'PUT': (
+            {},
+            UPDATED_ALARM,
         ),
     },
     '/v2/alarms?q.op=&q.op=&q.value=project-id&q.value=SwiftObjectAlarm'
@@ -115,6 +125,18 @@ class AlarmManagerTest(unittest.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
+
+    def test_update(self):
+        alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(alarm)
+        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        for (key, value) in DELTA_ALARM.iteritems():
+            self.assertEqual(getattr(alarm, key), value)
 
     def test_delete(self):
         deleted = self.mgr.delete(alarm_id='victim-id')
