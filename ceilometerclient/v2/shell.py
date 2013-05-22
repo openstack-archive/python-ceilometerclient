@@ -17,8 +17,8 @@
 #    under the License.
 
 from ceilometerclient.common import utils
+from ceilometerclient import exc
 from ceilometerclient.v2 import options
-import ceilometerclient.exc as exc
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',

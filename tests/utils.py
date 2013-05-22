@@ -15,8 +15,8 @@
 
 import copy
 import fixtures
-import StringIO
 import mox
+import StringIO
 import testtools
 
 from ceilometerclient.common import http
