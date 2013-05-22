@@ -42,6 +42,11 @@ AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
             u'state_timestamp': u'2013-05-09T13:41:23.085000',
             u'comparison_operator': 'gt',
             u'name': 'SwiftObjectAlarm'}
+CREATE_ALARM = copy.deepcopy(AN_ALARM)
+del CREATE_ALARM['timestamp']
+del CREATE_ALARM['state_timestamp']
+del CREATE_ALARM['matching_metadata']
+del CREATE_ALARM['alarm_id']
 DELTA_ALARM = {u'alarm_actions': ['url1', 'url2'],
                u'comparison_operator': u'lt',
                u'threshold': 42.1}
@@ -54,6 +59,10 @@ fixtures = {
         'GET': (
             {},
             [AN_ALARM],
+        ),
+        'POST': (
+            {},
+            CREATE_ALARM,
         ),
     },
     '/v2/alarms/alarm-id':
@@ -125,6 +134,14 @@ class AlarmManagerTest(unittest.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
+
+    def test_create(self):
+        alarm = self.mgr.create(**CREATE_ALARM)
+        expect = [
+            ('POST', '/v2/alarms', {}, CREATE_ALARM),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(alarm)
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)

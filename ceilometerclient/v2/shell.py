@@ -126,6 +126,51 @@ def do_alarm_show(cc, args={}):
         _display_alarm(alarm)
 
 
+@utils.arg('--name', metavar='<NAME>',
+           help='Name of the alarm (must be unique per tenant)')
+@utils.arg('--project-id', metavar='<PROJECT_ID>',
+           help='Tenant to associate with alarm '
+                '(only settable by admin users)')
+@utils.arg('--user-id', metavar='<USER_ID>',
+           help='User to associate with alarm '
+                '(only settable by admin users)')
+@utils.arg('--description', metavar='<DESCRIPTION>',
+           help='Free text description of the alarm')
+@utils.arg('--period', type=int, metavar='<PERIOD>',
+           help='Length of each period (seconds) to evaluate over')
+@utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
+           help='Number of periods to evaluate over')
+@utils.arg('--state', metavar='<STATE>',
+           help='State of the alarm, one of: ' + str(ALARM_STATES))
+@utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
+           help='True if alarm evaluation/actioning is enabled')
+@utils.arg('--counter-name', metavar='<METRIC>',
+           help='Metric to evaluate against')
+@utils.arg('--statistic', metavar='<STATISTIC>',
+           help='Statistic to evaluate, one of: ' + str(STATISTICS))
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
+           help='Threshold to evaluate against')
+@utils.arg('--alarm-action', dest='alarm_actions',
+           metavar='<Webhook URL>', action='append', default=None,
+           help=('URL to invoke when state transitions to alarm. '
+                 'May be used multiple times.'))
+@utils.arg('--ok-action', dest='ok_actions',
+           metavar='<Webhook URL>', action='append', default=None,
+           help=('URL to invoke when state transitions to OK. '
+                 'May be used multiple times.'))
+@utils.arg('--insufficient-data-action', dest='insufficient_data_actions',
+           metavar='<Webhook URL>', action='append', default=None,
+           help=('URL to invoke when state transitions to unkown. '
+                 'May be used multiple times.'))
+def do_alarm_create(cc, args={}):
+    '''Create a new alarm'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    alarm = cc.alarms.create(**fields)
+    _display_alarm(alarm)
+
+
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm to update.')
 @utils.arg('--description', metavar='<DESCRIPTION>',

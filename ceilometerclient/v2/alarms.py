@@ -34,6 +34,7 @@ UPDATABLE_ATTRIBUTES = [
     'ok_actions',
     'insufficient_data_actions',
     ]
+CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['name', 'project_id', 'user_id']
 
 
 class Alarm(base.Resource):
@@ -56,6 +57,11 @@ class AlarmManager(base.Manager):
             return self._list(self._path(alarm_id), expect_single=True)[0]
         except IndexError:
             return None
+
+    def create(self, **kwargs):
+        new = dict((key, value) for (key, value) in kwargs.items()
+                   if key in CREATION_ATTRIBUTES)
+        return self._create(self._path(), new)
 
     def update(self, alarm_id, **kwargs):
         existing = self.get(alarm_id)
