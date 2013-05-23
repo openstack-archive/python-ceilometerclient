@@ -120,7 +120,7 @@ def do_alarm_show(cc, args={}):
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm to show.')
 def do_alarm_delete(cc, args={}):
-    '''Delete an alarm'''
+    '''Delete an alarm.'''
     if args.alarm_id is None:
         raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
     try:
