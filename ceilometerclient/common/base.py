@@ -52,23 +52,16 @@ class Manager(object):
         if body:
             return self.resource_class(self, body)
 
-    def _list(self, url, response_key=None, obj_class=None, body=None,
-              expect_single=False):
+    def _list(self, url, obj_class=None, body=None, expect_single=False):
         resp, body = self.api.json_request('GET', url)
 
         if obj_class is None:
             obj_class = self.resource_class
 
-        if response_key:
-            try:
-                data = body[response_key]
-            except KeyError:
-                return []
-        else:
-            data = body
         if expect_single:
-            data = [data]
-        return [obj_class(self, res, loaded=True) for res in data if res]
+            body = [body]
+
+        return [obj_class(self, res, loaded=True) for res in body if res]
 
     def _update(self, url, body, response_key=None):
         resp, body = self.api.json_request('PUT', url, body=body)
