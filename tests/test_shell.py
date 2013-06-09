@@ -6,10 +6,6 @@ import sys
 import fixtures
 from testtools import matchers
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
 from keystoneclient.v2_0 import client as ksclient
 
 from ceilometerclient import exc

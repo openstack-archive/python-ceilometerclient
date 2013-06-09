@@ -13,4 +13,4 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ceilometerclient.v1.client import Client
+from ceilometerclient.v1.client import Client    # noqa

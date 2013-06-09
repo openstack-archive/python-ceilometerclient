@@ -107,7 +107,7 @@ def _display_alarm(alarm):
     fields = ['name', 'description', 'counter_name', 'period',
               'evaluation_periods', 'threshold', 'comparison_operator',
               'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
-               'alarm_actions', 'ok_actions', 'insufficient_data_actions']
+              'alarm_actions', 'ok_actions', 'insufficient_data_actions']
     data = dict([(f, getattr(alarm, f, '')) for f in fields])
     utils.print_dict(data, wrap=72)
 
@@ -218,7 +218,7 @@ def do_alarm_delete(cc, args={}):
     if args.alarm_id is None:
         raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
     try:
-        resource = cc.alarms.delete(args.alarm_id)
+        cc.alarms.delete(args.alarm_id)
     except exc.HTTPNotFound:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
 
