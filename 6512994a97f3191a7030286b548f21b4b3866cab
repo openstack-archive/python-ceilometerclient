@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Approved+1: Julien Danjou <julien@danjou.info>
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Code-Review+2: Doug Hellmann <doug.hellmann@dreamhost.com>
+Submitted-by: Jenkins
+Submitted-at: Tue, 11 Jun 2013 21:38:34 +0000
+Reviewed-on: https://review.openstack.org/32611
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
