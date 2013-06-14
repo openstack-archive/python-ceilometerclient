@@ -335,7 +335,7 @@ def main():
     try:
         CeilometerShell().main(sys.argv[1:])
 
-    except Exception, e:
+    except Exception as e:
         print >> sys.stderr, e
         sys.exit(1)
 
