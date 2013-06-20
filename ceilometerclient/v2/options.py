@@ -15,12 +15,15 @@ import re
 import urllib
 
 
-def build_url(path, q):
-    '''This converts from a list of dict's to what the rest api needs so from:
-    "[{field=this,op=le,value=34},{field=that,op=eq,value=foo}]"
+def build_url(path, q, params=None):
+    '''This converts from a list of dicts and a list of params to
+       what the rest api needs, so from:
+    "[{field=this,op=le,value=34},{field=that,op=eq,value=foo}],
+     ['foo=bar','sna=fu']"
     to:
     "?q.field=this&q.op=le&q.value=34&
-      q.field=that&q.op=eq&q.value=foo"
+      q.field=that&q.op=eq&q.value=foo&
+      foo=bar&sna=fu"
     '''
     if q:
         query_params = {'q.field': [],
@@ -32,6 +35,10 @@ def build_url(path, q):
                 query_params['q.%s' % name].append(query.get(name, ''))
 
         path += "?" + urllib.urlencode(query_params, doseq=True)
+
+        if params:
+            for p in params:
+                path += '&%s' % p
 
     return path
 

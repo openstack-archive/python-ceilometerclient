@@ -30,10 +30,13 @@ STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
            help='key[op]value; list.')
 @utils.arg('-m', '--meter', metavar='<NAME>',
            help='Name of meter to show samples for.')
+@utils.arg('-p', '--period', metavar='<PERIOD>',
+           help='Period in seconds over which to group samples.')
 def do_statistics(cc, args):
-    '''List the statistics for this meters.'''
+    '''List the statistics for this meter.'''
     fields = {'meter_name': args.meter,
-              'q': options.cli_to_array(args.query)}
+              'q': options.cli_to_array(args.query),
+              'period': args.period}
     if args.meter is None:
         raise exc.CommandError('Meter name not provided (-m <meter name>)')
     try:
