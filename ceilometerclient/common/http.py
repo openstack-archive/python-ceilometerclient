@@ -58,7 +58,8 @@ class HTTPClient(object):
         parts = urlparse.urlparse(endpoint)
 
         _args = (parts.hostname, parts.port, parts.path)
-        _kwargs = {'timeout': float(kwargs.get('timeout', 600))}
+        _kwargs = {'timeout': (float(kwargs.get('timeout'))
+                               if kwargs.get('timeout') else 600)}
 
         if parts.scheme == 'https':
             _class = VerifiedHTTPSConnection
