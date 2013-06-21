@@ -19,8 +19,6 @@ import httplib2
 import logging
 import sys
 
-from keystoneclient.v2_0 import client as ksclient
-
 import ceilometerclient
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
@@ -200,28 +198,6 @@ class CeilometerShell(object):
                 subparser.add_argument(*args, **kwargs)
             subparser.set_defaults(func=callback)
 
-    def _get_ksclient(self, **kwargs):
-        """Get an endpoint and auth token from Keystone.
-
-        :param username: name of user
-        :param password: user's password
-        :param tenant_id: unique identifier of tenant
-        :param tenant_name: name of tenant
-        :param auth_url: endpoint to authenticate against
-        """
-        return ksclient.Client(username=kwargs.get('username'),
-                               password=kwargs.get('password'),
-                               tenant_id=kwargs.get('tenant_id'),
-                               tenant_name=kwargs.get('tenant_name'),
-                               auth_url=kwargs.get('auth_url'),
-                               insecure=kwargs.get('insecure'))
-
-    def _get_endpoint(self, client, **kwargs):
-        """Get an endpoint using the provided keystone client."""
-        return client.service_catalog.url_for(
-            service_type=kwargs.get('service_type') or 'metering',
-            endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
-
     def _setup_debugging(self, debug):
         if debug:
             logging.basicConfig(
@@ -255,10 +231,7 @@ class CeilometerShell(object):
             self.do_help(args)
             return 0
 
-        if args.os_auth_token and args.ceilometer_url:
-            token = args.os_auth_token
-            endpoint = args.ceilometer_url
-        else:
+        if not (args.os_auth_token and args.ceilometer_url):
             if not args.os_username:
                 raise exc.CommandError("You must provide a username via "
                                        "either --os-username or via "
@@ -278,32 +251,8 @@ class CeilometerShell(object):
                 raise exc.CommandError("You must provide an auth url via "
                                        "either --os-auth-url or via "
                                        "env[OS_AUTH_URL]")
-            kwargs = {
-                'username': args.os_username,
-                'password': args.os_password,
-                'tenant_id': args.os_tenant_id,
-                'tenant_name': args.os_tenant_name,
-                'auth_url': args.os_auth_url,
-                'service_type': args.os_service_type,
-                'endpoint_type': args.os_endpoint_type,
-                'insecure': args.insecure
-            }
-            _ksclient = self._get_ksclient(**kwargs)
-            token = args.os_auth_token or _ksclient.auth_token
 
-            endpoint = args.ceilometer_url or \
-                self._get_endpoint(_ksclient, **kwargs)
-
-        kwargs = {
-            'token': token,
-            'insecure': args.insecure,
-            'timeout': args.timeout,
-            'ca_file': args.ca_file,
-            'cert_file': args.cert_file,
-            'key_file': args.key_file,
-        }
-
-        client = ceiloclient.Client(api_version, endpoint, **kwargs)
+        client = ceiloclient.get_client(api_version, **(args.__dict__))
 
         try:
             args.func(client, args)
