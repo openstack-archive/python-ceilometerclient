@@ -146,8 +146,7 @@ class AlarmManagerTest(unittest.TestCase):
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)
         expect = [
-            ('GET', '/v2/alarms/alarm-id', {}, None),
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
+            ('PUT', '/v2/alarms/alarm-id', {}, DELTA_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)

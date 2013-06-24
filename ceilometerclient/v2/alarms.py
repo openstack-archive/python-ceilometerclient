@@ -64,11 +64,8 @@ class AlarmManager(base.Manager):
         return self._create(self._path(), new)
 
     def update(self, alarm_id, **kwargs):
-        existing = self.get(alarm_id)
-        updated = existing.to_dict()
-        for (key, value) in kwargs.items():
-            if key in updated and key in UPDATABLE_ATTRIBUTES:
-                updated[key] = value
+        updated = dict((key, value) for (key, value) in kwargs.items()
+                       if key in UPDATABLE_ATTRIBUTES)
         return self._update(self._path(alarm_id), updated)
 
     def delete(self, alarm_id):
