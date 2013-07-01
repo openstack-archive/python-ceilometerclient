@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from ceilometerclient.tests import utils
 import ceilometerclient.v2.samples
-from tests import utils
 
 
 base_url = '/v2/meters/instance'

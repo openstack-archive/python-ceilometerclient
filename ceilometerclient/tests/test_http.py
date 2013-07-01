@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tests import utils
+from ceilometerclient.tests import utils
 
 from ceilometerclient.common import http
 

@@ -13,91 +13,90 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from ceilometerclient.tests import utils
 import ceilometerclient.v1.meters
-from tests import utils
 
 
 fixtures = {
-    '/v1/meters': {
+    '/v1/resources': {
         'GET': (
             {},
-            {'meters': [
+            {'resources': [
                 {
                     'resource_id': 'a',
-                    'project_id': 'dig_the_ditch',
+                    'project_id': 'project_bla',
                     'user_id': 'freddy',
-                    'name': 'this',
-                    'type': 'counter',
+                    'timestamp': 'now',
+                    'meter': ['this', 'that'],
+                    'metadata': {'zxc_id': 'bla'},
                 },
                 {
                     'resource_id': 'b',
                     'project_id': 'dig_the_ditch',
                     'user_id': 'joey',
-                    'name': 'this',
-                    'type': 'counter',
+                    'timestamp': 'now',
+                    'meter': ['this', 'that'],
+                    'metadata': {'zxc_id': 'foo'},
                 },
             ]},
         ),
     },
-    '/v1/users/joey/meters': {
+    '/v1/users/joey/resources': {
         'GET': (
             {},
-            {'meters': [
+            {'resources': [
                 {
                     'resource_id': 'b',
                     'project_id': 'dig_the_ditch',
                     'user_id': 'joey',
-                    'name': 'this',
-                    'type': 'counter',
+                    'timestamp': 'now',
+                    'meter': ['this', 'that'],
+                    'metadata': {'zxc_id': 'foo'},
                 },
             ]},
         ),
     },
-    '/v1/projects/dig_the_ditch/meters': {
+    '/v1/resources?metadata.zxc_id=foo': {
         'GET': (
             {},
-            {'meters': [
+            {'resources': [
                 {
                     'resource_id': 'b',
                     'project_id': 'dig_the_ditch',
                     'user_id': 'joey',
-                    'name': 'this',
-                    'type': 'counter',
+                    'timestamp': 'now',
+                    'meter': ['this', 'that'],
+                    'metadata': {'zxc_id': 'foo'},
                 },
             ]},
         ),
     },
-    '/v1/sources/openstack/meters': {
+    '/v1/projects/project_bla/resources': {
         'GET': (
             {},
-            {'meters': [
+            {'resources': [
                 {
-                    'resource_id': 'b',
-                    'project_id': 'dig_the_ditch',
-                    'user_id': 'joey',
-                    'name': 'this',
-                    'type': 'counter',
-                },
-                {
-                    'resource_id': 'q',
-                    'project_id': 'dig_the_trench',
-                    'user_id': 'joey',
-                    'name': 'this',
-                    'type': 'counter',
+                    'resource_id': 'a',
+                    'project_id': 'project_bla',
+                    'user_id': 'freddy',
+                    'timestamp': 'now',
+                    'meter': ['this', 'that'],
+                    'metadata': {'zxc_id': 'bla'},
                 },
             ]},
         ),
     },
-    '/v1/meters?metadata.zxc_id=foo': {
+    '/v1/resources?start_timestamp=now&end_timestamp=now': {
         'GET': (
             {},
-            {'meters': [
+            {'resources': [
                 {
                     'resource_id': 'b',
                     'project_id': 'dig_the_ditch',
                     'user_id': 'joey',
-                    'name': 'this',
-                    'type': 'counter',
+                    'timestamp': 'now',
+                    'meter': ['this', 'that'],
+                    'metadata': {'zxc_id': 'foo'},
                 },
             ]},
         ),
@@ -105,46 +104,27 @@ fixtures = {
 }
 
 
-class MeterManagerTest(utils.BaseTestCase):
+class ResourceManagerTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(MeterManagerTest, self).setUp()
+        super(ResourceManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
-        self.mgr = ceilometerclient.v1.meters.MeterManager(self.api)
+        self.mgr = ceilometerclient.v1.meters.ResourceManager(self.api)
 
     def test_list_all(self):
         resources = list(self.mgr.list())
         expect = [
-            ('GET', '/v1/meters', {}, None),
+            ('GET', '/v1/resources', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 2)
         self.assertEqual(resources[0].resource_id, 'a')
         self.assertEqual(resources[1].resource_id, 'b')
 
-    def test_list_by_source(self):
-        resources = list(self.mgr.list(source='openstack'))
-        expect = [
-            ('GET', '/v1/sources/openstack/meters', {}, None),
-        ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 2)
-        self.assertEqual(resources[0].resource_id, 'b')
-        self.assertEqual(resources[1].resource_id, 'q')
-
     def test_list_by_user(self):
         resources = list(self.mgr.list(user_id='joey'))
         expect = [
-            ('GET', '/v1/users/joey/meters', {}, None),
-        ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 1)
-        self.assertEqual(resources[0].resource_id, 'b')
-
-    def test_list_by_project(self):
-        resources = list(self.mgr.list(project_id='dig_the_ditch'))
-        expect = [
-            ('GET', '/v1/projects/dig_the_ditch/meters', {}, None),
+            ('GET', '/v1/users/joey/resources', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 1)
@@ -153,7 +133,27 @@ class MeterManagerTest(utils.BaseTestCase):
     def test_list_by_metaquery(self):
         resources = list(self.mgr.list(metaquery='metadata.zxc_id=foo'))
         expect = [
-            ('GET', '/v1/meters?metadata.zxc_id=foo', {}, None),
+            ('GET', '/v1/resources?metadata.zxc_id=foo', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].resource_id, 'b')
+
+    def test_list_by_project(self):
+        resources = list(self.mgr.list(project_id='project_bla'))
+        expect = [
+            ('GET', '/v1/projects/project_bla/resources', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].resource_id, 'a')
+
+    def test_list_by_timestamp(self):
+        resources = list(self.mgr.list(start_timestamp='now',
+                                       end_timestamp='now'))
+        expect = [
+            ('GET', '/v1/resources?start_timestamp=now&end_timestamp=now',
+             {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 1)

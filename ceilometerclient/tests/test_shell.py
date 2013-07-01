@@ -10,8 +10,8 @@ from keystoneclient.v2_0 import client as ksclient
 
 from ceilometerclient import exc
 from ceilometerclient import shell as ceilometer_shell
+from ceilometerclient.tests import utils
 from ceilometerclient.v1 import client as v1client
-from tests import utils
 
 FAKE_ENV = {'OS_USERNAME': 'username',
             'OS_PASSWORD': 'password',

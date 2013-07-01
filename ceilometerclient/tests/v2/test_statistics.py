@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from ceilometerclient.tests import utils
 import ceilometerclient.v2.statistics
-from tests import utils
 
 base_url = '/v2/meters/instance/statistics'
 qry = 'q.op=&q.op=&q.value=foo&q.value=bar&q.field=resource_id&q.field=source'

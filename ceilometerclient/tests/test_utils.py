@@ -18,7 +18,7 @@ import cStringIO
 import sys
 
 from ceilometerclient.common import utils
-from tests import utils as test_utils
+from ceilometerclient.tests import utils as test_utils
 
 
 class UtilsTest(test_utils.BaseTestCase):
