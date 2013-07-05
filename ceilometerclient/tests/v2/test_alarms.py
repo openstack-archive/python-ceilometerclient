@@ -45,7 +45,6 @@ AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
 CREATE_ALARM = copy.deepcopy(AN_ALARM)
 del CREATE_ALARM['timestamp']
 del CREATE_ALARM['state_timestamp']
-del CREATE_ALARM['matching_metadata']
 del CREATE_ALARM['alarm_id']
 DELTA_ALARM = {u'alarm_actions': ['url1', 'url2'],
                u'comparison_operator': u'lt',
