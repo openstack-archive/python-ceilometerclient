@@ -33,6 +33,7 @@ UPDATABLE_ATTRIBUTES = [
     'alarm_actions',
     'ok_actions',
     'insufficient_data_actions',
+    'matching_metadata',
     ]
 CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['name', 'project_id', 'user_id']
 
