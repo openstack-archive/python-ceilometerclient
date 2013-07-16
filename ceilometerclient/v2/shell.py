@@ -110,7 +110,8 @@ def _display_alarm(alarm):
     fields = ['name', 'description', 'counter_name', 'period',
               'evaluation_periods', 'threshold', 'comparison_operator',
               'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
-              'alarm_actions', 'ok_actions', 'insufficient_data_actions']
+              'alarm_actions', 'ok_actions', 'insufficient_data_actions',
+              'matching_metadata']
     data = dict([(f, getattr(alarm, f, '')) for f in fields])
     utils.print_dict(data, wrap=72)
 
@@ -167,9 +168,14 @@ def do_alarm_show(cc, args={}):
            metavar='<Webhook URL>', action='append', default=None,
            help=('URL to invoke when state transitions to unkown. '
                  'May be used multiple times.'))
+@utils.arg('--matching-metadata', dest='matching_metadata',
+           metavar='<Matching Metadata>', action='append', default=None,
+           help=('A counter should match this metadata (key:value)'
+                 'additionnal to the counter_name'))
 def do_alarm_create(cc, args={}):
     '''Create a new alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_dict(fields, "matching_metadata")
     alarm = cc.alarms.create(**fields)
     _display_alarm(alarm)
 
@@ -206,9 +212,14 @@ def do_alarm_create(cc, args={}):
            metavar='<Webhook URL>', action='append', default=None,
            help=('URL to invoke when state transitions to unkown. '
                  'May be used multiple times.'))
+@utils.arg('--matching-metadata', dest='matching_metadata',
+           metavar='<Matching Metadata>', action='append', default=None,
+           help=('A counter should match this metadata (key:value)'
+                 'additionnal to the counter_name'))
 def do_alarm_update(cc, args={}):
     '''Update an existing alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_dict(fields, "matching_metadata")
     fields.pop('alarm_id')
     alarm = cc.alarms.update(args.alarm_id, **fields)
     _display_alarm(alarm)
