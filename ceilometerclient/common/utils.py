@@ -127,6 +127,19 @@ def import_versioned_module(version, submodule=None):
     return importutils.import_module(module)
 
 
+def args_array_to_dict(kwargs, key_to_convert):
+    values_to_convert = kwargs.get(key_to_convert)
+    if values_to_convert:
+        try:
+            kwargs[key_to_convert] = dict(v.split("=", 1)
+                                          for v in values_to_convert)
+        except ValueError:
+            raise exc.CommandError(
+                '%s must be a list of key=value not "%s"' % (
+                    key_to_convert, values_to_convert))
+    return kwargs
+
+
 def exit(msg=''):
     if msg:
         print >> sys.stderr, msg
