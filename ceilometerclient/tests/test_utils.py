@@ -45,3 +45,15 @@ class UtilsTest(test_utils.BaseTestCase):
 | Key      | Value |
 +----------+-------+
 ''')
+
+    def test_args_array_to_dict(self):
+        my_args = {
+            'matching_metadata': ['metadata.key=metadata_value'],
+            'other': 'value'
+        }
+        cleaned_dict = utils.args_array_to_dict(my_args,
+                                                "matching_metadata")
+        self.assertEqual(cleaned_dict, {
+            'matching_metadata': {'metadata.key': 'metadata_value'},
+            'other': 'value'
+        })
