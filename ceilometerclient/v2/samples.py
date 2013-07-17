@@ -14,6 +14,17 @@
 from ceilometerclient.common import base
 from ceilometerclient.v2 import options
 
+CREATION_ATTRIBUTES = ('source',
+                       'counter_name',
+                       'counter_type',
+                       'counter_unit',
+                       'counter_volume',
+                       'user_id',
+                       'project_id',
+                       'resource_id',
+                       'timestamp',
+                       'resource_metadata')
+
 
 class Sample(base.Resource):
     def __repr__(self):
@@ -23,8 +34,20 @@ class Sample(base.Resource):
 class SampleManager(base.Manager):
     resource_class = Sample
 
+    @staticmethod
+    def _path(counter_name=None):
+        return '/v2/meters/%s' % counter_name if counter_name else '/v2/meters'
+
     def list(self, meter_name=None, q=None):
-        path = '/v2/meters'
-        if meter_name:
-            path += '/' + meter_name
+        path = self._path(counter_name=meter_name)
         return self._list(options.build_url(path, q))
+
+    def create(self, **kwargs):
+        new = dict((key, value) for (key, value) in kwargs.items()
+                   if key in CREATION_ATTRIBUTES)
+        url = self._path(counter_name=kwargs['counter_name'])
+        resp, body = self.api.json_request('POST',
+                                           url,
+                                           body=[new])
+        if body:
+            return [Sample(self, b) for b in body]

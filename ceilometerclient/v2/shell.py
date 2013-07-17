@@ -16,6 +16,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+
 from ceilometerclient.common import utils
 from ceilometerclient import exc
 from ceilometerclient.v2 import options
@@ -74,6 +76,41 @@ def do_sample_list(cc, args):
                   'counter_volume', 'counter_unit', 'timestamp']
         utils.print_list(samples, fields, field_labels,
                          sortby=0)
+
+
+@utils.arg('--project-id', metavar='<PROJECT_ID>',
+           help='Tenant to associate with alarm '
+                '(only settable by admin users)')
+@utils.arg('--user-id', metavar='<USER_ID>',
+           help='User to associate with alarm '
+                '(only settable by admin users)')
+@utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>',
+           help='ID of the resource.')
+@utils.arg('-m', '--meter-name', metavar='<METER_NAME>',
+           help='the meter name')
+@utils.arg('--meter-type', metavar='<METER_TYPE>',
+           help='the meter type')
+@utils.arg('--meter-unit', metavar='<METER_UNIT>',
+           help='the meter unit')
+@utils.arg('--sample-volume', metavar='<SAMPLE_VOLUME>',
+           help='The sample volume')
+@utils.arg('--resource-metadata', metavar='<RESOURCE_METADATA>',
+           help='resource metadata')
+def do_sample_create(cc, args={}):
+    '''Create a sample.'''
+    arg_to_field_mapping = {'meter_name': 'counter_name',
+                            'meter_unit': 'counter_unit',
+                            'meter_type': 'counter_type',
+                            'sample_volume': 'counter_volume'}
+    fields = {}
+    for var in vars(args).items():
+        k, v = var[0], var[1]
+        if v is not None:
+            if k == 'resource_metadata':
+                fields[k] = json.loads(v)
+            else:
+                fields[arg_to_field_mapping.get(k, k)] = v
+    cc.samples.create(**fields)
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
