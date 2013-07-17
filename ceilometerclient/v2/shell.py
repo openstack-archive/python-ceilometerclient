@@ -16,6 +16,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+
 from ceilometerclient.common import utils
 from ceilometerclient import exc
 from ceilometerclient.v2 import options
@@ -74,6 +76,32 @@ def do_sample_list(cc, args):
                   'counter_volume', 'counter_unit', 'timestamp']
         utils.print_list(samples, fields, field_labels,
                          sortby=0)
+
+
+@utils.arg('--project-id', metavar='<PROJECT_ID>',
+           help='Tenant to associate with alarm '
+                '(only settable by admin users)')
+@utils.arg('--user-id', metavar='<USER_ID>',
+           help='User to associate with alarm '
+                '(only settable by admin users)')
+@utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>',
+           help='ID of the resource.')
+@utils.arg('-m', '--counter-name', metavar='<METRIC>',
+           help='counter name')
+@utils.arg('--counter-type', metavar='<COUNTER_NAME>',
+           help='counter type')
+@utils.arg('--counter-unit', metavar='<COUNTER_UNIT>',
+           help='counter unit')
+@utils.arg('--counter-volume', metavar='<COUNTER_VOLUME>',
+           help='counter volume')
+@utils.arg('--resource-metadata', metavar='<RESOURCE_METADATA>',
+           help='resource metadata')
+def do_sample_create(cc, args={}):
+    '''Create a sample.'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    if args.resource_metadata is not None:
+        fields['resource_metadata'] = json.loads(args.resource_metadata)
+    cc.samples.create(**fields)
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
