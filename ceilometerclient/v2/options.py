@@ -39,7 +39,10 @@ def build_url(path, q, params=None):
         if params:
             for p in params:
                 path += '&%s' % p
-
+    elif params and len(params) > 0:
+        path += '?%s' % params[0]
+        for p in params[1:]:
+            path += '&%s' % p
     return path
 
 
