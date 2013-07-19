@@ -40,6 +40,15 @@ class BuildUrlTest(utils.BaseTestCase):
                                        'value': 43}])
         self.assertEqual(url, '/?q.op=&q.value=43&q.field=this')
 
+    def test_one_param(self):
+        url = options.build_url('/', None, ['period=60'])
+        self.assertEqual(url, '/?period=60')
+
+    def test_two_params(self):
+        url = options.build_url('/', None, ['period=60',
+                                            'others=value'])
+        self.assertEqual(url, '/?period=60&others=value')
+
 
 class CliTest(utils.BaseTestCase):
 
