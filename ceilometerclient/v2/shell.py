@@ -207,8 +207,8 @@ def do_alarm_show(cc, args={}):
                  'May be used multiple times.'))
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
-           help=('A meter should match this resource metadata (key=value)'
-                 'additionnal to the counter_name'))
+           help=('A meter should match this resource metadata (key=value) '
+                 'additionally to the counter_name'))
 def do_alarm_create(cc, args={}):
     '''Create a new alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -251,8 +251,8 @@ def do_alarm_create(cc, args={}):
                  'May be used multiple times.'))
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
-           help=('A meter should match this resource metadata (key=value)'
-                 'additionnal to the counter_name'))
+           help=('A meter should match this resource metadata (key=value) '
+                 'additionally to the counter_name'))
 def do_alarm_update(cc, args={}):
     '''Update an existing alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
