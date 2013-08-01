@@ -26,7 +26,7 @@ class Client(http.HTTPClient):
 
     :param string endpoint: A user-supplied endpoint URL for the ceilometer
                             service.
-    :param string token: Token for authentication.
+    :param function token: Provides token for authentication.
     :param integer timeout: Allows customization of the timeout for client
                             http requests. (optional)
     """
