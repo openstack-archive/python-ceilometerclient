@@ -1,7 +1,6 @@
-d2to1>=0.2.10,<0.3
 pbr>=0.5.16,<0.6
 argparse
 httplib2
 iso8601>=0.1.4
-prettytable>=0.6,<0.8
-python-keystoneclient>=0.2.1
+PrettyTable>=0.6,<0.8
+python-keystoneclient>=0.3.0
