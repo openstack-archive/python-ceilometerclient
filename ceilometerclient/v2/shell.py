@@ -148,7 +148,7 @@ def _display_alarm(alarm):
               'evaluation_periods', 'threshold', 'comparison_operator',
               'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
               'alarm_actions', 'ok_actions', 'insufficient_data_actions',
-              'matching_metadata']
+              'repeat_actions', 'matching_metadata']
     data = dict([(f, getattr(alarm, f, '')) for f in fields])
     utils.print_dict(data, wrap=72)
 
@@ -205,6 +205,10 @@ def do_alarm_show(cc, args={}):
            metavar='<Webhook URL>', action='append', default=None,
            help=('URL to invoke when state transitions to unkown. '
                  'May be used multiple times.'))
+@utils.arg('--repeat-actions', dest='repeat_actions', metavar='{True|False}',
+           type=utils.string_to_bool, default=False,
+           help=('True if actions should be repeatedly notified '
+                 'while alarm remains in target state'))
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
@@ -249,6 +253,10 @@ def do_alarm_create(cc, args={}):
            metavar='<Webhook URL>', action='append', default=None,
            help=('URL to invoke when state transitions to unkown. '
                  'May be used multiple times.'))
+@utils.arg('--repeat-actions', dest='repeat_actions', metavar='{True|False}',
+           type=utils.string_to_bool, default=False,
+           help=('True if actions should be repeatedly notified '
+                 'while alarm remains in target state'))
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
