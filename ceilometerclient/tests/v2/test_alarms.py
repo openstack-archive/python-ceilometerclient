@@ -41,6 +41,7 @@ AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
             u'project_id': u'project-id',
             u'state_timestamp': u'2013-05-09T13:41:23.085000',
             u'comparison_operator': 'gt',
+            u'repeat_actions': False,
             u'name': 'SwiftObjectAlarm'}
 CREATE_ALARM = copy.deepcopy(AN_ALARM)
 del CREATE_ALARM['timestamp']
