@@ -136,7 +136,7 @@ def do_alarm_list(cc, args={}):
     field_labels = ['Name', 'Description', 'Metric', 'Period', 'Count',
                     'Threshold', 'Comparison', 'State', 'Enabled', 'Alarm ID',
                     'User ID', 'Project ID']
-    fields = ['name', 'description', 'counter_name', 'period',
+    fields = ['name', 'description', 'meter_name', 'period',
               'evaluation_periods', 'threshold', 'comparison_operator',
               'state', 'enabled', 'alarm_id', 'user_id', 'project_id']
     utils.print_list(alarms, fields, field_labels,
@@ -144,7 +144,7 @@ def do_alarm_list(cc, args={}):
 
 
 def _display_alarm(alarm):
-    fields = ['name', 'description', 'counter_name', 'period',
+    fields = ['name', 'description', 'meter_name', 'period',
               'evaluation_periods', 'threshold', 'comparison_operator',
               'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
               'alarm_actions', 'ok_actions', 'insufficient_data_actions',
@@ -185,7 +185,7 @@ def do_alarm_show(cc, args={}):
            help='State of the alarm, one of: ' + str(ALARM_STATES))
 @utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
            help='True if alarm evaluation/actioning is enabled')
-@utils.arg('--counter-name', metavar='<METRIC>',
+@utils.arg('--meter-name', metavar='<METRIC>',
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
            help='Statistic to evaluate, one of: ' + str(STATISTICS))
@@ -212,7 +212,7 @@ def do_alarm_show(cc, args={}):
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
-                 'additionally to the counter_name'))
+                 'additionally to the meter_name'))
 def do_alarm_create(cc, args={}):
     '''Create a new alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -233,7 +233,7 @@ def do_alarm_create(cc, args={}):
            help='State of the alarm, one of: ' + str(ALARM_STATES))
 @utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
            help='True if alarm evaluation/actioning is enabled')
-@utils.arg('--counter-name', metavar='<METRIC>',
+@utils.arg('--meter-name', metavar='<METRIC>',
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
            help='Statistic to evaluate, one of: ' + str(STATISTICS))
@@ -260,7 +260,7 @@ def do_alarm_create(cc, args={}):
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
-                 'additionally to the counter_name'))
+                 'additionally to the meter_name'))
 def do_alarm_update(cc, args={}):
     '''Update an existing alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))

@@ -26,7 +26,7 @@ UPDATABLE_ATTRIBUTES = [
     'evaluation_periods',
     'state',
     'enabled',
-    'counter_name',
+    'meter_name',
     'statistic',
     'comparison_operator',
     'threshold',
