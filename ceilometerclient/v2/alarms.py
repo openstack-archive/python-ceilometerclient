@@ -16,6 +16,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import warnings
+
 from ceilometerclient.common import base
 from ceilometerclient.v2 import options
 
@@ -26,7 +28,7 @@ UPDATABLE_ATTRIBUTES = [
     'evaluation_periods',
     'state',
     'enabled',
-    'counter_name',
+    'meter_name',
     'statistic',
     'comparison_operator',
     'threshold',
@@ -60,12 +62,22 @@ class AlarmManager(base.Manager):
         except IndexError:
             return None
 
+    @staticmethod
+    def _compat_counter_rename_kwargs(kwargs):
+        # NOTE(jd) Compatibility with Havana-2 API
+        if 'counter_name' in kwargs:
+            warnings.warn("counter_name has been renamed to meter_name",
+                          DeprecationWarning)
+            kwargs['meter_name'] = kwargs['counter_name']
+
     def create(self, **kwargs):
+        self._compat_counter_rename_kwargs(kwargs)
         new = dict((key, value) for (key, value) in kwargs.items()
                    if key in CREATION_ATTRIBUTES)
         return self._create(self._path(), new)
 
     def update(self, alarm_id, **kwargs):
+        self._compat_counter_rename_kwargs(kwargs)
         updated = dict((key, value) for (key, value) in kwargs.items()
                        if key in UPDATABLE_ATTRIBUTES)
         return self._update(self._path(alarm_id), updated)
