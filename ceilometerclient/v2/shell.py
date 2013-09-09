@@ -215,8 +215,29 @@ def do_alarm_show(cc, args={}):
                  'additionally to the counter_name'))
 def do_alarm_create(cc, args={}):
     '''Create a new alarm.'''
+    if args.name is None:
+        raise exc.CommandError('Alarm Name not provided (--name <NAME>)')
+
+    if args.counter_name is None:
+        raise exc.CommandError(
+            'Meter Name not provided (-meter-name <METRIC>)')
+
+    if args.statistic is None:
+        raise exc.CommandError(
+            'Statistic not provided (-statistic <STATISTIC>)')
+
+    if args.comparison_operator is None:
+        raise exc.CommandError(
+            'Comparison Operator not provided '
+            '(-comparison-operator <OPERATOR>)')
+
+    if args.threshold is None:
+        raise exc.CommandError(
+            'Threshold not provided (-thrashold <THRESHOLD>)')
+
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_dict(fields, "matching_metadata")
+
     alarm = cc.alarms.create(**fields)
     _display_alarm(alarm)
 
@@ -263,6 +284,9 @@ def do_alarm_create(cc, args={}):
                  'additionally to the counter_name'))
 def do_alarm_update(cc, args={}):
     '''Update an existing alarm.'''
+    if args.alarm_id is None:
+        raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
+
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_dict(fields, "matching_metadata")
     fields.pop('alarm_id')
