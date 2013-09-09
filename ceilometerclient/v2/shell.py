@@ -79,10 +79,10 @@ def do_sample_list(cc, args):
 
 
 @utils.arg('--project-id', metavar='<PROJECT_ID>',
-           help='Tenant to associate with alarm '
+           help='Tenant to associate with sample '
                 '(only settable by admin users)')
 @utils.arg('--user-id', metavar='<USER_ID>',
-           help='User to associate with alarm '
+           help='User to associate with sample '
                 '(only settable by admin users)')
 @utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>',
            help='ID of the resource.')
