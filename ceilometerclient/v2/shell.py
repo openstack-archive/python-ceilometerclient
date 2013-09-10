@@ -31,7 +31,7 @@ STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 @utils.arg('-m', '--meter', metavar='<NAME>',
-           help='Name of meter to show samples for.')
+           help='Name of meter to show samples for. Required.')
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
 def do_statistics(cc, args):
@@ -58,7 +58,7 @@ def do_statistics(cc, args):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 @utils.arg('-m', '--meter', metavar='<NAME>',
-           help='Name of meter to show samples for.')
+           help='Name of meter to show samples for. Required.')
 def do_sample_list(cc, args):
     '''List the samples for this meters.'''
     fields = {'meter_name': args.meter,
@@ -87,13 +87,13 @@ def do_sample_list(cc, args):
 @utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>',
            help='ID of the resource.')
 @utils.arg('-m', '--meter-name', metavar='<METER_NAME>',
-           help='the meter name')
+           help='the meter name. Required')
 @utils.arg('--meter-type', metavar='<METER_TYPE>',
-           help='the meter type')
+           help='the meter type. Required')
 @utils.arg('--meter-unit', metavar='<METER_UNIT>',
-           help='the meter unit')
+           help='the meter unit. Required')
 @utils.arg('--sample-volume', metavar='<SAMPLE_VOLUME>',
-           help='The sample volume')
+           help='The sample volume. Required')
 @utils.arg('--resource-metadata', metavar='<RESOURCE_METADATA>',
            help='resource metadata')
 def do_sample_create(cc, args={}):
@@ -154,7 +154,7 @@ def _display_alarm(alarm):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
-           help='ID of the alarm to show.')
+           help='ID of the alarm to show. Required.')
 def do_alarm_show(cc, args={}):
     '''Show an alarm.'''
     if args.alarm_id is None:
@@ -178,21 +178,25 @@ def do_alarm_show(cc, args={}):
 @utils.arg('--description', metavar='<DESCRIPTION>',
            help='Free text description of the alarm')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
-           help='Length of each period (seconds) to evaluate over')
+           help='Length of each period (seconds) to evaluate over. Defaults '
+                'to 60')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
-           help='Number of periods to evaluate over')
+           help='Number of periods to evaluate over. Defaults to 1')
 @utils.arg('--state', metavar='<STATE>',
            help='State of the alarm, one of: ' + str(ALARM_STATES))
 @utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
-           help='True if alarm evaluation/actioning is enabled')
+           help='True if alarm evaluation/actioning is enabled. Default to '
+                'True')
 @utils.arg('--counter-name', metavar='<METRIC>',
-           help='Metric to evaluate against')
+           help='Metric to evaluate against. Required')
 @utils.arg('--statistic', metavar='<STATISTIC>',
-           help='Statistic to evaluate, one of: ' + str(STATISTICS))
+           help='Statistic to evaluate, one of: ' + str(STATISTICS)
+                + '. Required')
 @utils.arg('--comparison-operator', metavar='<OPERATOR>',
-           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
+           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS)
+                + '. Required')
 @utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
-           help='Threshold to evaluate against')
+           help='Threshold to evaluate against. Required')
 @utils.arg('--alarm-action', dest='alarm_actions',
            metavar='<Webhook URL>', action='append', default=None,
            help=('URL to invoke when state transitions to alarm. '
@@ -222,7 +226,7 @@ def do_alarm_create(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
-           help='ID of the alarm to update.')
+           help='ID of the alarm to update. Required.')
 @utils.arg('--description', metavar='<DESCRIPTION>',
            help='Free text description of the alarm')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
@@ -271,7 +275,7 @@ def do_alarm_update(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
-           help='ID of the alarm to show.')
+           help='ID of the alarm to show. Required.')
 def do_alarm_delete(cc, args={}):
     '''Delete an alarm.'''
     if args.alarm_id is None:
@@ -295,7 +299,7 @@ def do_resource_list(cc, args={}):
 
 
 @utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>',
-           help='ID of the resource to show.')
+           help='ID of the resource to show. Required.')
 def do_resource_show(cc, args={}):
     '''Show the resource.'''
     if args.resource_id is None:
