@@ -27,6 +27,13 @@ from ceilometerclient.openstack.common import importutils
 # Decorator for cli-args
 def arg(*args, **kwargs):
     def _decorator(func):
+        if 'help' in kwargs:
+            if 'default' in kwargs:
+                kwargs['help'] += " Defaults to %s." % kwargs['default']
+            required = kwargs.get('required', False)
+            if required:
+                kwargs['help'] += " Required."
+
         # Because of the sematics of decorator composition if we just append
         # to the options list positional options will appear to be backwards.
         func.__dict__.setdefault('arguments', []).insert(0, (args, kwargs))
