@@ -57,3 +57,28 @@ class UtilsTest(test_utils.BaseTestCase):
             'matching_metadata': {'metadata.key': 'metadata_value'},
             'other': 'value'
         })
+
+    def test_arg(self):
+        @utils.arg(help="not_required_no_default.")
+        def not_required_no_default():
+            pass
+        _, args = not_required_no_default.__dict__['arguments'][0]
+        self.assertEqual(args['help'], "not_required_no_default.")
+
+        @utils.arg(required=True, help="required_no_default.")
+        def required_no_default():
+            pass
+        _, args = required_no_default.__dict__['arguments'][0]
+        self.assertEqual(args['help'], "required_no_default. Required.")
+
+        @utils.arg(default=42, help="not_required_default.")
+        def not_required_default():
+            pass
+        _, args = not_required_default.__dict__['arguments'][0]
+        self.assertEqual(args['help'], "not_required_default. Defaults to 42.")
+
+        @utils.arg(print_default=42, help="print_default.")
+        def print_default():
+            pass
+        _, args = print_default.__dict__['arguments'][0]
+        self.assertEqual(args['help'], "print_default. Defaults to 42.")
