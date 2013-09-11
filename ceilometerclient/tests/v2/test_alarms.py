@@ -30,7 +30,7 @@ AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
             u'evaluation_periods': 2,
             u'timestamp': u'2013-05-09T13:41:23.085000',
             u'enabled': True,
-            u'counter_name': u'storage.objects',
+            u'meter_name': u'storage.objects',
             u'period': 240.0,
             u'alarm_id': u'alarm-id',
             u'state': u'ok',
@@ -49,6 +49,7 @@ del CREATE_ALARM['state_timestamp']
 del CREATE_ALARM['alarm_id']
 DELTA_ALARM = {u'alarm_actions': ['url1', 'url2'],
                u'comparison_operator': u'lt',
+               u'meter_name': u'foobar',
                u'threshold': 42.1}
 UPDATED_ALARM = copy.deepcopy(AN_ALARM)
 UPDATED_ALARM.update(DELTA_ALARM)
@@ -144,8 +145,35 @@ class AlarmManagerTest(testtools.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
 
+    def test_create_legacy(self):
+        create = {}
+        create.update(CREATE_ALARM)
+        create['counter_name'] = CREATE_ALARM['meter_name']
+        del create['meter_name']
+        alarm = self.mgr.create(**create)
+        expect = [
+            ('POST', '/v2/alarms', {}, CREATE_ALARM),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(alarm)
+
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)
+        expect = [
+            ('PUT', '/v2/alarms/alarm-id', {}, DELTA_ALARM),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(alarm)
+        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        for (key, value) in DELTA_ALARM.iteritems():
+            self.assertEqual(getattr(alarm, key), value)
+
+    def test_update_legacy(self):
+        delta = {}
+        delta.update(DELTA_ALARM)
+        delta['counter_name'] = DELTA_ALARM['meter_name']
+        del delta['meter_name']
+        alarm = self.mgr.update(alarm_id='alarm-id', **delta)
         expect = [
             ('PUT', '/v2/alarms/alarm-id', {}, DELTA_ALARM),
         ]
