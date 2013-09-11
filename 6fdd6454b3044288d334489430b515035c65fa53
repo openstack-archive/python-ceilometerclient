@@ -1,0 +1,13 @@
+Verified+2: Jenkins
+Approved+1: Doug Hellmann <doug.hellmann@dreamhost.com>
+Code-Review+2: Doug Hellmann <doug.hellmann@dreamhost.com>
+Code-Review+1: litong01 <litong01@us.ibm.com>
+Code-Review+2: gordon chung <chungg@ca.ibm.com>
+Code-Review+1: Swann Croiset <swann.croiset@bull.net>
+Code-Review+1: Yuuichi Fujioka <fujioka.yuuichi@gmail.com>
+Code-Review+1: Ladislav Smola <lsmola@redhat.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 11 Sep 2013 22:54:18 +0000
+Reviewed-on: https://review.openstack.org/45076
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
