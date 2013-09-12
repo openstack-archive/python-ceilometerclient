@@ -145,10 +145,11 @@ def do_alarm_list(cc, args={}):
 
 def _display_alarm(alarm):
     fields = ['name', 'description', 'meter_name', 'period',
-              'evaluation_periods', 'threshold', 'comparison_operator',
-              'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
-              'alarm_actions', 'ok_actions', 'insufficient_data_actions',
-              'repeat_actions', 'matching_metadata']
+              'evaluation_periods', 'statistic', 'threshold',
+              'comparison_operator', 'state', 'enabled', 'alarm_id', 'user_id',
+              'project_id', 'alarm_actions', 'ok_actions',
+              'insufficient_data_actions', 'repeat_actions',
+              'matching_metadata']
     data = dict([(f, getattr(alarm, f, '')) for f in fields])
     utils.print_dict(data, wrap=72)
 
