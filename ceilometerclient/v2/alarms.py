@@ -38,7 +38,7 @@ UPDATABLE_ATTRIBUTES = [
     'repeat_actions',
     'matching_metadata',
     ]
-CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['name', 'project_id', 'user_id']
+CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['name']
 
 
 class Alarm(base.Resource):

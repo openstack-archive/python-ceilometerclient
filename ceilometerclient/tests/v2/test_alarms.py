@@ -47,6 +47,10 @@ CREATE_ALARM = copy.deepcopy(AN_ALARM)
 del CREATE_ALARM['timestamp']
 del CREATE_ALARM['state_timestamp']
 del CREATE_ALARM['alarm_id']
+del CREATE_ALARM['project_id']
+del CREATE_ALARM['user_id']
+CREATED_ALARM = copy.deepcopy(AN_ALARM)
+del CREATED_ALARM['state_timestamp']
 DELTA_ALARM = {u'alarm_actions': ['url1', 'url2'],
                u'comparison_operator': u'lt',
                u'meter_name': u'foobar',
@@ -63,7 +67,7 @@ fixtures = {
         ),
         'POST': (
             {},
-            CREATE_ALARM,
+            CREATED_ALARM,
         ),
     },
     '/v2/alarms/alarm-id':
@@ -144,6 +148,8 @@ class AlarmManagerTest(testtools.TestCase):
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
+        self.assertEqual(alarm.project_id, CREATED_ALARM['project_id'])
+        self.assertEqual(alarm.user_id, CREATED_ALARM['user_id'])
 
     def test_create_legacy(self):
         create = {}
@@ -156,6 +162,8 @@ class AlarmManagerTest(testtools.TestCase):
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
+        self.assertEqual(alarm.project_id, CREATED_ALARM['project_id'])
+        self.assertEqual(alarm.user_id, CREATED_ALARM['user_id'])
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)

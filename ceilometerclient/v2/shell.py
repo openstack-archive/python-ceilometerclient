@@ -169,12 +169,6 @@ def do_alarm_show(cc, args={}):
 
 @utils.arg('--name', metavar='<NAME>',
            help='Name of the alarm (must be unique per tenant)')
-@utils.arg('--project-id', metavar='<PROJECT_ID>',
-           help='Tenant to associate with alarm '
-                '(only settable by admin users)')
-@utils.arg('--user-id', metavar='<USER_ID>',
-           help='User to associate with alarm '
-                '(only settable by admin users)')
 @utils.arg('--description', metavar='<DESCRIPTION>',
            help='Free text description of the alarm')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
