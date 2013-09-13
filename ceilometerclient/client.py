@@ -21,6 +21,7 @@ def _get_ksclient(**kwargs):
             * username: name of user
             * password: user's password
             * auth_url: endpoint to authenticate against
+            * cacert: path of CA TLS certificate
             * insecure: allow insecure SSL (no cert verification)
             * tenant_{name|id}: name or ID of tenant
     """
@@ -30,6 +31,7 @@ def _get_ksclient(**kwargs):
                            tenant_name=kwargs.get('tenant_name'),
                            auth_url=kwargs.get('auth_url'),
                            region_name=kwargs.get('region_name'),
+                           cacert=kwargs.get('cacert'),
                            insecure=kwargs.get('insecure'))
 
 
@@ -52,6 +54,7 @@ def get_client(api_version, **kwargs):
             * os_username: name of user
             * os_password: user's password
             * os_auth_url: endpoint to authenticate against
+            * os_cacert: path of CA TLS certificate
             * insecure: allow insecure SSL (no cert verification)
             * os_tenant_{name|id}: name or ID of tenant
     """
@@ -72,6 +75,7 @@ def get_client(api_version, **kwargs):
             'region_name': kwargs.get('os_region_name'),
             'service_type': kwargs.get('os_service_type'),
             'endpoint_type': kwargs.get('os_endpoint_type'),
+            'cacert': kwargs.get('os_cacert'),
             'insecure': kwargs.get('insecure'),
         }
         _ksclient = _get_ksclient(**ks_kwargs)
@@ -86,7 +90,7 @@ def get_client(api_version, **kwargs):
         'token': token,
         'insecure': kwargs.get('insecure'),
         'timeout': kwargs.get('timeout'),
-        'ca_file': kwargs.get('ca_file'),
+        'cacert': kwargs.get('cacert'),
         'cert_file': kwargs.get('cert_file'),
         'key_file': kwargs.get('key_file'),
     }

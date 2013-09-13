@@ -63,7 +63,7 @@ class HTTPClient(object):
 
         if parts.scheme == 'https':
             _class = VerifiedHTTPSConnection
-            _kwargs['ca_file'] = kwargs.get('ca_file', None)
+            _kwargs['ca_cert'] = kwargs.get('cacert', None)
             _kwargs['cert_file'] = kwargs.get('cert_file', None)
             _kwargs['key_file'] = kwargs.get('key_file', None)
             _kwargs['insecure'] = kwargs.get('insecure', False)
@@ -93,7 +93,7 @@ class HTTPClient(object):
         conn_params_fmt = [
             ('key_file', '--key %s'),
             ('cert_file', '--cert %s'),
-            ('ca_file', '--cacert %s'),
+            ('cacert', '--cacert %s'),
         ]
         for (key, fmt) in conn_params_fmt:
             value = self.connection_params[2].get(key)
@@ -215,21 +215,21 @@ class VerifiedHTTPSConnection(httplib.HTTPSConnection):
     """
 
     def __init__(self, host, port, key_file=None, cert_file=None,
-                 ca_file=None, timeout=None, insecure=False):
+                 cacert=None, timeout=None, insecure=False):
         httplib.HTTPSConnection.__init__(self, host, port, key_file=key_file,
                                          cert_file=cert_file)
         self.key_file = key_file
         self.cert_file = cert_file
-        if ca_file is not None:
-            self.ca_file = ca_file
+        if cacert is not None:
+            self.cacert = cacert
         else:
-            self.ca_file = self.get_system_ca_file()
+            self.cacert = self.get_system_ca_file()
         self.timeout = timeout
         self.insecure = insecure
 
     def connect(self):
         """Connect to a host on a given (SSL) port.
-        If ca_file is pointing somewhere, use it to check Server Certificate.
+        If cacert is pointing somewhere, use it to check Server Certificate.
 
         Redefined/copied and extended from httplib.py:1105 (Python 2.6.x).
         This is needed to pass cert_reqs=ssl.CERT_REQUIRED as parameter to
@@ -245,7 +245,7 @@ class VerifiedHTTPSConnection(httplib.HTTPSConnection):
         if self.insecure is True:
             kwargs = {'cert_reqs': ssl.CERT_NONE}
         else:
-            kwargs = {'cert_reqs': ssl.CERT_REQUIRED, 'ca_certs': self.ca_file}
+            kwargs = {'cert_reqs': ssl.CERT_REQUIRED, 'ca_certs': self.cacert}
 
         if self.cert_file:
             kwargs['certfile'] = self.cert_file
