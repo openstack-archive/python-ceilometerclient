@@ -23,27 +23,31 @@ from ceilometerclient.v2 import options
 
 
 UPDATABLE_ATTRIBUTES = [
+    'name',
     'description',
-    'period',
-    'evaluation_periods',
+    'type',
     'state',
     'enabled',
-    'meter_name',
-    'statistic',
-    'comparison_operator',
-    'threshold',
     'alarm_actions',
     'ok_actions',
     'insufficient_data_actions',
     'repeat_actions',
-    'matching_metadata',
+    'threshold_rule',
+    'combination_rule',
     ]
-CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['name', 'project_id', 'user_id']
+CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['project_id', 'user_id']
 
 
 class Alarm(base.Resource):
     def __repr__(self):
         return "<Alarm %s>" % self._info
+
+    def __getattr__(self, k):
+        # Alias to have the Alarm client object
+        # that look like the Alarm storage object
+        if k == 'rule':
+            k = '%s_rule' % self.type
+        return super(Alarm, self).__getattr__(k)
 
 
 class AlarmManager(base.Manager):
@@ -62,6 +66,11 @@ class AlarmManager(base.Manager):
         except IndexError:
             return None
 
+    @classmethod
+    def _compat_legacy_alarm_kwargs(cls, kwargs):
+        cls._compat_counter_rename_kwargs(kwargs)
+        cls._compat_alarm_before_rule_type_kwargs(kwargs)
+
     @staticmethod
     def _compat_counter_rename_kwargs(kwargs):
         # NOTE(jd) Compatibility with Havana-2 API
@@ -70,17 +79,49 @@ class AlarmManager(base.Manager):
                           DeprecationWarning)
             kwargs['meter_name'] = kwargs['counter_name']
 
+    @staticmethod
+    def _compat_alarm_before_rule_type_kwargs(kwargs):
+        # NOTE(sileht) Compatibility with Havana-3 API
+        if kwargs.get('type'):
+            return
+        warnings.warn("alarm without type set is deprecated",
+                      DeprecationWarning)
+
+        kwargs['type'] = 'threshold'
+        kwargs['threshold_rule'] = {}
+        for field in ['period', 'evaluation_periods', 'threshold',
+                      'statistic', 'comparison_operator']:
+            if field in kwargs:
+                kwargs['threshold_rule'][field] = kwargs[field]
+                del kwargs[field]
+
+        query = [{'field': 'meter',
+                  'op': 'eq',
+                  'value': kwargs['meter_name']}]
+        del kwargs['meter_name']
+
+        if 'matching_metadata' in kwargs:
+            for key in kwargs['matching_metadata']:
+                query.append({'field': key,
+                              'op': 'eq',
+                              'value': kwargs['matching_metadata'][key]})
+            del kwargs['matching_metadata']
+        kwargs['threshold_rule']['query'] = query
+
     def create(self, **kwargs):
-        self._compat_counter_rename_kwargs(kwargs)
+        self._compat_legacy_alarm_kwargs(kwargs)
         new = dict((key, value) for (key, value) in kwargs.items()
                    if key in CREATION_ATTRIBUTES)
         return self._create(self._path(), new)
 
     def update(self, alarm_id, **kwargs):
-        self._compat_counter_rename_kwargs(kwargs)
+        self._compat_legacy_alarm_kwargs(kwargs)
         updated = dict((key, value) for (key, value) in kwargs.items()
                        if key in UPDATABLE_ATTRIBUTES)
         return self._update(self._path(alarm_id), updated)
 
     def delete(self, alarm_id):
         return self._delete(self._path(alarm_id))
+
+    def set_state(self, alarm_id, state):
+        return self._update("%s/state" % self._path(alarm_id), state)
