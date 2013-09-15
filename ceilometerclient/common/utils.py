@@ -140,6 +140,17 @@ def args_array_to_dict(kwargs, key_to_convert):
     return kwargs
 
 
+def key_with_slash_to_nested_dict(kwargs):
+    nested_kwargs = {}
+    for k in kwargs.keys():
+        keys = k.split('/', 1)
+        if len(keys) == 2:
+            nested_kwargs.setdefault(keys[0], {})[keys[1]] = kwargs[k]
+            del kwargs[k]
+    kwargs.update(nested_kwargs)
+    return kwargs
+
+
 def exit(msg=''):
     if msg:
         print >> sys.stderr, msg
