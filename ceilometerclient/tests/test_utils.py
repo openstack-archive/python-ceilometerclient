@@ -57,3 +57,20 @@ class UtilsTest(test_utils.BaseTestCase):
             'matching_metadata': {'metadata.key': 'metadata_value'},
             'other': 'value'
         })
+
+    def test_key_with_slash_to_nested_dict(self):
+        my_args = {
+            'combination_rule/alarm_ids': ['id1', 'id2'],
+            'combination_rule/operator': 'and',
+            'threshold_rule/threshold': 400,
+            'threshold_rule/statictic': 'avg',
+            'threshold_rule/comparison_operator': 'or',
+        }
+        nested_dict = utils.key_with_slash_to_nested_dict(my_args)
+        self.assertEqual(nested_dict, {
+            'combination_rule': {'alarm_ids': ['id1', 'id2'],
+                                 'operator': 'and'},
+            'threshold_rule': {'threshold': 400,
+                               'statictic': 'avg',
+                               'comparison_operator': 'or'},
+        })

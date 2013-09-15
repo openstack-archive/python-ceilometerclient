@@ -16,6 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import functools
 import json
 
 from ceilometerclient.common import utils
@@ -25,6 +26,7 @@ from ceilometerclient.v2 import options
 
 ALARM_STATES = ['ok', 'alarm', 'insufficient_data']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
+ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
 
 
@@ -144,11 +146,10 @@ def do_alarm_list(cc, args={}):
 
 
 def _display_alarm(alarm):
-    fields = ['name', 'description', 'meter_name', 'period',
-              'evaluation_periods', 'threshold', 'comparison_operator',
+    fields = ['name', 'description', 'type', 'rule',
               'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
               'alarm_actions', 'ok_actions', 'insufficient_data_actions',
-              'repeat_actions', 'matching_metadata']
+              'repeat_actions']
     data = dict([(f, getattr(alarm, f, '')) for f in fields])
     utils.print_dict(data, wrap=72)
 
@@ -167,24 +168,49 @@ def do_alarm_show(cc, args={}):
         _display_alarm(alarm)
 
 
-@utils.arg('--name', metavar='<NAME>',
-           help='Name of the alarm (must be unique per tenant)')
-@utils.arg('--project-id', metavar='<PROJECT_ID>',
-           help='Tenant to associate with alarm '
-                '(only settable by admin users)')
-@utils.arg('--user-id', metavar='<USER_ID>',
-           help='User to associate with alarm '
-                '(only settable by admin users)')
-@utils.arg('--description', metavar='<DESCRIPTION>',
-           help='Free text description of the alarm')
+def common_alarm_arguments(func):
+    @utils.arg('--name', metavar='<NAME>',
+               help='Name of the alarm (must be unique per tenant)')
+    @utils.arg('--project-id', metavar='<PROJECT_ID>',
+               help='Tenant to associate with alarm '
+               '(only settable by admin users)')
+    @utils.arg('--user-id', metavar='<USER_ID>',
+               help='User to associate with alarm '
+               '(only settable by admin users)')
+    @utils.arg('--description', metavar='<DESCRIPTION>',
+               help='Free text description of the alarm')
+    @utils.arg('--state', metavar='<STATE>',
+               help='State of the alarm, one of: ' + str(ALARM_STATES))
+    @utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
+               help='True if alarm evaluation/actioning is enabled')
+    @utils.arg('--alarm-action', dest='alarm_actions',
+               metavar='<Webhook URL>', action='append', default=None,
+               help=('URL to invoke when state transitions to alarm. '
+                     'May be used multiple times.'))
+    @utils.arg('--ok-action', dest='ok_actions',
+               metavar='<Webhook URL>', action='append', default=None,
+               help=('URL to invoke when state transitions to OK. '
+                     'May be used multiple times.'))
+    @utils.arg('--insufficient-data-action', dest='insufficient_data_actions',
+               metavar='<Webhook URL>', action='append', default=None,
+               help=('URL to invoke when state transitions to unkown. '
+                     'May be used multiple times.'))
+    @utils.arg('--repeat-actions', dest='repeat_actions',
+               metavar='{True|False}', type=utils.string_to_bool,
+               default=False,
+               help=('True if actions should be repeatedly notified '
+                     'while alarm remains in target state'))
+    @functools.wraps(func)
+    def _wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return _wrapper
+
+
+@common_alarm_arguments
 @utils.arg('--period', type=int, metavar='<PERIOD>',
            help='Length of each period (seconds) to evaluate over')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
            help='Number of periods to evaluate over')
-@utils.arg('--state', metavar='<STATE>',
-           help='State of the alarm, one of: ' + str(ALARM_STATES))
-@utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
-           help='True if alarm evaluation/actioning is enabled')
 @utils.arg('--meter-name', metavar='<METRIC>',
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
@@ -193,46 +219,73 @@ def do_alarm_show(cc, args={}):
            help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
 @utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
            help='Threshold to evaluate against')
-@utils.arg('--alarm-action', dest='alarm_actions',
-           metavar='<Webhook URL>', action='append', default=None,
-           help=('URL to invoke when state transitions to alarm. '
-                 'May be used multiple times.'))
-@utils.arg('--ok-action', dest='ok_actions',
-           metavar='<Webhook URL>', action='append', default=None,
-           help=('URL to invoke when state transitions to OK. '
-                 'May be used multiple times.'))
-@utils.arg('--insufficient-data-action', dest='insufficient_data_actions',
-           metavar='<Webhook URL>', action='append', default=None,
-           help=('URL to invoke when state transitions to unkown. '
-                 'May be used multiple times.'))
-@utils.arg('--repeat-actions', dest='repeat_actions', metavar='{True|False}',
-           type=utils.string_to_bool, default=False,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state'))
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
                  'additionally to the meter_name'))
 def do_alarm_create(cc, args={}):
-    '''Create a new alarm.'''
+    '''Create a new alarm (Deprecated).'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_dict(fields, "matching_metadata")
     alarm = cc.alarms.create(**fields)
     _display_alarm(alarm)
 
 
+@common_alarm_arguments
+@utils.arg('--period', type=int, metavar='<PERIOD>',
+           dest='threshold_rule/period',
+           help='Length of each period (seconds) to evaluate over')
+@utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
+           dest='threshold_rule/evaluation_periods',
+           help='Number of periods to evaluate over')
+@utils.arg('--statistic', metavar='<STATISTIC>',
+           dest='threshold_rule/statistic',
+           help='Statistic to evaluate, one of: ' + str(STATISTICS))
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           dest='threshold_rule/comparison_operator',
+           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
+           dest='threshold_rule/threshold',
+           help='Threshold to evaluate against')
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           dest='threshold_rule/query',
+           help='The query to find the data for computing statistics '
+           '(key[op]value; list.)')
+def do_alarm_threshold_create(cc, args={}):
+    '''Create a new alarm based on computed statistics.'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields['type'] = 'threshold'
+    fields['threshold_rule']['query'] = options.cli_to_array(
+        fields['threshold_rule']['query'])
+    alarm = cc.alarms.create(**fields)
+    _display_alarm(alarm)
+
+
+@common_alarm_arguments
+@utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
+           dest='combination_rule/alarm_ids',
+           help='List of alarm id')
+@utils.arg('--operator', metavar='<OPERATOR>',
+           dest='combination_rule/operator',
+           help='Operator to compare with, one of: ' + str(
+               ALARM_COMBINATION_OPERATORS))
+def do_alarm_combination_create(cc, args={}):
+    '''Create a new alarm based on state of other alarms.'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields['type'] = 'combination'
+    alarm = cc.alarms.create(**fields)
+    _display_alarm(alarm)
+
+
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm to update.')
-@utils.arg('--description', metavar='<DESCRIPTION>',
-           help='Free text description of the alarm')
+@common_alarm_arguments
 @utils.arg('--period', type=int, metavar='<PERIOD>',
            help='Length of each period (seconds) to evaluate over')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
            help='Number of periods to evaluate over')
-@utils.arg('--state', metavar='<STATE>',
-           help='State of the alarm, one of: ' + str(ALARM_STATES))
-@utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
-           help='True if alarm evaluation/actioning is enabled')
 @utils.arg('--meter-name', metavar='<METRIC>',
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
@@ -241,22 +294,6 @@ def do_alarm_create(cc, args={}):
            help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
 @utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
            help='Threshold to evaluate against')
-@utils.arg('--alarm-action', dest='alarm_actions',
-           metavar='<Webhook URL>', action='append', default=None,
-           help=('URL to invoke when state transitions to alarm. '
-                 'May be used multiple times.'))
-@utils.arg('--ok-action', dest='ok_actions',
-           metavar='<Webhook URL>', action='append', default=None,
-           help=('URL to invoke when state transitions to OK. '
-                 'May be used multiple times.'))
-@utils.arg('--insufficient-data-action', dest='insufficient_data_actions',
-           metavar='<Webhook URL>', action='append', default=None,
-           help=('URL to invoke when state transitions to unkown. '
-                 'May be used multiple times.'))
-@utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=utils.string_to_bool,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state'))
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
@@ -266,6 +303,60 @@ def do_alarm_update(cc, args={}):
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_dict(fields, "matching_metadata")
     fields.pop('alarm_id')
+    alarm = cc.alarms.update(args.alarm_id, **fields)
+    _display_alarm(alarm)
+
+
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+           help='ID of the alarm to update.')
+@common_alarm_arguments
+@utils.arg('--period', type=int, metavar='<PERIOD>',
+           dest='threshold_rule/period',
+           help='Length of each period (seconds) to evaluate over')
+@utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
+           dest='threshold_rule/evaluation_periods',
+           help='Number of periods to evaluate over')
+@utils.arg('--statistic', metavar='<STATISTIC>',
+           dest='threshold_rule/statistic',
+           help='Statistic to evaluate, one of: ' + str(STATISTICS))
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           dest='threshold_rule/comparison_operator',
+           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
+           dest='threshold_rule/threshold',
+           help='Threshold to evaluate against')
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           dest='threshold_rule/query',
+           help='The query to find the data for computing statistics '
+           '(key[op]value; list.)')
+def do_alarm_threshold_update(cc, args={}):
+    '''Update an existing alarm based on computed statistics.'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields.pop('alarm_id')
+    fields['type'] = 'threshold'
+    fields['threshold_rule']['query'] = options.cli_to_array(
+        fields['threshold_rule']['query'])
+    alarm = cc.alarms.update(args.alarm_id, **fields)
+    _display_alarm(alarm)
+
+
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+           help='ID of the alarm to update.')
+@common_alarm_arguments
+@utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
+           dest='combination_rule/alarm_ids',
+           help='List of alarm id')
+@utils.arg('---operator', metavar='<OPERATOR>',
+           dest='combination_rule/operator',
+           help='Operator to compare with, one of: ' + str(
+               ALARM_COMBINATION_OPERATORS))
+def do_alarm_combination_update(cc, args={}):
+    '''Update an existing alarm based on state of other alarms.'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields.pop('alarm_id')
+    fields['type'] = 'combination'
     alarm = cc.alarms.update(args.alarm_id, **fields)
     _display_alarm(alarm)
 
