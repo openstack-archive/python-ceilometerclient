@@ -19,6 +19,7 @@ from testtools import matchers
 
 from ceilometerclient.tests import utils
 from ceilometerclient.v2 import alarms
+from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import shell as ceilometer_shell
 
 
@@ -135,3 +136,75 @@ class ShellAlarmHistoryCommandTest(utils.BaseTestCase):
                              op='gt')]
         self._do_test_alarm_history(raw_query='timestamp>2013-10-03T08:59:28',
                                     parsed_query=parsed_query)
+
+
+class ShellSampleListCommandTest(utils.BaseTestCase):
+
+    METER = 'cpu_util'
+    SAMPLES = [{"counter_name": "cpu_util",
+                "resource_id": "5dcf5537-3161-4e25-9235-407e1385bd35",
+                "timestamp": "2013-10-15T05:50:30",
+                "counter_unit": "%",
+                "counter_volume": 0.261666666666667,
+                "counter_type": "gauge"},
+               {"counter_name": "cpu_util",
+                "resource_id": "87d197e9-9cf6-4c25-bc66-1b1f4cedb52f",
+                "timestamp": "2013-10-15T05:50:29",
+                "counter_unit": "%",
+                "counter_volume": 0.261666666666667,
+                "counter_type": "gauge"},
+               {"counter_name": "cpu_util",
+                "resource_id": "5dcf5537-3161-4e25-9235-407e1385bd35",
+                "timestamp": "2013-10-15T05:40:30",
+                "counter_unit": "%",
+                "counter_volume": 0.251247920133111,
+                "counter_type": "gauge"},
+               {"counter_name": "cpu_util",
+                "resource_id": "87d197e9-9cf6-4c25-bc66-1b1f4cedb52f",
+                "timestamp": "2013-10-15T05:40:29",
+                "counter_unit": "%",
+                "counter_volume": 0.26,
+                "counter_type": "gauge"}]
+
+    def setUp(self):
+        super(ShellSampleListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.alarms = mock.Mock()
+        self.args = mock.Mock()
+        self.args.meter = self.METER
+        self.args.query = None
+
+    def test_sample_list(self):
+
+        sample_list = [samples.Sample(mock.Mock(), sample)
+                   for sample in self.SAMPLES]
+        self.cc.samples.list.return_value = sample_list
+
+        org_stdout = sys.stdout
+        try:
+            sys.stdout = output = six.StringIO()
+            ceilometer_shell.do_sample_list(self.cc, self.args)
+            self.cc.samples.list.assert_called_once_with(
+                meter_name=self.METER,
+                q=None)
+        finally:
+            sys.stdout = org_stdout
+
+        self.assertEqual(output.getvalue(), '''\
++--------------------------------------+----------+-------+----------------\
++------+---------------------+
+| Resource ID                          | Name     | Type  | Volume         \
+| Unit | Timestamp           |
++--------------------------------------+----------+-------+----------------\
++------+---------------------+
+| 5dcf5537-3161-4e25-9235-407e1385bd35 | cpu_util | gauge | 0.261666666667 \
+| %    | 2013-10-15T05:50:30 |
+| 87d197e9-9cf6-4c25-bc66-1b1f4cedb52f | cpu_util | gauge | 0.261666666667 \
+| %    | 2013-10-15T05:50:29 |
+| 5dcf5537-3161-4e25-9235-407e1385bd35 | cpu_util | gauge | 0.251247920133 \
+| %    | 2013-10-15T05:40:30 |
+| 87d197e9-9cf6-4c25-bc66-1b1f4cedb52f | cpu_util | gauge | 0.26           \
+| %    | 2013-10-15T05:40:29 |
++--------------------------------------+----------+-------+----------------\
++------+---------------------+
+''')
