@@ -52,7 +52,11 @@ def print_list(objs, fields, field_labels, formatters={}, sortby=0):
                 data = getattr(o, field, '')
                 row.append(data)
         pt.add_row(row)
-    print pt.get_string(sortby=field_labels[sortby])
+
+    kwargs = {}
+    if sortby is not None:
+        kwargs['sortby'] = field_labels[sortby]
+    print pt.get_string(**kwargs)
 
 
 def print_dict(d, dict_property="Property", wrap=0):

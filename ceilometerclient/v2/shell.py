@@ -74,8 +74,9 @@ def do_sample_list(cc, args):
                         'Timestamp']
         fields = ['resource_id', 'counter_name', 'counter_type',
                   'counter_volume', 'counter_unit', 'timestamp']
+        samples = sorted(samples, key=lambda o: (o.resource_id, o.timestamp))
         utils.print_list(samples, fields, field_labels,
-                         sortby=0)
+                         sortby=None)
 
 
 @utils.arg('--project-id', metavar='<PROJECT_ID>',
