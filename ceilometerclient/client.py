@@ -29,6 +29,7 @@ def _get_ksclient(**kwargs):
                            tenant_id=kwargs.get('tenant_id'),
                            tenant_name=kwargs.get('tenant_name'),
                            auth_url=kwargs.get('auth_url'),
+                           region_name=kwargs.get('region_name'),
                            insecure=kwargs.get('insecure'))
 
 
@@ -68,6 +69,7 @@ def get_client(api_version, **kwargs):
             'tenant_id': kwargs.get('os_tenant_id'),
             'tenant_name': kwargs.get('os_tenant_name'),
             'auth_url': kwargs.get('os_auth_url'),
+            'region_name': kwargs.get('os_region_name'),
             'service_type': kwargs.get('os_service_type'),
             'endpoint_type': kwargs.get('os_endpoint_type'),
             'insecure': kwargs.get('insecure'),
