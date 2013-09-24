@@ -28,6 +28,9 @@ ALARM_STATES = ['ok', 'alarm', 'insufficient_data']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
+OPERATORS_STRING = dict(gt='>', ge='>=',
+                        lt='<', le="<=",
+                        eq='==', ne='!=')
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
@@ -128,6 +131,28 @@ def do_meter_list(cc, args={}):
                      sortby=0)
 
 
+def alarm_rule_formatter(alarm):
+    if alarm.type == 'threshold':
+        return ('%(meter_name)s %(comparison_operator)s '
+                '%(threshold)s during %(evaluation_periods)s x %(period)ss' %
+                {
+                    'meter_name': alarm.rule['meter_name'],
+                    'threshold': alarm.rule['threshold'],
+                    'evaluation_periods': alarm.rule['evaluation_periods'],
+                    'period': alarm.rule['period'],
+                    'comparison_operator': OPERATORS_STRING.get(
+                        alarm.rule['comparison_operator'])
+                })
+    elif alarm.type == 'combination':
+        return ('combinated states (%(operator)s) of %(alarms)s' % {
+            'operator': alarm.rule['operator'].upper(),
+            'alarms': ", ".join(alarm.rule['alarm_ids'])})
+    else:
+        # just dump all
+        return "\n".join(["%s: %s" % (f, v)
+                          for f, v in alarm.rule.iteritems()])
+
+
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
 def do_alarm_list(cc, args={}):
@@ -135,20 +160,31 @@ def do_alarm_list(cc, args={}):
     alarms = cc.alarms.list(q=options.cli_to_array(args.query))
     # omit action initially to keep output width sane
     # (can switch over to vertical formatting when available from CLIFF)
-    field_labels = ['Name', 'Description', 'State', 'Enabled', 'Continuous',
-                    'Alarm ID', 'User ID', 'Project ID']
-    fields = ['name', 'description', 'state', 'enabled', 'repeat_actions',
-              'alarm_id', 'user_id', 'project_id']
+    field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
+                    'Alarm condition']
+    fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
+              'rule']
     utils.print_list(alarms, fields, field_labels,
-                     sortby=0)
+                     formatters={'rule': alarm_rule_formatter}, sortby=0)
+
+
+def alarm_query_formater(alarm):
+    qs = []
+    for q in alarm.rule['query']:
+        qs.append('%s %s %s' % (
+            q['field'], OPERATORS_STRING.get(q['op']), q['value']))
+    return r' AND\n'.join(qs)
 
 
 def _display_alarm(alarm):
-    fields = ['name', 'description', 'type', 'rule',
+    fields = ['name', 'description', 'type',
               'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
               'alarm_actions', 'ok_actions', 'insufficient_data_actions',
               'repeat_actions']
     data = dict([(f, getattr(alarm, f, '')) for f in fields])
+    data.update(alarm.rule)
+    if alarm.type == 'threshold':
+        data['query'] = alarm_query_formater(alarm)
     utils.print_dict(data, wrap=72)
 
 
