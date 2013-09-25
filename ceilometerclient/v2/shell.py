@@ -35,7 +35,7 @@ OPERATORS_STRING = dict(gt='>', ge='>=',
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
-@utils.arg('-m', '--meter', metavar='<NAME>',
+@utils.arg('-m', '--meter', metavar='<NAME>', required=True,
            help='Name of meter to show samples for.')
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
@@ -44,8 +44,6 @@ def do_statistics(cc, args):
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query),
               'period': args.period}
-    if args.meter is None:
-        raise exc.CommandError('Meter name not provided (-m <meter name>)')
     try:
         statistics = cc.statistics.list(**fields)
     except exc.HTTPNotFound:
@@ -62,14 +60,12 @@ def do_statistics(cc, args):
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]value; list.')
-@utils.arg('-m', '--meter', metavar='<NAME>',
+@utils.arg('-m', '--meter', metavar='<NAME>', required=True,
            help='Name of meter to show samples for.')
 def do_sample_list(cc, args):
     '''List the samples for this meters.'''
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query)}
-    if args.meter is None:
-        raise exc.CommandError('Meter name not provided (-m <meter name>)')
     try:
         samples = cc.samples.list(**fields)
     except exc.HTTPNotFound:
@@ -89,15 +85,15 @@ def do_sample_list(cc, args):
 @utils.arg('--user-id', metavar='<USER_ID>',
            help='User to associate with sample '
                 '(only settable by admin users)')
-@utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>',
+@utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>', required=True,
            help='ID of the resource.')
 @utils.arg('-m', '--meter-name', metavar='<METER_NAME>',
            help='the meter name')
-@utils.arg('--meter-type', metavar='<METER_TYPE>',
+@utils.arg('--meter-type', metavar='<METER_TYPE>', required=True,
            help='the meter type')
-@utils.arg('--meter-unit', metavar='<METER_UNIT>',
+@utils.arg('--meter-unit', metavar='<METER_UNIT>', required=True,
            help='the meter unit')
-@utils.arg('--sample-volume', metavar='<SAMPLE_VOLUME>',
+@utils.arg('--sample-volume', metavar='<SAMPLE_VOLUME>', required=True,
            help='The sample volume')
 @utils.arg('--resource-metadata', metavar='<RESOURCE_METADATA>',
            help='resource metadata')
@@ -188,12 +184,10 @@ def _display_alarm(alarm):
     utils.print_dict(data, wrap=72)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
     '''Show an alarm.'''
-    if args.alarm_id is None:
-        raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
     try:
         alarm = cc.alarms.get(args.alarm_id)
     except exc.HTTPNotFound:
@@ -416,8 +410,6 @@ def do_alarm_combination_update(cc, args={}):
            help='ID of the alarm to delete.')
 def do_alarm_delete(cc, args={}):
     '''Delete an alarm.'''
-    if args.alarm_id is None:
-        raise exc.CommandError('Alarm ID not provided (-a <alarm id>)')
     try:
         cc.alarms.delete(args.alarm_id)
     except exc.HTTPNotFound:
@@ -462,12 +454,10 @@ def do_resource_list(cc, args={}):
                      sortby=1)
 
 
-@utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>',
+@utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>', required=True,
            help='ID of the resource to show.')
 def do_resource_show(cc, args={}):
     '''Show the resource.'''
-    if args.resource_id is None:
-        raise exc.CommandError('Resource id not provided (-r <resource id>)')
     try:
         resource = cc.resources.get(args.resource_id)
     except exc.HTTPNotFound:
