@@ -74,3 +74,19 @@ class UtilsTest(test_utils.BaseTestCase):
                                'statictic': 'avg',
                                'comparison_operator': 'or'},
         })
+
+    def test_merge_nested_dict(self):
+        dest = {'key': 'value',
+                'nested': {'key2': 'value2',
+                           'key3': 'value3',
+                           'nested2': {'key': 'value',
+                                       'some': 'thing'}}}
+        source = {'key': 'modified',
+                  'nested': {'key3': 'modified3',
+                             'nested2': {'key5': 'value5'}}}
+        utils.merge_nested_dict(dest, source, depth=1)
+
+        self.assertEqual(dest, {'key': 'modified',
+                                'nested': {'key2': 'value2',
+                                           'key3': 'modified3',
+                                           'nested2': {'key5': 'value5'}}})
