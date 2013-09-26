@@ -202,45 +202,49 @@ def do_alarm_show(cc, args={}):
         _display_alarm(alarm)
 
 
-def common_alarm_arguments(func):
-    @utils.arg('--name', metavar='<NAME>', required=True,
-               help='Name of the alarm (must be unique per tenant)')
-    @utils.arg('--project-id', metavar='<PROJECT_ID>',
-               help='Tenant to associate with alarm '
-               '(only settable by admin users)')
-    @utils.arg('--user-id', metavar='<USER_ID>',
-               help='User to associate with alarm '
-               '(only settable by admin users)')
-    @utils.arg('--description', metavar='<DESCRIPTION>',
-               help='Free text description of the alarm')
-    @utils.arg('--state', metavar='<STATE>',
-               help='State of the alarm, one of: ' + str(ALARM_STATES))
-    @utils.arg('--enabled', type=utils.string_to_bool, metavar='{True|False}',
-               help='True if alarm evaluation/actioning is enabled')
-    @utils.arg('--alarm-action', dest='alarm_actions',
-               metavar='<Webhook URL>', action='append', default=None,
-               help=('URL to invoke when state transitions to alarm. '
-                     'May be used multiple times.'))
-    @utils.arg('--ok-action', dest='ok_actions',
-               metavar='<Webhook URL>', action='append', default=None,
-               help=('URL to invoke when state transitions to OK. '
-                     'May be used multiple times.'))
-    @utils.arg('--insufficient-data-action', dest='insufficient_data_actions',
-               metavar='<Webhook URL>', action='append', default=None,
-               help=('URL to invoke when state transitions to unkown. '
-                     'May be used multiple times.'))
-    @utils.arg('--repeat-actions', dest='repeat_actions',
-               metavar='{True|False}', type=utils.string_to_bool,
-               default=False,
-               help=('True if actions should be repeatedly notified '
-                     'while alarm remains in target state'))
-    @functools.wraps(func)
-    def _wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
+def common_alarm_arguments(create=False):
+    def _wrapper(func):
+        @utils.arg('--name', metavar='<NAME>', required=create,
+                   help='Name of the alarm (must be unique per tenant)')
+        @utils.arg('--project-id', metavar='<PROJECT_ID>',
+                   help='Tenant to associate with alarm '
+                   '(only settable by admin users)')
+        @utils.arg('--user-id', metavar='<USER_ID>',
+                   help='User to associate with alarm '
+                   '(only settable by admin users)')
+        @utils.arg('--description', metavar='<DESCRIPTION>',
+                   help='Free text description of the alarm')
+        @utils.arg('--state', metavar='<STATE>',
+                   help='State of the alarm, one of: ' + str(ALARM_STATES))
+        @utils.arg('--enabled', type=utils.string_to_bool,
+                   metavar='{True|False}',
+                   help='True if alarm evaluation/actioning is enabled')
+        @utils.arg('--alarm-action', dest='alarm_actions',
+                   metavar='<Webhook URL>', action='append', default=None,
+                   help=('URL to invoke when state transitions to alarm. '
+                         'May be used multiple times.'))
+        @utils.arg('--ok-action', dest='ok_actions',
+                   metavar='<Webhook URL>', action='append', default=None,
+                   help=('URL to invoke when state transitions to OK. '
+                         'May be used multiple times.'))
+        @utils.arg('--insufficient-data-action',
+                   dest='insufficient_data_actions',
+                   metavar='<Webhook URL>', action='append', default=None,
+                   help=('URL to invoke when state transitions to unkown. '
+                         'May be used multiple times.'))
+        @utils.arg('--repeat-actions', dest='repeat_actions',
+                   metavar='{True|False}', type=utils.string_to_bool,
+                   default=False,
+                   help=('True if actions should be repeatedly notified '
+                         'while alarm remains in target state'))
+        @functools.wraps(func)
+        def _wrapped(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapped
     return _wrapper
 
 
-@common_alarm_arguments
+@common_alarm_arguments(create=True)
 @utils.arg('--period', type=int, metavar='<PERIOD>',
            help='Length of each period (seconds) to evaluate over')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
@@ -265,7 +269,7 @@ def do_alarm_create(cc, args={}):
     _display_alarm(alarm)
 
 
-@common_alarm_arguments
+@common_alarm_arguments(create=True)
 @utils.arg('--meter-name', metavar='<METRIC>', required=True,
            dest='threshold_rule/meter_name',
            help='Metric to evaluate against')
@@ -300,7 +304,7 @@ def do_alarm_threshold_create(cc, args={}):
     _display_alarm(alarm)
 
 
-@common_alarm_arguments
+@common_alarm_arguments(create=True)
 @utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
            required=True, dest='combination_rule/alarm_ids',
            help='List of alarm id')
@@ -319,18 +323,18 @@ def do_alarm_combination_create(cc, args={}):
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm to update.')
-@common_alarm_arguments
+@common_alarm_arguments()
 @utils.arg('--period', type=int, metavar='<PERIOD>',
            help='Length of each period (seconds) to evaluate over')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
            help='Number of periods to evaluate over')
-@utils.arg('--meter-name', metavar='<METRIC>', required=True,
+@utils.arg('--meter-name', metavar='<METRIC>',
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
            help='Statistic to evaluate, one of: ' + str(STATISTICS))
 @utils.arg('--comparison-operator', metavar='<OPERATOR>',
            help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
-@utils.arg('--threshold', type=float, metavar='<THRESHOLD>', required=True,
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
            help='Threshold to evaluate against')
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
@@ -350,9 +354,9 @@ def do_alarm_update(cc, args={}):
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm to update.')
-@common_alarm_arguments
+@common_alarm_arguments()
 @utils.arg('--meter-name', metavar='<METRIC>',
-           dest='threshold_rule/meter_name', required=True,
+           dest='threshold_rule/meter_name',
            help='Metric to evaluate against')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
            dest='threshold_rule/period',
@@ -366,7 +370,7 @@ def do_alarm_update(cc, args={}):
 @utils.arg('--comparison-operator', metavar='<OPERATOR>',
            dest='threshold_rule/comparison_operator',
            help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
-@utils.arg('--threshold', type=float, metavar='<THRESHOLD>', required=True,
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
            dest='threshold_rule/threshold',
            help='Threshold to evaluate against')
 @utils.arg('-q', '--query', metavar='<QUERY>',
@@ -391,9 +395,9 @@ def do_alarm_threshold_update(cc, args={}):
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm to update.')
-@common_alarm_arguments
+@common_alarm_arguments()
 @utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
-           dest='combination_rule/alarm_ids', required=True,
+           dest='combination_rule/alarm_ids',
            help='List of alarm id')
 @utils.arg('---operator', metavar='<OPERATOR>',
            dest='combination_rule/operator',
