@@ -61,6 +61,7 @@ DELTA_ALARM_RULE = {u'comparison_operator': u'lt',
 UPDATED_ALARM = copy.deepcopy(AN_ALARM)
 UPDATED_ALARM.update(DELTA_ALARM)
 UPDATED_ALARM['threshold_rule'].update(DELTA_ALARM_RULE)
+DELTA_ALARM['threshold_rule'] = DELTA_ALARM_RULE
 UPDATE_ALARM = copy.deepcopy(UPDATED_ALARM)
 del UPDATE_ALARM['user_id']
 del UPDATE_ALARM['project_id']
@@ -215,7 +216,20 @@ class AlarmManagerTest(testtools.TestCase):
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **UPDATE_ALARM)
         expect = [
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATE_ALARM),
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(alarm)
+        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        for (key, value) in UPDATED_ALARM.iteritems():
+            self.assertEqual(getattr(alarm, key), value)
+
+    def test_update_delta(self):
+        alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
@@ -276,9 +290,10 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         self.assertTrue(alarm)
 
     def test_update(self):
-        alarm = self.mgr.update(alarm_id='alarm-id', **UPDATE_LEGACY_ALARM)
+        alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_LEGACY_ALARM)
         expect = [
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATE_ALARM),
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
@@ -293,7 +308,8 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         del updated['meter_name']
         alarm = self.mgr.update(alarm_id='alarm-id', **updated)
         expect = [
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATE_ALARM),
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
