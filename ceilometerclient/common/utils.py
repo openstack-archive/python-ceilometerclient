@@ -160,6 +160,15 @@ def key_with_slash_to_nested_dict(kwargs):
     return kwargs
 
 
+def merge_nested_dict(dest, source, depth=0):
+    for (key, value) in source.iteritems():
+        if isinstance(value, dict) and depth:
+            merge_nested_dict(dest[key], value,
+                              depth=(depth - 1))
+        else:
+            dest[key] = value
+
+
 def exit(msg=''):
     if msg:
         print >> sys.stderr, msg

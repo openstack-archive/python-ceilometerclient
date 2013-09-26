@@ -93,3 +93,34 @@ class UtilsTest(test_utils.BaseTestCase):
             pass
         _, args = not_required_default.__dict__['arguments'][0]
         self.assertEqual(args['help'], "not_required_default. Defaults to 42.")
+
+    def test_merge_nested_dict(self):
+        dest = {'key': 'value',
+                'nested': {'key2': 'value2',
+                           'key3': 'value3',
+                           'nested2': {'key': 'value',
+                                       'some': 'thing'}}}
+        source = {'key': 'modified',
+                  'nested': {'key3': 'modified3',
+                             'nested2': {'key5': 'value5'}}}
+        utils.merge_nested_dict(dest, source, depth=1)
+
+        self.assertEqual(dest, {'key': 'modified',
+                                'nested': {'key2': 'value2',
+                                           'key3': 'modified3',
+                                           'nested2': {'key5': 'value5'}}})
+
+    def test_merge_nested_dict_no_depth(self):
+        dest = {'key': 'value',
+                'nested': {'key2': 'value2',
+                           'key3': 'value3',
+                           'nested2': {'key': 'value',
+                                       'some': 'thing'}}}
+        source = {'key': 'modified',
+                  'nested': {'key3': 'modified3',
+                             'nested2': {'key5': 'value5'}}}
+        utils.merge_nested_dict(dest, source)
+
+        self.assertEqual(dest, {'key': 'modified',
+                                'nested': {'key3': 'modified3',
+                                           'nested2': {'key5': 'value5'}}})
