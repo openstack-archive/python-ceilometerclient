@@ -51,6 +51,14 @@ class Alarm(base.Resource):
         return super(Alarm, self).__getattr__(k)
 
 
+class AlarmChange(base.Resource):
+    def __repr__(self):
+        return "<AlarmChange %s>" % self._info
+
+    def __getattr__(self, k):
+        return super(AlarmChange, self).__getattr__(k)
+
+
 class AlarmManager(base.Manager):
     resource_class = Alarm
 
@@ -130,3 +138,8 @@ class AlarmManager(base.Manager):
         resp, body = self.api.json_request('GET',
                                            "%s/state" % self._path(alarm_id))
         return body
+
+    def get_history(self, alarm_id, q=None):
+        path = '%s/history' % self._path(alarm_id)
+        url = options.build_url(path, q)
+        return self._list(url, obj_class=AlarmChange)

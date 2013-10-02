@@ -20,7 +20,7 @@ import copy
 import testtools
 
 from ceilometerclient.tests import utils
-import ceilometerclient.v2.alarms
+from ceilometerclient.v2 import alarms
 
 AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
             u'ok_actions': [u'http://site:8000/ok'],
@@ -108,6 +108,47 @@ del UPDATE_LEGACY_ALARM['alarm_id']
 del UPDATE_LEGACY_ALARM['timestamp']
 del UPDATE_LEGACY_ALARM['state_timestamp']
 
+FULL_DETAIL = ('{"alarm_actions": [], '
+               '"user_id": "8185aa72421a4fd396d4122cba50e1b5", '
+               '"name": "scombo", '
+               '"timestamp": "2013-10-03T08:58:33.647912", '
+               '"enabled": true, '
+               '"state_timestamp": "2013-10-03T08:58:33.647912", '
+               '"rule": {"operator": "or", "alarm_ids": '
+               '["062cc907-3a9f-4867-ab3b-fa83212b39f7"]}, '
+               '"alarm_id": "alarm-id, '
+               '"state": "insufficient data", '
+               '"insufficient_data_actions": [], '
+               '"repeat_actions": false, '
+               '"ok_actions": [], '
+               '"project_id": "57d04f24d0824b78b1ea9bcecedbda8f", '
+               '"type": "combination", '
+               '"description": "Combined state of alarms '
+               '062cc907-3a9f-4867-ab3b-fa83212b39f7"}')
+ALARM_HISTORY = [{'on_behalf_of': '57d04f24d0824b78b1ea9bcecedbda8f',
+                  'user_id': '8185aa72421a4fd396d4122cba50e1b5',
+                  'event_id': 'c74a8611-6553-4764-a860-c15a6aabb5d0',
+                  'timestamp': '2013-10-03T08:59:28.326000',
+                  'detail': '{"state": "alarm"}',
+                  'alarm_id': 'alarm-id',
+                  'project_id': '57d04f24d0824b78b1ea9bcecedbda8f',
+                  'type': 'state transition'},
+                 {'on_behalf_of': '57d04f24d0824b78b1ea9bcecedbda8f',
+                  'user_id': '8185aa72421a4fd396d4122cba50e1b5',
+                  'event_id': 'c74a8611-6553-4764-a860-c15a6aabb5d0',
+                  'timestamp': '2013-10-03T08:59:28.326000',
+                  'detail': '{"description": "combination of one"}',
+                  'alarm_id': 'alarm-id',
+                  'project_id': '57d04f24d0824b78b1ea9bcecedbda8f',
+                  'type': 'rule change'},
+                 {'on_behalf_of': '57d04f24d0824b78b1ea9bcecedbda8f',
+                  'user_id': '8185aa72421a4fd396d4122cba50e1b5',
+                  'event_id': '4fd7df9e-190d-4471-8884-dc5a33d5d4bb',
+                  'timestamp': '2013-10-03T08:58:33.647000',
+                  'detail': FULL_DETAIL,
+                  'alarm_id': 'alarm-id',
+                  'project_id': '57d04f24d0824b78b1ea9bcecedbda8f',
+                  'type': 'creation'}]
 
 fixtures = {
     '/v2/alarms':
@@ -159,6 +200,20 @@ fixtures = {
             None,
         ),
     },
+    '/v2/alarms/alarm-id/history':
+    {
+        'GET': (
+            {},
+            ALARM_HISTORY,
+        ),
+    },
+    '/v2/alarms/alarm-id/history?q.op=&q.value=NOW&q.field=timestamp':
+    {
+        'GET': (
+            {},
+            ALARM_HISTORY,
+        ),
+    },
 }
 
 
@@ -167,7 +222,7 @@ class AlarmManagerTest(testtools.TestCase):
     def setUp(self):
         super(AlarmManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
-        self.mgr = ceilometerclient.v2.alarms.AlarmManager(self.api)
+        self.mgr = alarms.AlarmManager(self.api)
 
     def test_list_all(self):
         alarms = list(self.mgr.list())
@@ -261,13 +316,33 @@ class AlarmManagerTest(testtools.TestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(deleted is None)
 
+    def _do_test_get_history(self, q, url):
+        history = self.mgr.get_history(q=q, alarm_id='alarm-id')
+        expect = [('GET', url, {}, None)]
+        self.assertEqual(self.api.calls, expect)
+        for i in xrange(len(history)):
+            change = history[i]
+            self.assertTrue(isinstance(change, alarms.AlarmChange))
+            for k, v in ALARM_HISTORY[i].iteritems():
+                self.assertEqual(getattr(change, k), v)
+
+    def test_get_all_history(self):
+        url = '/v2/alarms/alarm-id/history'
+        self._do_test_get_history(None, url)
+
+    def test_get_constrained_history(self):
+        q = [dict(field='timestamp', value='NOW')]
+        url = ('/v2/alarms/alarm-id/history'
+               '?q.op=&q.value=NOW&q.field=timestamp')
+        self._do_test_get_history(q, url)
+
 
 class AlarmLegacyManagerTest(testtools.TestCase):
 
     def setUp(self):
         super(AlarmLegacyManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
-        self.mgr = ceilometerclient.v2.alarms.AlarmManager(self.api)
+        self.mgr = alarms.AlarmManager(self.api)
 
     def test_create(self):
         alarm = self.mgr.create(**CREATE_LEGACY_ALARM)

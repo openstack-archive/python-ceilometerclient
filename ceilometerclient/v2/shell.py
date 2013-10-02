@@ -127,26 +127,63 @@ def do_meter_list(cc, args={}):
                      sortby=0)
 
 
-def alarm_rule_formatter(alarm):
-    if alarm.type == 'threshold':
+def _display_rule(type, rule):
+    if type == 'threshold':
         return ('%(meter_name)s %(comparison_operator)s '
                 '%(threshold)s during %(evaluation_periods)s x %(period)ss' %
                 {
-                    'meter_name': alarm.rule['meter_name'],
-                    'threshold': alarm.rule['threshold'],
-                    'evaluation_periods': alarm.rule['evaluation_periods'],
-                    'period': alarm.rule['period'],
+                    'meter_name': rule['meter_name'],
+                    'threshold': rule['threshold'],
+                    'evaluation_periods': rule['evaluation_periods'],
+                    'period': rule['period'],
                     'comparison_operator': OPERATORS_STRING.get(
-                        alarm.rule['comparison_operator'])
+                        rule['comparison_operator'])
                 })
-    elif alarm.type == 'combination':
+    elif type == 'combination':
         return ('combinated states (%(operator)s) of %(alarms)s' % {
-            'operator': alarm.rule['operator'].upper(),
-            'alarms': ", ".join(alarm.rule['alarm_ids'])})
+            'operator': rule['operator'].upper(),
+            'alarms': ", ".join(rule['alarm_ids'])})
     else:
         # just dump all
         return "\n".join(["%s: %s" % (f, v)
-                          for f, v in alarm.rule.iteritems()])
+                          for f, v in rule.iteritems()])
+
+
+def alarm_rule_formatter(alarm):
+    return _display_rule(alarm.type, alarm.rule)
+
+
+def _infer_type(detail):
+    if 'type' in detail:
+        return detail['type']
+    elif 'meter_name' in detail['rule']:
+        return 'threshold'
+    elif 'alarms' in detail['rule']:
+        return 'combination'
+    else:
+        return 'unknown'
+
+
+def alarm_change_detail_formatter(change):
+    detail = json.loads(change.detail)
+    fields = []
+    if change.type == 'state transition':
+        fields.append('state: %s' % detail['state'])
+    elif change.type == 'creation' or change.type == 'deletion':
+        for k in ['name', 'description', 'type', 'rule']:
+            if k == 'rule':
+                fields.append('rule: %s' % _display_rule(detail['type'],
+                                                         detail[k]))
+            else:
+                fields.append('%s: %s' % (k, detail[k]))
+    elif change.type == 'rule change':
+        for k, v in detail.iteritems():
+            if k == 'rule':
+                fields.append('rule: %s' % _display_rule(_infer_type(detail),
+                                                         v))
+            else:
+                fields.append('%s: %s' % (k, v))
+    return '\n'.join(fields)
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
@@ -442,6 +479,25 @@ def do_alarm_state_get(cc, args={}):
     except exc.HTTPNotFound:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
     utils.print_dict({'state': state}, wrap=72)
+
+
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+           help='ID of the alarm for which history is shown.')
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           help='key[op]value; list.')
+def do_alarm_history(cc, args={}):
+    '''Display the change history of an alarm.'''
+    kwargs = dict(alarm_id=args.alarm_id,
+                  q=options.cli_to_array(args.query))
+    try:
+        history = cc.alarms.get_history(**kwargs)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
+    field_labels = ['Type', 'Timestamp', 'Detail']
+    fields = ['type', 'timestamp', 'detail']
+    utils.print_list(history, fields, field_labels,
+                     formatters={'detail': alarm_change_detail_formatter},
+                     sortby=1)
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
