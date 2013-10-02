@@ -435,10 +435,9 @@ def do_alarm_set_state(cc, args={}):
 def do_alarm_get_state(cc, args={}):
     '''Get the state of an alarm.'''
     try:
-        cc.alarms.set_state(args.alarm_id, args.state)
+        state = cc.alarms.get_state(args.alarm_id)
     except exc.HTTPNotFound:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
-    state = cc.alarms.get_state(args.alarm_id)
     utils.print_dict({'state': state}, wrap=72)
 
 
