@@ -424,7 +424,7 @@ def do_alarm_delete(cc, args={}):
            help='ID of the alarm state to set.')
 @utils.arg('--state', metavar='<STATE>', required=True,
            help='State of the alarm, one of: ' + str(ALARM_STATES))
-def do_alarm_set_state(cc, args={}):
+def do_alarm_state_set(cc, args={}):
     '''Set the state of an alarm.'''
     try:
         state = cc.alarms.set_state(args.alarm_id, args.state)
@@ -435,7 +435,7 @@ def do_alarm_set_state(cc, args={}):
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm state to show.')
-def do_alarm_get_state(cc, args={}):
+def do_alarm_state_get(cc, args={}):
     '''Get the state of an alarm.'''
     try:
         state = cc.alarms.get_state(args.alarm_id)

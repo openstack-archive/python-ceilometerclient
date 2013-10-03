@@ -28,12 +28,12 @@ class ShellAlarmStateCommandsTest(utils.BaseTestCase):
         self.args.alarm_id = self.ALARM_ID
 
     def test_alarm_state_get(self):
-        ceilometer_shell.do_alarm_get_state(self.cc, self.args)
+        ceilometer_shell.do_alarm_state_get(self.cc, self.args)
         self.cc.alarms.get_state.assert_called_once_with(self.ALARM_ID)
         self.assertFalse(self.cc.alarms.set_state.called)
 
     def test_alarm_state_set(self):
         self.args.state = 'ok'
-        ceilometer_shell.do_alarm_set_state(self.cc, self.args)
+        ceilometer_shell.do_alarm_state_set(self.cc, self.args)
         self.cc.alarms.set_state.assert_called_once_with(self.ALARM_ID, 'ok')
         self.assertFalse(self.cc.alarms.get_state.called)
