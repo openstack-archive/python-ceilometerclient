@@ -76,11 +76,17 @@ class CeilometerShell(object):
                             ' This option is not necessary if your key is '
                             'prepended to your cert file.')
 
-        parser.add_argument('--ca-file',
-                            help='Path of CA SSL certificate(s) used to verify'
-                            ' the remote server certificate. Without this '
+        parser.add_argument('--os-cacert',
+                            metavar='<ca-certificate-file>',
+                            dest='os_cacert',
+                            default=utils.env('OS_CACERT'),
+                            help='Path of CA TLS certificate(s) used to verify'
+                            'the remote server\'s certificate. Without this '
                             'option ceilometer looks for the default system '
                             'CA certificates.')
+        parser.add_argument('--ca-file',
+                            dest='os_cacert',
+                            help='DEPRECATED! Use --os-cacert.')
 
         parser.add_argument('--timeout',
                             default=600,
