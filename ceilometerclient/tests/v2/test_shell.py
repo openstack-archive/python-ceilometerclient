@@ -10,7 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import cStringIO
+import six
 import mock
 import re
 import sys
@@ -102,7 +102,7 @@ class ShellAlarmHistoryCommandTest(utils.BaseTestCase):
     def _do_test_alarm_history(self, raw_query=None, parsed_query=None):
         self.args.query = raw_query
         orig = sys.stdout
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         history = [alarms.AlarmChange(mock.Mock(), change)
                    for change in self.ALARM_HISTORY]
         self.cc.alarms.get_history.return_value = history
