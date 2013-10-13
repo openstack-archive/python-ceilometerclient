@@ -67,7 +67,7 @@ def print_dict(d, dict_property="Property", wrap=0):
     pt = prettytable.PrettyTable([dict_property, 'Value'],
                                  caching=False, print_empty=False)
     pt.align = 'l'
-    for k, v in d.iteritems():
+    for k, v in six.iteritems(d):
         # convert dict to str to check length
         if isinstance(v, dict):
             v = str(v)
@@ -162,7 +162,7 @@ def key_with_slash_to_nested_dict(kwargs):
 
 
 def merge_nested_dict(dest, source, depth=0):
-    for (key, value) in source.iteritems():
+    for (key, value) in six.iteritems(source):
         if isinstance(value, dict) and depth:
             merge_nested_dict(dest[key], value,
                               depth=(depth - 1))

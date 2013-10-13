@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import six
+
 from ceilometerclient.common import base
 
 
@@ -114,7 +116,7 @@ class ResourceManager(base.Manager):
 
 class Sample(base.Resource):
     def __init__(self, manager, info, loaded=False):
-        smaller = dict((k, v) for (k, v) in info.iteritems()
+        smaller = dict((k, v) for (k, v) in six.iteritems(info)
                        if k not in ('metadata', 'message_signature'))
         super(Sample, self).__init__(manager, smaller, loaded)
 
