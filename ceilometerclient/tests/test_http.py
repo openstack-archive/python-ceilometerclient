@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import six
+
 from ceilometerclient.tests import utils
 
 from ceilometerclient.common import http
@@ -26,23 +28,23 @@ class HttpClientTest(utils.BaseTestCase):
     def test_url_generation_trailing_slash_in_base(self):
         client = http.HTTPClient('http://localhost/')
         url = client._make_connection_url('/v1/resources')
-        print client.connection_params
+        six.print_(client.connection_params)
         self.assertEqual(url, '/v1/resources')
 
     def test_url_generation_without_trailing_slash_in_base(self):
         client = http.HTTPClient('http://localhost')
         url = client._make_connection_url('/v1/resources')
-        print client.connection_params
+        six.print_(client.connection_params)
         self.assertEqual(url, '/v1/resources')
 
     def test_url_generation_prefix_slash_in_path(self):
         client = http.HTTPClient('http://localhost/')
         url = client._make_connection_url('/v1/resources')
-        print client.connection_params
+        six.print_(client.connection_params)
         self.assertEqual(url, '/v1/resources')
 
     def test_url_generation_without_prefix_slash_in_path(self):
         client = http.HTTPClient('http://localhost')
         url = client._make_connection_url('v1/resources')
-        print client.connection_params
+        six.print_(client.connection_params)
         self.assertEqual(url, '/v1/resources')
