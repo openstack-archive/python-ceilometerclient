@@ -12,7 +12,7 @@
 #    under the License.
 
 import re
-import urllib
+from ceilometerclient.openstack.common.py3kcompat import urlutils
 
 
 def build_url(path, q, params=None):
@@ -34,7 +34,7 @@ def build_url(path, q, params=None):
             for name in ['field', 'op', 'value']:
                 query_params['q.%s' % name].append(query.get(name, ''))
 
-        path += "?" + urllib.urlencode(query_params, doseq=True)
+        path += "?" + urlutils.urlencode(query_params, doseq=True)
 
         if params:
             for p in params:
