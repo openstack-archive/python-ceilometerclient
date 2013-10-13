@@ -10,9 +10,9 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import six
 import mock
 import re
+import six
 import sys
 
 from testtools import matchers

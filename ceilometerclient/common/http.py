@@ -14,12 +14,13 @@
 #    under the License.
 
 import copy
-import httplib
 import logging
 import os
+import six
 import socket
-import StringIO
-import urlparse
+
+from ceilometerclient.openstack.common.py3kcompat import urlutils
+from six.moves import http_client as httplib
 
 try:
     import ssl
@@ -31,11 +32,6 @@ try:
     import json
 except ImportError:
     import simplejson as json
-
-# Python 2.5 compat fix
-if not hasattr(urlparse, 'parse_qsl'):
-    import cgi
-    urlparse.parse_qsl = cgi.parse_qsl
 
 
 from ceilometerclient import exc
@@ -55,7 +51,7 @@ class HTTPClient(object):
 
     @staticmethod
     def get_connection_params(endpoint, **kwargs):
-        parts = urlparse.urlparse(endpoint)
+        parts = urlutils.urlparse(endpoint)
 
         _args = (parts.hostname, parts.port, parts.path)
         _kwargs = {'timeout': (float(kwargs.get('timeout'))
@@ -160,7 +156,7 @@ class HTTPClient(object):
         if resp.getheader('content-type', None) != 'application/octet-stream':
             body_str = ''.join([chunk for chunk in body_iter])
             self.log_http_response(resp, body_str)
-            body_iter = StringIO.StringIO(body_str)
+            body_iter = six.StringIO(body_str)
         else:
             self.log_http_response(resp)
 

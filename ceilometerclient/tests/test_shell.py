@@ -10,9 +10,9 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import six
 import httplib2
 import re
+import six
 import sys
 
 import fixtures
