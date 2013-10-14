@@ -153,7 +153,7 @@ def args_array_to_dict(kwargs, key_to_convert):
 
 def key_with_slash_to_nested_dict(kwargs):
     nested_kwargs = {}
-    for k in kwargs.keys():
+    for k in list(kwargs):
         keys = k.split('/', 1)
         if len(keys) == 2:
             nested_kwargs.setdefault(keys[0], {})[keys[1]] = kwargs[k]
