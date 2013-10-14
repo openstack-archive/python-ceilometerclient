@@ -15,11 +15,11 @@
 
 import copy
 import fixtures
-import mox
 import six
 import testtools
 
 from ceilometerclient.common import http
+from mox3 import mox
 
 
 class BaseTestCase(testtools.TestCase):
