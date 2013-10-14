@@ -34,7 +34,10 @@ def build_url(path, q, params=None):
             for name in ['field', 'op', 'value']:
                 query_params['q.%s' % name].append(query.get(name, ''))
 
-        path += "?" + urlutils.urlencode(query_params, doseq=True)
+        # Transform the dict to a sequence of two-element tuples in fixed
+        # order, then the encoded string will be consistent in Python 2&3.
+        new_qparams = sorted(query_params.items(), key=lambda x: x[0])
+        path += "?" + urlutils.urlencode(new_qparams, doseq=True)
 
         if params:
             for p in params:

@@ -37,7 +37,7 @@ fixtures = {
             ]
         ),
     },
-    '/v2/resources?q.op=&q.value=a&q.field=resource_id':
+    '/v2/resources?q.field=resource_id&q.op=&q.value=a':
     {
         'GET': (
             {},
@@ -97,7 +97,7 @@ class ResourceManagerTest(utils.BaseTestCase):
                                            "value": "a"},
                                           ]))
         expect = [
-            ('GET', '/v2/resources?q.op=&q.value=a&q.field=resource_id',
+            ('GET', '/v2/resources?q.field=resource_id&q.op=&q.value=a',
              {}, None),
         ]
         self.assertEqual(self.api.calls, expect)

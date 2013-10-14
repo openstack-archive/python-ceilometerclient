@@ -21,7 +21,7 @@ class BuildUrlTest(utils.BaseTestCase):
         url = options.build_url('/', [{'field': 'this',
                                        'op': 'gt',
                                        'value': 43}])
-        self.assertEqual(url, '/?q.op=gt&q.value=43&q.field=this')
+        self.assertEqual(url, '/?q.field=this&q.op=gt&q.value=43')
 
     def test_two(self):
         url = options.build_url('/', [{'field': 'this',
@@ -33,12 +33,12 @@ class BuildUrlTest(utils.BaseTestCase):
         ops = 'q.op=gt&q.op=lt'
         vals = 'q.value=43&q.value=88'
         fields = 'q.field=this&q.field=that'
-        self.assertEqual(url, '/?%s&%s&%s' % (ops, vals, fields))
+        self.assertEqual(url, '/?%s&%s&%s' % (fields, ops, vals))
 
     def test_default_op(self):
         url = options.build_url('/', [{'field': 'this',
                                        'value': 43}])
-        self.assertEqual(url, '/?q.op=&q.value=43&q.field=this')
+        self.assertEqual(url, '/?q.field=this&q.op=&q.value=43')
 
     def test_one_param(self):
         url = options.build_url('/', None, ['period=60'])

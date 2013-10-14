@@ -187,8 +187,8 @@ fixtures = {
         ),
 
     },
-    '/v2/alarms?q.op=&q.op=&q.value=project-id&q.value=SwiftObjectAlarm'
-    '&q.field=project_id&q.field=name':
+    '/v2/alarms?q.field=project_id&q.field=name&q.op=&q.op='
+    '&q.value=project-id&q.value=SwiftObjectAlarm':
     {
         'GET': (
             {},
@@ -209,7 +209,7 @@ fixtures = {
             ALARM_HISTORY,
         ),
     },
-    '/v2/alarms/alarm-id/history?q.op=&q.value=NOW&q.field=timestamp':
+    '/v2/alarms/alarm-id/history?q.field=timestamp&q.op=&q.value=NOW':
     {
         'GET': (
             {},
@@ -244,8 +244,8 @@ class AlarmManagerTest(testtools.TestCase):
                                      ]))
         expect = [
             ('GET',
-             '/v2/alarms?q.op=&q.op=&q.value=project-id&q.value='
-             'SwiftObjectAlarm&q.field=project_id&q.field=name',
+             '/v2/alarms?q.field=project_id&q.field=name&q.op=&q.op='
+             '&q.value=project-id&q.value=SwiftObjectAlarm',
              {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
@@ -334,8 +334,8 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_get_constrained_history(self):
         q = [dict(field='timestamp', value='NOW')]
-        url = ('/v2/alarms/alarm-id/history'
-               '?q.op=&q.value=NOW&q.field=timestamp')
+        url = ('/v2/alarms/alarm-id/history?q.field=timestamp'
+               '&q.op=&q.value=NOW')
         self._do_test_get_history(q, url)
 
 
