@@ -35,7 +35,7 @@ def _get_opt_path(simple_params=[], **kwargs):
 
 class User(base.Resource):
     def __init__(self, manager, info, loaded=False):
-        _d = {unicode('user_id'): info}
+        _d = {six.u('user_id'): info}
         super(User, self).__init__(manager, _d, loaded)
 
     def __repr__(self):
@@ -59,7 +59,7 @@ class UserManager(base.Manager):
 
 class Project(base.Resource):
     def __init__(self, manager, info, loaded=False):
-        _d = {unicode('project_id'): info}
+        _d = {six.u('project_id'): info}
         super(Project, self).__init__(manager, _d, loaded)
 
     def __repr__(self):
