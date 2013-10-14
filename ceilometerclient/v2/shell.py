@@ -18,6 +18,7 @@
 
 import functools
 import json
+import six
 
 from ceilometerclient.common import utils
 from ceilometerclient import exc
@@ -177,7 +178,7 @@ def alarm_change_detail_formatter(change):
             else:
                 fields.append('%s: %s' % (k, detail[k]))
     elif change.type == 'rule change':
-        for k, v in detail.iteritems():
+        for k, v in six.iteritems(detail):
             if k == 'rule':
                 fields.append('rule: %s' % _display_rule(_infer_type(detail),
                                                          v))
