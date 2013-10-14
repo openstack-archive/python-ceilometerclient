@@ -11,8 +11,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from ceilometerclient.openstack.common.py3kcompat import urlutils
 import re
-import urllib
 
 
 def build_url(path, q, params=None):
@@ -34,7 +34,7 @@ def build_url(path, q, params=None):
             for name in ['field', 'op', 'value']:
                 query_params['q.%s' % name].append(query.get(name, ''))
 
-        path += "?" + urllib.urlencode(query_params, doseq=True)
+        path += "?" + urlutils.urlencode(query_params, doseq=True)
 
         if params:
             for p in params:
