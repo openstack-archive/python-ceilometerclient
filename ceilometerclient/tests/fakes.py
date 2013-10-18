@@ -8,8 +8,7 @@ def script_keystone_client():
                 password='password',
                 tenant_id='',
                 tenant_name='tenant_name',
-                username='username').AndReturn(
-                FakeKeystone('abcd1234'))
+                username='username').AndReturn(FakeKeystone('abcd1234'))
 
 
 def fake_headers():
