@@ -16,6 +16,7 @@ import six
 import sys
 
 import fixtures
+import mock
 from testtools import matchers
 
 from keystoneclient.v2_0 import client as ksclient
@@ -41,11 +42,11 @@ class ShellTest(utils.BaseTestCase):
 
     def setUp(self):
         super(ShellTest, self).setUp()
-        self.m.StubOutWithMock(ksclient, 'Client')
-        self.m.StubOutWithMock(v1client.Client, 'json_request')
-        self.m.StubOutWithMock(v1client.Client, 'raw_request')
 
-    def shell(self, argstr):
+    @mock.patch.object(ksclient, 'Client')
+    @mock.patch.object(v1client.Client, 'json_request')
+    @mock.patch.object(v1client.Client, 'raw_request')
+    def shell(self, argstr, mock_ksclient, mock_json, mock_raw):
         orig = sys.stdout
         try:
             sys.stdout = six.StringIO()
