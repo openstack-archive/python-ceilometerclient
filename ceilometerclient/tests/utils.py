@@ -19,15 +19,12 @@ import six
 import testtools
 
 from ceilometerclient.common import http
-from mox3 import mox
 
 
 class BaseTestCase(testtools.TestCase):
 
     def setUp(self):
         super(BaseTestCase, self).setUp()
-        self.m = mox.Mox()
-        self.addCleanup(self.m.UnsetStubs)
         self.useFixture(fixtures.FakeLogger())
 
 
