@@ -36,6 +36,7 @@ del CREATE_SAMPLE['source']
 
 base_url = '/v2/meters/instance'
 args = 'q.field=resource_id&q.field=source&q.op=&q.op=&q.value=foo&q.value=bar'
+args_limit = 'limit=1'
 fixtures = {
     base_url:
     {
@@ -53,6 +54,13 @@ fixtures = {
         'GET': (
             {},
             [],
+        ),
+    },
+    '%s?%s' % (base_url, args_limit):
+    {
+        'GET': (
+            {},
+            [GET_SAMPLE]
         ),
     }
 }
@@ -93,3 +101,9 @@ class SampleManagerTest(utils.BaseTestCase):
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(sample)
+
+    def test_limit(self):
+        samples = list(self.mgr.list(meter_name='instance', limit=1))
+        expect = [('GET', '/v2/meters/instance?limit=1', {}, None)]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(samples), 1)
