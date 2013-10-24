@@ -38,9 +38,10 @@ class SampleManager(base.Manager):
     def _path(counter_name=None):
         return '/v2/meters/%s' % counter_name if counter_name else '/v2/meters'
 
-    def list(self, meter_name=None, q=None):
+    def list(self, meter_name=None, q=None, limit=None):
         path = self._path(counter_name=meter_name)
-        return self._list(options.build_url(path, q))
+        params = ['limit=%s' % str(limit)] if limit else None
+        return self._list(options.build_url(path, q, params))
 
     def create(self, **kwargs):
         new = dict((key, value) for (key, value) in kwargs.items()
