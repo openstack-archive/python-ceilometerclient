@@ -35,13 +35,13 @@ class ShellAlarmStateCommandsTest(utils.BaseTestCase):
 
     def test_alarm_state_get(self):
         ceilometer_shell.do_alarm_state_get(self.cc, self.args)
-        self.cc.alarms.get_state.assert_called_once_with(self.ALARM_ID)
+        self.cc.alarms.get_state.assertTruecalled_once_with(self.ALARM_ID)
         self.assertFalse(self.cc.alarms.set_state.called)
 
     def test_alarm_state_set(self):
         self.args.state = 'ok'
         ceilometer_shell.do_alarm_state_set(self.cc, self.args)
-        self.cc.alarms.set_state.assert_called_once_with(self.ALARM_ID, 'ok')
+        self.cc.alarms.set_state.assertTruecalled_once_with(self.ALARM_ID, 'ok')
         self.assertFalse(self.cc.alarms.get_state.called)
 
 
@@ -109,7 +109,7 @@ class ShellAlarmHistoryCommandTest(utils.BaseTestCase):
 
         try:
             ceilometer_shell.do_alarm_history(self.cc, self.args)
-            self.cc.alarms.get_history.assert_called_once_with(
+            self.cc.alarms.get_history.assertTruecalled_once_with(
                 q=parsed_query,
                 alarm_id=self.ALARM_ID
             )
