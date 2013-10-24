@@ -63,10 +63,13 @@ def do_statistics(cc, args):
            help='key[op]value; list.')
 @utils.arg('-m', '--meter', metavar='<NAME>', required=True,
            help='Name of meter to show samples for.')
+@utils.arg('-l', '--limit', metavar='<NUMBER>',
+           help='Maximum number of samples to return.')
 def do_sample_list(cc, args):
     '''List the samples for this meters.'''
     fields = {'meter_name': args.meter,
-              'q': options.cli_to_array(args.query)}
+              'q': options.cli_to_array(args.query),
+              'limit': args.limit}
     try:
         samples = cc.samples.list(**fields)
     except exc.HTTPNotFound:

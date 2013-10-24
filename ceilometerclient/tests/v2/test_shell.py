@@ -173,6 +173,7 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
         self.args = mock.Mock()
         self.args.meter = self.METER
         self.args.query = None
+        self.args.limit = None
 
     def test_sample_list(self):
 
@@ -186,7 +187,8 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
             ceilometer_shell.do_sample_list(self.cc, self.args)
             self.cc.samples.list.assert_called_once_with(
                 meter_name=self.METER,
-                q=None)
+                q=None,
+                limit=None)
         finally:
             sys.stdout = org_stdout
 
