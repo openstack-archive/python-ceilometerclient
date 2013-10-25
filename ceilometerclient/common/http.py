@@ -59,7 +59,7 @@ class HTTPClient(object):
 
         if parts.scheme == 'https':
             _class = VerifiedHTTPSConnection
-            _kwargs['ca_cert'] = kwargs.get('cacert', None)
+            _kwargs['cacert'] = kwargs.get('cacert', None)
             _kwargs['cert_file'] = kwargs.get('cert_file', None)
             _kwargs['key_file'] = kwargs.get('key_file', None)
             _kwargs['insecure'] = kwargs.get('insecure', False)
