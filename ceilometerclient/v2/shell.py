@@ -553,3 +553,68 @@ def do_resource_show(cc, args={}):
                   'project_id', 'metadata']
         data = dict([(f, getattr(resource, f, '')) for f in fields])
         utils.print_dict(data, wrap=72)
+
+
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           help='key[op]data_type::value; list.')
+def do_event_list(cc, args={}):
+    '''List events.'''
+    events = cc.events.list(q=options.cli_to_array(args.query,
+                                                   with_data_type=True))
+    field_labels = ['Message ID', 'Event Type', 'Generated', 'Traits']
+    fields = ['message_id', 'event_type', 'generated', 'traits']
+    utils.print_list(events, fields, field_labels,
+                     formatters={
+                     'traits': utils.nested_dict_formatter('traits')})
+
+
+def _display_event(event):
+    fields = ['event_type', 'generated', 'traits']
+    data = dict([(f, getattr(event, f, '')) for f in fields])
+    utils.print_dict(data, wrap=72)
+
+
+@utils.arg('-m', '--message_id', metavar='<message_id>',
+           help='key[op]value; list.')
+def do_event_show(cc, args={}):
+    '''Show a particular event.'''
+    if args.message_id is None:
+        exc.ClientException("Event Id not provided (-e <message_id>)")
+    event = cc.events.get(args.message_id)
+    _display_event(event)
+
+
+def do_event_type_list(cc, args={}):
+    '''List event types.'''
+    event_types = cc.event_types.list()
+    utils.print_list(event_types, ['event_type'], ['Event Type'])
+
+
+@utils.arg('-e', '--event_type', metavar='<EVENT_TYPE>',
+           help='Type of the event for which traits will be shown')
+def do_trait_info_list(cc, args={}):
+    '''List trait info for an event type.'''
+    if args.event_type is None:
+            raise exc.CommandError('Event Type not provided (-e <event_type>)')
+    trait_info = cc.trait_info.list(args.event_type)
+    field_labels = ['Trait Name', 'Data Type']
+    fields = ['name', 'type']
+    utils.print_list(trait_info, fields, field_labels)
+
+
+@utils.arg('-e', '--event_type', metavar='<EVENT_TYPE>',
+           help='Type of the event for which traits will listed')
+@utils.arg('-t', '--trait_name', metavar='<TRAIT_NAME>',
+           help='The name of the trait to list')
+def do_trait_list(cc, args={}):
+    '''List trait all traits with name <trait_name> for Event Type
+    <event_type>.
+    '''
+    if args.event_type is None:
+            raise exc.CommandError('Event Type not provided (-e <event_type>)')
+    elif args.trait_name is None:
+            raise exc.CommandError('Trait Name not provided (-t <trait_name>)')
+    traits = cc.traits.list(args.event_type, args.trait_name)
+    field_labels = ['Trait Name', 'Value', 'Data Type']
+    fields = ['name', 'value', 'type']
+    utils.print_list(traits, fields, field_labels)

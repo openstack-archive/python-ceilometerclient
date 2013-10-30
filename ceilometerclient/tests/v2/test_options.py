@@ -49,6 +49,14 @@ class BuildUrlTest(utils.BaseTestCase):
                                             'others=value'])
         self.assertEqual(url, '/?period=60&others=value')
 
+    def test_with_data_type(self):
+        url = options.build_url('/', [{'field': 'f1',
+                                       'value': '10',
+                                       'type': 'int'}],
+                                with_data_type=True)
+
+        self.assertEqual('/?q.field=f1&q.op=&q.type=int&q.value=10', url)
+
 
 class CliTest(utils.BaseTestCase):
 
@@ -82,3 +90,60 @@ class CliTest(utils.BaseTestCase):
         ar = options.cli_to_array('metadata.this<=34')
         self.assertEqual(ar, [{'field': 'metadata.this',
                                'op': 'le', 'value': '34'}])
+
+    # NOTE(herndon): this tests for backwards compatibility.
+    # if with_data_type is not set, then the code should now
+    # parse a data type, even though one may be present.
+    def test_without_data_type(self):
+        ar = options.cli_to_array('hostname=string::localhost')
+        self.assertEqual(ar, [{'field': 'hostname',
+                               'op': 'eq',
+                               'value': 'string::localhost'}])
+
+    def test_with_string_data_type(self):
+        ar = options.cli_to_array('hostname=string::localhost',
+                                  with_data_type=True)
+        self.assertEqual(ar, [{'field': 'hostname',
+                               'op': 'eq',
+                               'type': 'string',
+                               'value': 'localhost'}])
+
+    def test_with_int_data_type(self):
+        ar = options.cli_to_array('port=int::1234',
+                                  with_data_type=True)
+        self.assertEqual(ar, [{'field': 'port',
+                               'op': 'eq',
+                               'type': 'int',
+                               'value': '1234'}])
+
+    def test_with_float_data_type(self):
+        ar = options.cli_to_array('average=float::1234.5678',
+                                  with_data_type=True)
+        self.assertEqual(ar, [{'field': 'average',
+                               'op': 'eq',
+                               'type': 'float',
+                               'value': '1234.5678'}])
+
+    def test_with_datetime_data_type(self):
+        ar = options.cli_to_array('timestamp=datetime::sometimestamp',
+                                  with_data_type=True)
+        self.assertEqual(ar, [{'field': 'timestamp',
+                               'op': 'eq',
+                               'type': 'datetime',
+                               'value': 'sometimestamp'}])
+
+    def test_with_incorrect_type(self):
+        ar = options.cli_to_array('timestamp=invalid::sometimestamp',
+                                  with_data_type=True)
+        self.assertEqual(ar, [{'field': 'timestamp',
+                               'op': 'eq',
+                               'type': 'string',
+                               'value': 'invalid::sometimestamp'}])
+
+    def test_with_single_colon(self):
+        ar = options.cli_to_array('timestamp=datetime:sometimestamp',
+                                  with_data_type=True)
+        self.assertEqual(ar, [{'field': 'timestamp',
+                               'op': 'eq',
+                               'type': 'string',
+                               'value': 'datetime:sometimestamp'}])

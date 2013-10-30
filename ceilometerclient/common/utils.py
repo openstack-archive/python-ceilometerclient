@@ -67,6 +67,24 @@ def print_list(objs, fields, field_labels, formatters={}, sortby=0):
                         sortby_index=sortby)
 
 
+def nested_dict_formatter(field):
+    # (TMaddox) Because the formatting scheme actually drops the whole object
+    # into the formatter, rather than just the specified field, we have to
+    # extract it and then pass the value.
+    return lambda o: format_nested_dict(getattr(o, field))
+
+
+def format_nested_dict(d):
+    pt = prettytable.PrettyTable(caching=False, print_empty=False,
+                                 header=False, hrules=prettytable.FRAME)
+    for k, v in six.iteritems(d):
+        if type(v) is not dict:
+            pt.add_row([k, v])
+        else:
+            pt.add_row([k, format_nested_dict(v)])
+    return pt.get_string()
+
+
 def print_dict(d, dict_property="Property", wrap=0):
     pt = prettytable.PrettyTable([dict_property, 'Value'],
                                  caching=False, print_empty=False)

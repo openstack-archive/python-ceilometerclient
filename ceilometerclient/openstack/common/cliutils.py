@@ -146,7 +146,6 @@ def print_list(objs, fields, formatters=None, sortby_index=0,
         kwargs = {'sortby': fields[sortby_index]}
     pt = prettytable.PrettyTable(fields, caching=False)
     pt.align = 'l'
-
     for o in objs:
         row = []
         for field in fields:
