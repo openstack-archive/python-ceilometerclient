@@ -35,7 +35,8 @@ OPERATORS_STRING = dict(gt='>', ge='>=',
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           help='key[op]value; list.')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
 @utils.arg('-m', '--meter', metavar='<NAME>', required=True,
            help='Name of meter to show samples for.')
 @utils.arg('-p', '--period', metavar='<PERIOD>',
@@ -60,7 +61,8 @@ def do_statistics(cc, args):
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           help='key[op]value; list.')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
 @utils.arg('-m', '--meter', metavar='<NAME>', required=True,
            help='Name of meter to show samples for.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
@@ -121,7 +123,8 @@ def do_sample_create(cc, args={}):
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           help='key[op]value; list.')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
 def do_meter_list(cc, args={}):
     '''List the user's meters.'''
     meters = cc.meters.list(q=options.cli_to_array(args.query))
@@ -193,7 +196,8 @@ def alarm_change_detail_formatter(change):
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           help='key[op]value; list.')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
 def do_alarm_list(cc, args={}):
     '''List the user's alarms.'''
     alarms = cc.alarms.list(q=options.cli_to_array(args.query))
@@ -326,9 +330,8 @@ def do_alarm_create(cc, args={}):
            dest='threshold_rule/threshold',
            help='Threshold to evaluate against')
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           dest='threshold_rule/query',
-           help='The query to find the data for computing statistics '
-           '(key[op]value; list.)')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
 @utils.arg('--repeat-actions', dest='repeat_actions',
            metavar='{True|False}', type=utils.string_to_bool,
            default=False,
@@ -425,9 +428,8 @@ def do_alarm_update(cc, args={}):
            dest='threshold_rule/threshold',
            help='Threshold to evaluate against')
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           dest='threshold_rule/query',
-           help='The query to find the data for computing statistics '
-           '(key[op]value; list.)')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
 @utils.arg('--repeat-actions', dest='repeat_actions',
            metavar='{True|False}', type=utils.string_to_bool,
            help=('True if actions should be repeatedly notified '
@@ -512,7 +514,8 @@ def do_alarm_state_get(cc, args={}):
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm for which history is shown.')
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           help='key[op]value; list.')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
 def do_alarm_history(cc, args={}):
     '''Display the change history of an alarm.'''
     kwargs = dict(alarm_id=args.alarm_id,
@@ -529,7 +532,8 @@ def do_alarm_history(cc, args={}):
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
-           help='key[op]value; list.')
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean.')
 def do_resource_list(cc, args={}):
     '''List the resources.'''
     resources = cc.resources.list(q=options.cli_to_array(args.query))
@@ -553,3 +557,61 @@ def do_resource_show(cc, args={}):
                   'project_id', 'metadata']
         data = dict([(f, getattr(resource, f, '')) for f in fields])
         utils.print_dict(data, wrap=72)
+
+
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float'
+                'or datetime.')
+def do_event_list(cc, args={}):
+    '''List events.'''
+    events = cc.events.list(q=options.cli_to_array(args.query))
+    field_labels = ['Message ID', 'Event Type', 'Generated', 'Traits']
+    fields = ['message_id', 'event_type', 'generated', 'traits']
+    utils.print_list(events, fields, field_labels,
+                     formatters={
+                     'traits': utils.nested_dict_formatter('traits')})
+
+
+@utils.arg('-m', '--message_id', metavar='<message_id>',
+           help='The id of the event. Should be a UUID',
+           required=True)
+def do_event_show(cc, args={}):
+    '''Show a particular event.'''
+    event = cc.events.get(args.message_id)
+    fields = ['event_type', 'generated', 'traits']
+    data = dict([(f, getattr(event, f, '')) for f in fields])
+    utils.print_dict(data, wrap=72)
+
+
+def do_event_type_list(cc, args={}):
+    '''List event types.'''
+    event_types = cc.event_types.list()
+    utils.print_list(event_types, ['event_type'], ['Event Type'])
+
+
+@utils.arg('-e', '--event_type', metavar='<EVENT_TYPE>',
+           help='Type of the event for which traits will be shown',
+           required=True)
+def do_trait_description_list(cc, args={}):
+    '''List trait info for an event type.'''
+    trait_descriptions = cc.trait_descriptions.list(args.event_type)
+    field_labels = ['Trait Name', 'Data Type']
+    fields = ['name', 'type']
+    utils.print_list(trait_descriptions, fields, field_labels)
+
+
+@utils.arg('-e', '--event_type', metavar='<EVENT_TYPE>',
+           help='Type of the event for which traits will listed',
+           required=True)
+@utils.arg('-t', '--trait_name', metavar='<TRAIT_NAME>',
+           help='The name of the trait to list',
+           required=True)
+def do_trait_list(cc, args={}):
+    '''List trait all traits with name <trait_name> for Event Type
+    <event_type>.
+    '''
+    traits = cc.traits.list(args.event_type, args.trait_name)
+    field_labels = ['Trait Name', 'Value', 'Data Type']
+    fields = ['name', 'value', 'type']
+    utils.print_list(traits, fields, field_labels)

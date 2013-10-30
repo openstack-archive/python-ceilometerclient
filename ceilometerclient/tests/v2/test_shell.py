@@ -133,7 +133,8 @@ class ShellAlarmHistoryCommandTest(utils.BaseTestCase):
     def test_alarm_constrained_history(self):
         parsed_query = [dict(field='timestamp',
                              value='2013-10-03T08:59:28',
-                             op='gt')]
+                             op='gt',
+                             type='')]
         self._do_test_alarm_history(raw_query='timestamp>2013-10-03T08:59:28',
                                     parsed_query=parsed_query)
 
