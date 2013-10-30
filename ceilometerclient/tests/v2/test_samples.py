@@ -35,7 +35,8 @@ del CREATE_SAMPLE['message_id']
 del CREATE_SAMPLE['source']
 
 base_url = '/v2/meters/instance'
-args = 'q.field=resource_id&q.field=source&q.op=&q.op=&q.value=foo&q.value=bar'
+args = ('q.field=resource_id&q.field=source&q.op=&q.op='
+        '&q.type=&q.type=&q.value=foo&q.value=bar')
 args_limit = 'limit=1'
 fixtures = {
     base_url:
