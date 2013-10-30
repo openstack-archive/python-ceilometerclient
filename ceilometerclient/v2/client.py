@@ -15,10 +15,14 @@
 
 from ceilometerclient.common import http
 from ceilometerclient.v2 import alarms
+from ceilometerclient.v2 import events
+from ceilometerclient.v2 import event_types
 from ceilometerclient.v2 import meters
 from ceilometerclient.v2 import resources
 from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import statistics
+from ceilometerclient.v2 import trait_info
+from ceilometerclient.v2 import traits
 
 
 class Client(http.HTTPClient):
@@ -39,3 +43,7 @@ class Client(http.HTTPClient):
         self.statistics = statistics.StatisticsManager(self)
         self.resources = resources.ResourceManager(self)
         self.alarms = alarms.AlarmManager(self)
+        self.traits = traits.TraitManager(self)
+        self.events = events.EventManager(self)
+        self.event_types = event_types.EventTypeManager(self)
+        self.trait_info = trait_info.TraitInfoManager(self)
