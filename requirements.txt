@@ -4,3 +4,4 @@ httplib2
 iso8601>=0.1.8
 PrettyTable>=0.6,<0.8
 python-keystoneclient>=0.4.1
+six>=1.4.1
