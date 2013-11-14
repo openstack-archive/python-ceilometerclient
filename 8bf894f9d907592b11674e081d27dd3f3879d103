@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Approved+1: gordon chung <chungg@ca.ibm.com>
+Code-Review+2: gordon chung <chungg@ca.ibm.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 14 Nov 2013 14:30:06 +0000
+Reviewed-on: https://review.openstack.org/54428
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
