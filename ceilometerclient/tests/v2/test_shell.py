@@ -138,6 +138,73 @@ class ShellAlarmHistoryCommandTest(utils.BaseTestCase):
                                     parsed_query=parsed_query)
 
 
+class ShellAlarmCommandTest(utils.BaseTestCase):
+
+    ALARM_ID = '768ff714-8cfb-4db9-9753-d484cb33a1cc'
+    ALARM = {"alarm_actions": ["log://"],
+             "ok_actions": [],
+             "description": "instance running hot",
+             "timestamp": "2013-11-20T10:38:42.206952",
+             "enabled": True,
+             "state_timestamp": "2013-11-19T17:20:44",
+             "threshold_rule": {"meter_name": "cpu_util",
+                                "evaluation_periods": 3,
+                                "period": 600,
+                                "statistic": "avg",
+                                "threshold": 99.0,
+                                "query": [{"field": "resource_id",
+                                           "value": "INSTANCE_ID",
+                                           "op": "eq"}],
+                                "comparison_operator": "gt"},
+             "alarm_id": ALARM_ID,
+             "state": "insufficient data",
+             "insufficient_data_actions": [],
+             "repeat_actions": True,
+             "user_id": "528d9b68fa774689834b5c04b4564f8a",
+             "project_id": "ed9d4e2be2a748bc80108053cf4598f5",
+             "type": "threshold",
+             "name": "cpu_high"}
+
+    def setUp(self):
+        super(ShellAlarmCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.alarms = mock.Mock()
+        self.args = mock.Mock()
+        self.args.alarm_id = self.ALARM_ID
+
+    def _do_test_alarm_update_repeat_actions(self, repeat_actions):
+        self.args.threshold = 42.0
+        if repeat_actions is not None:
+            self.args.repeat_actions = repeat_actions
+        orig = sys.stdout
+        sys.stdout = six.StringIO()
+        alarm = [alarms.Alarm(mock.Mock(), self.ALARM)]
+        self.cc.alarms.get.return_value = alarm
+        self.cc.alarms.update.return_value = alarm[0]
+
+        try:
+            ceilometer_shell.do_alarm_update(self.cc, self.args)
+            args, kwargs = self.cc.alarms.update.call_args
+            self.assertEqual(self.ALARM_ID, args[0])
+            self.assertEqual(42.0, kwargs.get('threshold'))
+            if repeat_actions is not None:
+                self.assertEqual(repeat_actions, kwargs.get('repeat_actions'))
+            else:
+                self.assertFalse('repeat_actions' in kwargs)
+        finally:
+            sys.stdout.close()
+            sys.stdout = orig
+
+    def test_alarm_update_repeat_actions_untouched(self):
+        self._do_test_alarm_update_repeat_actions(None)
+
+    def test_alarm_update_repeat_actions_set(self):
+        self._do_test_alarm_update_repeat_actions(True)
+
+    def test_alarm_update_repeat_actions_clear(self):
+        self._do_test_alarm_update_repeat_actions(False)
+
+
 class ShellSampleListCommandTest(utils.BaseTestCase):
 
     METER = 'cpu_util'
