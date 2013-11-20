@@ -267,11 +267,6 @@ def common_alarm_arguments(create=False):
                    metavar='<Webhook URL>', action='append', default=None,
                    help=('URL to invoke when state transitions to unkown. '
                          'May be used multiple times.'))
-        @utils.arg('--repeat-actions', dest='repeat_actions',
-                   metavar='{True|False}', type=utils.string_to_bool,
-                   default=False,
-                   help=('True if actions should be repeatedly notified '
-                         'while alarm remains in target state'))
         @functools.wraps(func)
         def _wrapped(*args, **kwargs):
             return func(*args, **kwargs)
@@ -296,6 +291,11 @@ def common_alarm_arguments(create=False):
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
                  'additionally to the meter_name'))
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=utils.string_to_bool,
+           default=False,
+           help=('True if actions should be repeatedly notified '
+                'while alarm remains in target state'))
 def do_alarm_create(cc, args={}):
     '''Create a new alarm (Deprecated).'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -327,6 +327,11 @@ def do_alarm_create(cc, args={}):
            dest='threshold_rule/query',
            help='The query to find the data for computing statistics '
            '(key[op]value; list.)')
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=utils.string_to_bool,
+           default=False,
+           help=('True if actions should be repeatedly notified '
+                'while alarm remains in target state'))
 def do_alarm_threshold_create(cc, args={}):
     '''Create a new alarm based on computed statistics.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -347,6 +352,11 @@ def do_alarm_threshold_create(cc, args={}):
            dest='combination_rule/operator',
            help='Operator to compare with, one of: ' + str(
                ALARM_COMBINATION_OPERATORS))
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=utils.string_to_bool,
+           default=False,
+           help=('True if actions should be repeatedly notified '
+                'while alarm remains in target state'))
 def do_alarm_combination_create(cc, args={}):
     '''Create a new alarm based on state of other alarms.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -375,6 +385,10 @@ def do_alarm_combination_create(cc, args={}):
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
                  'additionally to the meter_name'))
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=utils.string_to_bool,
+           help=('True if actions should be repeatedly notified '
+                'while alarm remains in target state'))
 def do_alarm_update(cc, args={}):
     '''Update an existing alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -412,6 +426,10 @@ def do_alarm_update(cc, args={}):
            dest='threshold_rule/query',
            help='The query to find the data for computing statistics '
            '(key[op]value; list.)')
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=utils.string_to_bool,
+           help=('True if actions should be repeatedly notified '
+                'while alarm remains in target state'))
 def do_alarm_threshold_update(cc, args={}):
     '''Update an existing alarm based on computed statistics.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -438,6 +456,10 @@ def do_alarm_threshold_update(cc, args={}):
            dest='combination_rule/operator',
            help='Operator to compare with, one of: ' + str(
                ALARM_COMBINATION_OPERATORS))
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=utils.string_to_bool,
+           help=('True if actions should be repeatedly notified '
+                'while alarm remains in target state'))
 def do_alarm_combination_update(cc, args={}):
     '''Update an existing alarm based on state of other alarms.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
