@@ -14,15 +14,19 @@
 Command-line interface to the OpenStack Metering API.
 """
 
+from __future__ import print_function
+
 import argparse
 import httplib2
 import logging
+import six
 import sys
 
 import ceilometerclient
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
 from ceilometerclient import exc
+from ceilometerclient.openstack.common import strutils
 
 
 class CeilometerShell(object):
@@ -291,7 +295,7 @@ def main():
         CeilometerShell().main(sys.argv[1:])
 
     except Exception as e:
-        print >> sys.stderr, e
+        print(strutils.safe_encode(six.text_type(e)), file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
