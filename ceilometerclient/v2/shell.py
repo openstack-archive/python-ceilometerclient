@@ -101,6 +101,8 @@ def do_sample_list(cc, args):
            help='The sample volume')
 @utils.arg('--resource-metadata', metavar='<RESOURCE_METADATA>',
            help='resource metadata')
+@utils.arg('--timestamp', metavar='<TIMESTAMP>',
+           help='the sample timestamp')
 def do_sample_create(cc, args={}):
     '''Create a sample.'''
     arg_to_field_mapping = {'meter_name': 'counter_name',
