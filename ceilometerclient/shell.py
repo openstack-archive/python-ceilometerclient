@@ -204,19 +204,19 @@ class CeilometerShell(object):
                 subparser.add_argument(*args, **kwargs)
             subparser.set_defaults(func=callback)
 
-    def _setup_debugging(self, debug):
+    def _setup_logging(self, debug):
+        format = '%(levelname)s (%(module)s:%(lineno)d) %(message)s'
         if debug:
-            logging.basicConfig(
-                format="%(levelname)s (%(module)s:%(lineno)d) %(message)s",
-                level=logging.DEBUG)
-
+            logging.basicConfig(format=format, level=logging.DEBUG)
             httplib2.debuglevel = 1
+        else:
+            logging.basicConfig(format=format, level=logging.WARN)
 
     def main(self, argv):
         # Parse args once to find version
         parser = self.get_base_parser()
         (options, args) = parser.parse_known_args(argv)
-        self._setup_debugging(options.debug)
+        self._setup_logging(options.debug)
 
         # build available subcommands based on version
         api_version = options.ceilometer_api_version
