@@ -236,12 +236,10 @@ class AlarmManagerTest(testtools.TestCase):
         self.assertEqual(alarms[0].alarm_id, 'alarm-id')
 
     def test_list_with_query(self):
-        alarms = list(self.mgr.list(q=[
-                                      {"field": "project_id",
-                                       "value": "project-id"},
-                                      {"field": "name",
-                                       "value": "SwiftObjectAlarm"},
-                                     ]))
+        alarms = list(self.mgr.list(q=[{"field": "project_id",
+                                        "value": "project-id"},
+                                       {"field": "name",
+                                        "value": "SwiftObjectAlarm"}]))
         expect = [
             ('GET',
              '/v2/alarms?q.field=project_id&q.field=name&q.op=&q.op='
