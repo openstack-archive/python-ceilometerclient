@@ -436,7 +436,7 @@ def do_alarm_threshold_update(cc, args={}):
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields.pop('alarm_id')
     fields['type'] = 'threshold'
-    if 'query' in fields['threshold_rule']:
+    if 'threshold_rule' in fields and 'query' in fields['threshold_rule']:
         fields['threshold_rule']['query'] = options.cli_to_array(
             fields['threshold_rule']['query'])
     try:
