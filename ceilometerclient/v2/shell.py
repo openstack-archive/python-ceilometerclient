@@ -295,7 +295,7 @@ def common_alarm_arguments(create=False):
            metavar='{True|False}', type=utils.string_to_bool,
            default=False,
            help=('True if actions should be repeatedly notified '
-                'while alarm remains in target state'))
+                 'while alarm remains in target state'))
 def do_alarm_create(cc, args={}):
     '''Create a new alarm (Deprecated).'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -331,7 +331,7 @@ def do_alarm_create(cc, args={}):
            metavar='{True|False}', type=utils.string_to_bool,
            default=False,
            help=('True if actions should be repeatedly notified '
-                'while alarm remains in target state'))
+                 'while alarm remains in target state'))
 def do_alarm_threshold_create(cc, args={}):
     '''Create a new alarm based on computed statistics.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -356,7 +356,7 @@ def do_alarm_threshold_create(cc, args={}):
            metavar='{True|False}', type=utils.string_to_bool,
            default=False,
            help=('True if actions should be repeatedly notified '
-                'while alarm remains in target state'))
+                 'while alarm remains in target state'))
 def do_alarm_combination_create(cc, args={}):
     '''Create a new alarm based on state of other alarms.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -388,7 +388,7 @@ def do_alarm_combination_create(cc, args={}):
 @utils.arg('--repeat-actions', dest='repeat_actions',
            metavar='{True|False}', type=utils.string_to_bool,
            help=('True if actions should be repeatedly notified '
-                'while alarm remains in target state'))
+                 'while alarm remains in target state'))
 def do_alarm_update(cc, args={}):
     '''Update an existing alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -429,7 +429,7 @@ def do_alarm_update(cc, args={}):
 @utils.arg('--repeat-actions', dest='repeat_actions',
            metavar='{True|False}', type=utils.string_to_bool,
            help=('True if actions should be repeatedly notified '
-                'while alarm remains in target state'))
+                 'while alarm remains in target state'))
 def do_alarm_threshold_update(cc, args={}):
     '''Update an existing alarm based on computed statistics.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -459,7 +459,7 @@ def do_alarm_threshold_update(cc, args={}):
 @utils.arg('--repeat-actions', dest='repeat_actions',
            metavar='{True|False}', type=utils.string_to_bool,
            help=('True if actions should be repeatedly notified '
-                'while alarm remains in target state'))
+                 'while alarm remains in target state'))
 def do_alarm_combination_update(cc, args={}):
     '''Update an existing alarm based on state of other alarms.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
