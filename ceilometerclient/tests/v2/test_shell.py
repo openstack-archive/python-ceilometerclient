@@ -178,7 +178,7 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
     def test_sample_list(self):
 
         sample_list = [samples.Sample(mock.Mock(), sample)
-                   for sample in self.SAMPLES]
+                       for sample in self.SAMPLES]
         self.cc.samples.list.return_value = sample_list
 
         org_stdout = sys.stdout

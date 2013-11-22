@@ -15,11 +15,11 @@ from keystoneclient.v2_0 import client as ksclient
 
 def script_keystone_client():
     ksclient.Client(auth_url='http://no.where',
-                insecure=False,
-                password='password',
-                tenant_id='',
-                tenant_name='tenant_name',
-                username='username').AndReturn(FakeKeystone('abcd1234'))
+                    insecure=False,
+                    password='password',
+                    tenant_id='',
+                    tenant_name='tenant_name',
+                    username='username').AndReturn(FakeKeystone('abcd1234'))
 
 
 def fake_headers():
