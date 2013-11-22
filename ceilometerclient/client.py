@@ -59,7 +59,9 @@ def get_client(api_version, **kwargs):
             * os_tenant_{name|id}: name or ID of tenant
     """
     if kwargs.get('os_auth_token') and kwargs.get('ceilometer_url'):
-        token = kwargs.get('os_auth_token')
+        token = ((kwargs.get('os_auth_token'))
+                if isinstance(kwargs.get('os_auth_token'), type(lambda: None)) and kwargs.get('os_auth_token').__name__ == '<lambda>'
+                else (lambda: kwargs.get('os_auth_token')))
         endpoint = kwargs.get('ceilometer_url')
     elif (kwargs.get('os_username') and
           kwargs.get('os_password') and
