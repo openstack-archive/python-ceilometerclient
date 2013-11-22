@@ -16,11 +16,7 @@
 import copy
 import logging
 import os
-import six
 import socket
-
-from ceilometerclient.openstack.common.py3kcompat import urlutils
-from six.moves import http_client as httplib
 
 try:
     import ssl
@@ -33,8 +29,11 @@ try:
 except ImportError:
     import simplejson as json
 
+import six
+from six.moves import http_client as httplib  # noqa
 
 from ceilometerclient import exc
+from ceilometerclient.openstack.common.py3kcompat import urlutils
 
 
 LOG = logging.getLogger(__name__)
