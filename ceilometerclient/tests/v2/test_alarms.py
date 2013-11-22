@@ -17,12 +17,13 @@
 #    under the License.
 
 import copy
+
 import six
+from six.moves import xrange  # noqa
 import testtools
 
 from ceilometerclient.tests import utils
 from ceilometerclient.v2 import alarms
-from six.moves import xrange
 
 AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
             u'ok_actions': [u'http://site:8000/ok'],
