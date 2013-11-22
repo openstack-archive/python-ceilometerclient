@@ -19,17 +19,17 @@ import ceilometerclient.v2.statistics
 base_url = '/v2/meters/instance/statistics'
 qry = 'q.field=resource_id&q.field=source&q.op=&q.op=&q.value=foo&q.value=bar'
 period = '&period=60'
-samples = [{
-              u'count': 135,
-              u'duration_start': u'2013-02-04T10:51:42',
-              u'min': 1.0,
-              u'max': 1.0,
-              u'duration_end':
-              u'2013-02-05T15:46:09',
-              u'duration': 1734.0,
-              u'avg': 1.0,
-              u'sum': 135.0,
-          }]
+samples = [
+    {u'count': 135,
+     u'duration_start': u'2013-02-04T10:51:42',
+     u'min': 1.0,
+     u'max': 1.0,
+     u'duration_end':
+     u'2013-02-05T15:46:09',
+     u'duration': 1734.0,
+     u'avg': 1.0,
+     u'sum': 135.0},
+]
 fixtures = {
     base_url:
     {
