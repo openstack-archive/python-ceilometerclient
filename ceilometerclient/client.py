@@ -12,6 +12,7 @@
 
 from ceilometerclient.common import utils
 from keystoneclient.v2_0 import client as ksclient
+import six
 
 
 def _get_ksclient(**kwargs):
@@ -60,6 +61,7 @@ def get_client(api_version, **kwargs):
     """
     if kwargs.get('os_auth_token') and kwargs.get('ceilometer_url'):
         token = kwargs.get('os_auth_token')
+        token = (token if six.callable(token) else lambda: token)
         endpoint = kwargs.get('ceilometer_url')
     elif (kwargs.get('os_username') and
           kwargs.get('os_password') and
