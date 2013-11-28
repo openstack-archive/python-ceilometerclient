@@ -172,7 +172,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self.args = mock.Mock()
         self.args.alarm_id = self.ALARM_ID
 
-    def _do_test_alarm_update_repeat_actions(self, repeat_actions):
+    def _do_test_alarm_update_repeat_actions(self, method, repeat_actions):
         self.args.threshold = 42.0
         if repeat_actions is not None:
             self.args.repeat_actions = repeat_actions
@@ -183,7 +183,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self.cc.alarms.update.return_value = alarm[0]
 
         try:
-            ceilometer_shell.do_alarm_update(self.cc, self.args)
+            method(self.cc, self.args)
             args, kwargs = self.cc.alarms.update.call_args
             self.assertEqual(self.ALARM_ID, args[0])
             self.assertEqual(42.0, kwargs.get('threshold'))
@@ -196,13 +196,40 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
             sys.stdout = orig
 
     def test_alarm_update_repeat_actions_untouched(self):
-        self._do_test_alarm_update_repeat_actions(None)
+        method = ceilometer_shell.do_alarm_update
+        self._do_test_alarm_update_repeat_actions(method, None)
 
     def test_alarm_update_repeat_actions_set(self):
-        self._do_test_alarm_update_repeat_actions(True)
+        method = ceilometer_shell.do_alarm_update
+        self._do_test_alarm_update_repeat_actions(method, True)
 
     def test_alarm_update_repeat_actions_clear(self):
-        self._do_test_alarm_update_repeat_actions(False)
+        method = ceilometer_shell.do_alarm_update
+        self._do_test_alarm_update_repeat_actions(method, False)
+
+    def test_alarm_combination_update_repeat_actions_untouched(self):
+        method = ceilometer_shell.do_alarm_combination_update
+        self._do_test_alarm_update_repeat_actions(method, None)
+
+    def test_alarm_combination_update_repeat_actions_set(self):
+        method = ceilometer_shell.do_alarm_combination_update
+        self._do_test_alarm_update_repeat_actions(method, True)
+
+    def test_alarm_combination_update_repeat_actions_clear(self):
+        method = ceilometer_shell.do_alarm_combination_update
+        self._do_test_alarm_update_repeat_actions(method, False)
+
+    def test_alarm_threshold_update_repeat_actions_untouched(self):
+        method = ceilometer_shell.do_alarm_threshold_update
+        self._do_test_alarm_update_repeat_actions(method, None)
+
+    def test_alarm_threshold_update_repeat_actions_set(self):
+        method = ceilometer_shell.do_alarm_threshold_update
+        self._do_test_alarm_update_repeat_actions(method, True)
+
+    def test_alarm_threshold_update_repeat_actions_clear(self):
+        method = ceilometer_shell.do_alarm_threshold_update
+        self._do_test_alarm_update_repeat_actions(method, False)
 
 
 class ShellSampleListCommandTest(utils.BaseTestCase):
