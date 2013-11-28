@@ -19,3 +19,6 @@ doc/source/api
 ceilometerclient/versioninfo
 python_ceilometerclient.egg-info
 *.log
+# Development environment files
+.project
+.pydevproject
