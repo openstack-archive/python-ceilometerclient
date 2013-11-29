@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2010 Jacob Kaplan-Moss
 # Copyright 2011 OpenStack Foundation
 # Copyright 2012 Grid Dynamics
@@ -26,8 +24,9 @@ Base utilities to build API operation managers and objects on top of.
 # pylint: disable=E1102
 
 import abc
-import six
 import urllib
+
+import six
 
 from ceilometerclient.openstack.common.apiclient import exceptions
 from ceilometerclient.openstack.common import strutils
