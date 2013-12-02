@@ -11,7 +11,7 @@
 #    under the License.
 
 """
-Command-line interface to the OpenStack Metering API.
+Command-line interface to the OpenStack Telemetry API.
 """
 
 import argparse
