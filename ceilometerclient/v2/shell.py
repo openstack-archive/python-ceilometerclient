@@ -41,7 +41,7 @@ OPERATORS_STRING = dict(gt='>', ge='>=',
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
 def do_statistics(cc, args):
-    '''List the statistics for this meter.'''
+    '''List the statistics for a meter.'''
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query),
               'period': args.period}
@@ -66,7 +66,7 @@ def do_statistics(cc, args):
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
            help='Maximum number of samples to return.')
 def do_sample_list(cc, args):
-    '''List the samples for this meters.'''
+    '''List the samples for a meter.'''
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query),
               'limit': args.limit}
