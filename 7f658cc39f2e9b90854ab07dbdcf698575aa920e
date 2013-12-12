@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Approved+1: Mehdi Abaakouk <mehdi.abaakouk@enovance.com>
+Code-Review+2: Mehdi Abaakouk <mehdi.abaakouk@enovance.com>
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 12 Dec 2013 20:55:41 +0000
+Reviewed-on: https://review.openstack.org/60818
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
