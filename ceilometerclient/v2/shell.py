@@ -454,7 +454,7 @@ def do_alarm_threshold_update(cc, args={}):
 @utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
            dest='combination_rule/alarm_ids',
            help='List of alarm id')
-@utils.arg('---operator', metavar='<OPERATOR>',
+@utils.arg('--operator', metavar='<OPERATOR>',
            dest='combination_rule/operator',
            help='Operator to compare with, one of: ' + str(
                ALARM_COMBINATION_OPERATORS))
