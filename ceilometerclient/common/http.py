@@ -170,7 +170,7 @@ class HTTPClient(object):
 
         if 400 <= resp.status < 600:
             LOG.warn("Request returned failure status.")
-            raise exc.from_response(resp)
+            raise exc.from_response(resp, ''.join(body_iter))
         elif resp.status in (301, 302, 305):
             # Redirected. Reissue the request to the new location.
             return self._http_request(resp['location'], method, **kwargs)

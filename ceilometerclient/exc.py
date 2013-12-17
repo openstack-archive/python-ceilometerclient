@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import sys
 
 
@@ -65,7 +66,17 @@ class BadRequest(HTTPException):
 
 
 class HTTPBadRequest(BadRequest):
-    pass
+
+    def __str__(self):
+        try:
+            data = json.loads(self.details)
+            message = data.get("error_message", {}).get("faultstring")
+            if message:
+                return "%s (HTTP %s) ERROR %s" % (
+                    self.__class__.__name__, self.code, message)
+        except (ValueError, TypeError, AttributeError):
+            pass
+        return super(HTTPBadRequest, self).__str__()
 
 
 class Unauthorized(HTTPException):
@@ -147,10 +158,10 @@ for obj_name in dir(sys.modules[__name__]):
         _code_map[obj.code] = obj
 
 
-def from_response(response):
+def from_response(response, details=None):
     """Return an instance of an HTTPException based on httplib response."""
     cls = _code_map.get(response.status, HTTPException)
-    return cls()
+    return cls(details)
 
 
 class NoTokenLookupException(Exception):
