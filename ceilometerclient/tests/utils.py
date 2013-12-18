@@ -15,6 +15,8 @@
 
 import copy
 import fixtures
+import json
+import requests
 import six
 import testtools
 
@@ -46,6 +48,24 @@ class FakeAPI(object):
     def json_request(self, *args, **kwargs):
         fixture = self._request(*args, **kwargs)
         return FakeResponse(fixture[0]), fixture[1]
+
+    def client_request(self, method, url, **kwargs):
+        resp, body = self.json_request(method, url, **kwargs)
+        r = requests.Response()
+        r._content = json.dumps(body)
+        return r
+
+    def get(self, url, **kwargs):
+        return self.client_request("GET", url, **kwargs)
+
+    def post(self, url, **kwargs):
+        return self.client_request("POST", url, **kwargs)
+
+    def put(self, url, **kwargs):
+        return self.client_request("PUT", url, **kwargs)
+
+    def delete(self, url, **kwargs):
+        return self.raw_request("DELETE", url, **kwargs)
 
 
 class FakeResponse(object):

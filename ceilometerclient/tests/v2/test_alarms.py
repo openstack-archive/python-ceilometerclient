@@ -310,12 +310,11 @@ class AlarmManagerTest(testtools.TestCase):
         self.assertEqual(state, 'alarm')
 
     def test_delete(self):
-        deleted = self.mgr.delete(alarm_id='victim-id')
+        self.mgr.delete(alarm_id='victim-id')
         expect = [
             ('DELETE', '/v2/alarms/victim-id', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(deleted is None)
 
     def _do_test_get_history(self, q, url):
         history = self.mgr.get_history(q=q, alarm_id='alarm-id')

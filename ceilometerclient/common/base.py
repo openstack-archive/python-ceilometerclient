@@ -20,6 +20,7 @@ Base utilities to build API operation managers and objects on top of.
 import copy
 import six
 
+from ceilometerclient.openstack.common.apiclient import base
 
 # Python 2.4 compat
 try:
@@ -39,23 +40,19 @@ def getid(obj):
         return obj
 
 
-class Manager(object):
+class Manager(base.BaseManager):
     """Managers interact with a particular type of API
     (samples, meters, alarms, etc.) and provide CRUD operations for them.
     """
-    resource_class = None
-
-    def __init__(self, api):
-        self.api = api
 
     def _create(self, url, body):
-        resp, body = self.api.json_request('POST', url, body=body)
+        body = self.client.post(url, body=body).json()
         if body:
             return self.resource_class(self, body)
 
     def _list(self, url, response_key=None, obj_class=None, body=None,
               expect_single=False):
-        resp, body = self.api.json_request('GET', url)
+        body = self.client.get(url).json()
 
         if obj_class is None:
             obj_class = self.resource_class
@@ -72,13 +69,10 @@ class Manager(object):
         return [obj_class(self, res, loaded=True) for res in data if res]
 
     def _update(self, url, body, response_key=None):
-        resp, body = self.api.json_request('PUT', url, body=body)
+        body = self.client.put(url, body=body).json()
         # PUT requests may not return a body
         if body:
             return self.resource_class(self, body)
-
-    def _delete(self, url):
-        self.api.raw_request('DELETE', url)
 
 
 class Resource(object):

@@ -18,6 +18,8 @@ import logging
 import os
 import socket
 
+import requests
+
 try:
     import ssl
 except ImportError:
@@ -218,6 +220,24 @@ class HTTPClient(object):
             return os.environ.get('http_proxy')
         msg = 'Unsupported scheme: %s' % scheme
         raise exc.InvalidEndpoint(msg)
+
+    def client_request(self, method, url, **kwargs):
+        resp, body = self.json_request(method, url, **kwargs)
+        r = requests.Response()
+        r._content = json.dumps(body)
+        return r
+
+    def get(self, url, **kwargs):
+        return self.client_request("GET", url, **kwargs)
+
+    def post(self, url, **kwargs):
+        return self.client_request("POST", url, **kwargs)
+
+    def put(self, url, **kwargs):
+        return self.client_request("PUT", url, **kwargs)
+
+    def delete(self, url, **kwargs):
+        return self.raw_request("DELETE", url, **kwargs)
 
 
 class VerifiedHTTPSConnection(httplib.HTTPSConnection):
