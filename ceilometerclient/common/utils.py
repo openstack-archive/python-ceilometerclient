@@ -14,7 +14,6 @@
 #    under the License.
 
 from __future__ import print_function
-import itertools
 import os
 import six
 import sys
@@ -56,7 +55,7 @@ def print_list(objs, fields, field_labels, formatters={}, sortby=0):
         return lambda o: getattr(o, field, '')
 
     new_formatters = {}
-    for field, field_label in itertools.izip(fields, field_labels):
+    for field, field_label in six.moves.zip(fields, field_labels):
         if field in formatters:
             new_formatters[field_label] = formatters[field]
         else:
