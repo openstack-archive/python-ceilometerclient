@@ -107,7 +107,7 @@ class HTTPClient(object):
         if 'body' in kwargs:
             curl.append('-d \'%s\'' % kwargs['body'])
 
-        curl.append('%s%s' % (self.endpoint, url))
+        curl.append('%s/%s' % (self.endpoint.rstrip('/'), url.lstrip('/')))
         LOG.debug(' '.join(curl))
 
     @staticmethod
