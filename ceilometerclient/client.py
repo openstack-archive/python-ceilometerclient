@@ -90,7 +90,7 @@ def get_client(api_version, **kwargs):
         'token': token,
         'insecure': kwargs.get('insecure'),
         'timeout': kwargs.get('timeout'),
-        'cacert': kwargs.get('cacert'),
+        'cacert': kwargs.get('os_cacert'),
         'cert_file': kwargs.get('cert_file'),
         'key_file': kwargs.get('key_file'),
     }
