@@ -1,3 +1,5 @@
+# PYTHON_ARGCOMPLETE_OK
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -17,6 +19,7 @@ Command-line interface to the OpenStack Telemetry API.
 from __future__ import print_function
 
 import argparse
+import argcomplete
 import httplib2
 import logging
 import sys
@@ -227,6 +230,8 @@ class CeilometerShell(object):
         api_version = options.ceilometer_api_version
         subcommand_parser = self.get_subcommand_parser(api_version)
         self.parser = subcommand_parser
+
+        argcomplete.autocomplete(subcommand_parser)
 
         # Handle top-level --help/-h before attempting to parse
         # a command off the command line
