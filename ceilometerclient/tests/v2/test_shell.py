@@ -304,3 +304,65 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
 ''')
+
+
+class ShellSampleCreateCommandTest(utils.BaseTestCase):
+
+    METER = 'instance'
+    METER_TYPE = 'gauge'
+    RESOURCE_ID = '0564c64c-3545-4e34-abfb-9d18e5f2f2f9'
+    SAMPLE_VOLUME = '1'
+    METER_UNIT = 'instance'
+    SAMPLE = [{
+        u'counter_name': u'instance',
+        u'user_id': u'21b442b8101d407d8242b6610e0ed0eb',
+        u'resource_id': u'0564c64c-3545-4e34-abfb-9d18e5f2f2f9',
+        u'timestamp': u'2014-01-10T03: 05: 33.951170',
+        u'message_id': u'1247cbe6-79a4-11e3-a296-000c294c58e2',
+        u'source': u'384260c6987b451d8290e66e1f108082: openstack',
+        u'counter_unit': u'instance',
+        u'counter_volume': 1.0,
+        u'project_id': u'384260c6987b451d8290e66e1f108082',
+        u'resource_metadata': {},
+        u'counter_type': u'gauge'
+    }]
+
+    def setUp(self):
+        super(ShellSampleCreateCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.args = mock.Mock()
+        self.args.meter_name = self.METER
+        self.args.meter_type = self.METER_TYPE
+        self.args.meter_unit = self.METER_UNIT
+        self.args.resource_id = self.RESOURCE_ID
+        self.args.sample_volume = self.SAMPLE_VOLUME
+
+    def test_sample_create(self):
+
+        ret_sample = [samples.Sample(mock.Mock(), sample)
+                      for sample in self.SAMPLE]
+        self.cc.samples.create.return_value = ret_sample
+        org_stdout = sys.stdout
+        try:
+            sys.stdout = output = six.StringIO()
+            ceilometer_shell.do_sample_create(self.cc, self.args)
+        finally:
+            sys.stdout = org_stdout
+
+        self.assertEqual(output.getvalue(), '''\
++-------------------+---------------------------------------------+
+| Property          | Value                                       |
++-------------------+---------------------------------------------+
+| message_id        | 1247cbe6-79a4-11e3-a296-000c294c58e2        |
+| name              | instance                                    |
+| project_id        | 384260c6987b451d8290e66e1f108082            |
+| resource_id       | 0564c64c-3545-4e34-abfb-9d18e5f2f2f9        |
+| resource_metadata | {}                                          |
+| source            | 384260c6987b451d8290e66e1f108082: openstack |
+| timestamp         | 2014-01-10T03: 05: 33.951170                |
+| type              | gauge                                       |
+| unit              | instance                                    |
+| user_id           | 21b442b8101d407d8242b6610e0ed0eb            |
+| volume            | 1.0                                         |
++-------------------+---------------------------------------------+
+''')
