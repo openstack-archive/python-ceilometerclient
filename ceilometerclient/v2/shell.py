@@ -117,7 +117,13 @@ def do_sample_create(cc, args={}):
                 fields[k] = json.loads(v)
             else:
                 fields[arg_to_field_mapping.get(k, k)] = v
-    cc.samples.create(**fields)
+    sample = cc.samples.create(**fields)
+    fields = ['counter_name', 'user_id', 'resource_id',
+              'timestamp', 'message_id', 'source', 'counter_unit',
+              'counter_volume', 'project_id', 'resource_metadata',
+              'counter_type']
+    data = dict([(f, getattr(sample, f, '')) for f in fields])
+    utils.print_dict(data, wrap=72)
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
