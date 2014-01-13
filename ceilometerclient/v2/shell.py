@@ -281,7 +281,7 @@ def common_alarm_arguments(create=False):
            help='Length of each period (seconds) to evaluate over')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
            help='Number of periods to evaluate over')
-@utils.arg('--meter-name', metavar='<METRIC>', required=True,
+@utils.arg('-m', '--meter-name', metavar='<METRIC>', required=True,
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
            help='Statistic to evaluate, one of: ' + str(STATISTICS))
@@ -307,7 +307,7 @@ def do_alarm_create(cc, args={}):
 
 
 @common_alarm_arguments(create=True)
-@utils.arg('--meter-name', metavar='<METRIC>', required=True,
+@utils.arg('-m', '--meter-name', metavar='<METRIC>', required=True,
            dest='threshold_rule/meter_name',
            help='Metric to evaluate against')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
@@ -381,7 +381,7 @@ def do_alarm_combination_create(cc, args={}):
            help='Statistic to evaluate, one of: ' + str(STATISTICS))
 @utils.arg('--comparison-operator', metavar='<OPERATOR>',
            help='Operator to compare with, one of: ' + str(ALARM_OPERATORS))
-@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
+@utils.arg('-m', '--threshold', type=float, metavar='<THRESHOLD>',
            help='Threshold to evaluate against')
 @utils.arg('--matching-metadata', dest='matching_metadata',
            metavar='<Matching Metadata>', action='append', default=None,
