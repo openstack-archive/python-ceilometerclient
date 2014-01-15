@@ -1,0 +1,27 @@
+# bash completion for openstack ceilometer
+
+_ceilometer_opts="" # lazy init
+_ceilometer_flags="" # lazy init
+_ceilometer_opts_exp="" # lazy init
+_ceilometer()
+{
+    local cur prev kbc
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    if [ "x$_ceilometer_opts" == "x" ] ; then
+        kbc="`ceilometer bash-completion | sed -e "s/ -h / /"`"
+        _ceilometer_opts="`echo "$kbc" | sed -e "s/--[a-z0-9_-]*//g" -e "s/[ ][ ]*/ /g"`"
+        _ceilometer_flags="`echo " $kbc" | sed -e "s/ [^-][^-][a-z0-9_-]*//g" -e "s/[ ][ ]*/ /g"`"
+        _ceilometer_opts_exp="`echo $_ceilometer_opts | sed -e "s/[ ]/|/g"`"
+    fi
+
+    if [[ " ${COMP_WORDS[@]} " =~ " "($_ceilometer_opts_exp)" " && "$prev" != "help" ]] ; then
+        COMPREPLY=($(compgen -W "${_ceilometer_flags}" -- ${cur}))
+    else
+        COMPREPLY=($(compgen -W "${_ceilometer_opts}" -- ${cur}))
+    fi
+    return 0
+}
+complete -F _ceilometer ceilometer
