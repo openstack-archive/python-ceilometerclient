@@ -15,6 +15,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import io
 import re
 import sys
 
@@ -260,8 +261,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self._test_alarm_threshold_action_args('create', argv)
 
     def test_alarm_threshold_update_args(self):
-        argv = ['alarm-threshold-update',
-                '--alarm_id', 'x'] + self.THRESHOLD_ALARM_CLI_ARGS
+        argv = ['alarm-threshold-update', 'x'] + self.THRESHOLD_ALARM_CLI_ARGS
         self._test_alarm_threshold_action_args('update', argv)
 
     @mock.patch('sys.stdout', new=six.StringIO())
@@ -804,14 +804,18 @@ class ShellStatisticsTest(utils.BaseTestCase):
 class ShellEmptyIdTest(utils.BaseTestCase):
     """Test empty field which will cause calling incorrect rest uri."""
 
-    def _test_entity_action_with_empty_values(self, entity, *args):
+    def _test_entity_action_with_empty_values(self, entity,
+                                              *args, **kwargs):
+        positional = kwargs.pop('positional', False)
         for value in ('', ' ', '   ', '\t'):
-            self._test_entity_action_with_empty_value(entity, value, *args)
+            self._test_entity_action_with_empty_value(entity, value,
+                                                      positional, *args)
 
-    def _test_entity_action_with_empty_value(self, entity, value, *args):
+    def _test_entity_action_with_empty_value(self, entity, value,
+                                             positional, *args):
+        new_args = [value] if positional else ['--%s' % entity, value]
+        argv = list(args) + new_args
         shell = base_shell.CeilometerShell()
-        argv = list(args) + ['--%s' % entity, value]
-
         with mock.patch('ceilometerclient.exc.CommandError') as e:
             e.return_value = exc.BaseException()
             self.assertRaises(exc.BaseException, shell.parse_args, argv)
@@ -820,7 +824,8 @@ class ShellEmptyIdTest(utils.BaseTestCase):
 
     def _test_alarm_action_with_empty_ids(self, method, *args):
         args = [method] + list(args)
-        self._test_entity_action_with_empty_values('alarm_id', *args)
+        self._test_entity_action_with_empty_values('alarm_id',
+                                                   positional=True, *args)
 
     def test_alarm_show_with_empty_id(self):
         self._test_alarm_action_with_empty_ids('alarm-show')
@@ -879,3 +884,20 @@ class ShellEmptyIdTest(utils.BaseTestCase):
     def test_trait_list_with_empty_trait_name(self):
         args = ['trait-list', '--event_type', 'x']
         self._test_entity_action_with_empty_values('trait_name', *args)
+
+class ShellObsoletedArgsTest(utils.BaseTestCase):
+    """Test arguments that have been obsoleted."""
+
+    def _test_entity_obsoleted(self, entity, value, positional, *args):
+        new_args = [value] if positional else ['--%s' % entity, value]
+        argv = list(args) + new_args
+        shell = base_shell.CeilometerShell()
+        with mock.patch('sys.stdout', new_callable=six.StringIO) as stdout:
+            shell.parse_args(argv)
+            self.assertIn('obsolete', stdout.getvalue())
+
+    def test_obsolete_alarm_id(self):
+        for method in ['alarm-show', 'alarm-update', 'alarm-threshold-update',
+                       'alarm-combination-update', 'alarm-delete',
+                       'alarm-state-get', 'alarm-history']:
+            self._test_entity_obsoleted('alarm_id', 'abcde', False, method)
