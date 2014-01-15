@@ -260,8 +260,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self._test_alarm_threshold_action_args('create', argv)
 
     def test_alarm_threshold_update_args(self):
-        argv = ['alarm-threshold-update',
-                '--alarm_id', 'x'] + self.THRESHOLD_ALARM_CLI_ARGS
+        argv = ['alarm-threshold-update', 'x'] + self.THRESHOLD_ALARM_CLI_ARGS
         self._test_alarm_threshold_action_args('update', argv)
 
     @mock.patch('sys.stdout', new=six.StringIO())
@@ -821,39 +820,6 @@ class ShellEmptyIdTest(utils.BaseTestCase):
     def _test_alarm_action_with_empty_ids(self, method, *args):
         args = [method] + list(args)
         self._test_entity_action_with_empty_values('alarm_id', *args)
-
-    def test_alarm_show_with_empty_id(self):
-        self._test_alarm_action_with_empty_ids('alarm-show')
-
-    def test_alarm_update_with_empty_id(self):
-        self._test_alarm_action_with_empty_ids('alarm-update')
-
-    def test_alarm_threshold_update_with_empty_id(self):
-        self._test_alarm_action_with_empty_ids('alarm-threshold-update')
-
-    def test_alarm_combination_update_with_empty_id(self):
-        self._test_alarm_action_with_empty_ids('alarm-combination-update')
-
-    def test_alarm_delete_with_empty_id(self):
-        self._test_alarm_action_with_empty_ids('alarm-delete')
-
-    def test_alarm_state_get_with_empty_id(self):
-        self._test_alarm_action_with_empty_ids('alarm-state-get')
-
-    def test_alarm_state_set_with_empty_id(self):
-        args = ['alarm-state-set', '--state', 'ok']
-        self._test_alarm_action_with_empty_ids(*args)
-
-    def test_alarm_history_with_empty_id(self):
-        self._test_alarm_action_with_empty_ids('alarm-history')
-
-    def test_event_show_with_empty_message_id(self):
-        args = ['event-show']
-        self._test_entity_action_with_empty_values('message_id', *args)
-
-    def test_resource_show_with_empty_id(self):
-        args = ['resource-show']
-        self._test_entity_action_with_empty_values('resource_id', *args)
 
     def test_sample_list_with_empty_meter(self):
         args = ['sample-list']

@@ -333,7 +333,7 @@ def _display_alarm(alarm):
     utils.print_dict(data, wrap=72)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            action=NotEmptyAction, help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
     '''Show an alarm.'''
@@ -490,7 +490,7 @@ def do_alarm_combination_create(cc, args={}):
     _display_alarm(alarm)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
 @utils.arg('--remove-time-constraint', action='append',
@@ -531,7 +531,7 @@ def do_alarm_update(cc, args={}):
     _display_alarm(alarm)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
 @utils.arg('--remove-time-constraint', action='append',
@@ -583,7 +583,7 @@ def do_alarm_threshold_update(cc, args={}):
     _display_alarm(alarm)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
 @utils.arg('--remove-time-constraint', action='append',
@@ -615,7 +615,7 @@ def do_alarm_combination_update(cc, args={}):
     _display_alarm(alarm)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            action=NotEmptyAction, help='ID of the alarm to delete.')
 def do_alarm_delete(cc, args={}):
     '''Delete an alarm.'''
@@ -625,7 +625,7 @@ def do_alarm_delete(cc, args={}):
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            action=NotEmptyAction, help='ID of the alarm state to set.')
 @utils.arg('--state', metavar='<STATE>', required=True,
            help='State of the alarm, one of: ' + str(ALARM_STATES) +
@@ -639,7 +639,7 @@ def do_alarm_state_set(cc, args={}):
     utils.print_dict({'state': state}, wrap=72)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            action=NotEmptyAction, help='ID of the alarm state to show.')
 def do_alarm_state_get(cc, args={}):
     '''Get the state of an alarm.'''
@@ -650,8 +650,7 @@ def do_alarm_state_get(cc, args={}):
     utils.print_dict({'state': state}, wrap=72)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           action=NotEmptyAction,
+@utils.arg('alarm_id', metavar='<ALARM_ID>', action=NotEmptyAction,
            help='ID of the alarm for which history is shown.')
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
@@ -688,7 +687,7 @@ def do_resource_list(cc, args={}):
                      sortby=1)
 
 
-@utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>', required=True,
+@utils.arg('resource_id', metavar='<RESOURCE_ID>',
            action=NotEmptyAction, help='ID of the resource to show.')
 def do_resource_show(cc, args={}):
     '''Show the resource.'''
@@ -719,9 +718,8 @@ def do_event_list(cc, args={}):
                          )})
 
 
-@utils.arg('-m', '--message_id', metavar='<message_id>',
-           help='The ID of the event. Should be a UUID.',
-           required=True, action=NotEmptyAction)
+@utils.arg('message_id', metavar='<message_id>', action=NotEmptyAction,
+           help='The ID of the event. Should be a UUID.')
 def do_event_show(cc, args={}):
     '''Show a particular event.'''
     event = cc.events.get(args.message_id)
