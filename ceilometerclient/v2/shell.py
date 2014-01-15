@@ -231,7 +231,7 @@ def _display_alarm(alarm):
     utils.print_dict(data, wrap=72)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
     '''Show an alarm.'''
@@ -477,7 +477,7 @@ def do_alarm_combination_update(cc, args={}):
     _display_alarm(alarm)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm to delete.')
 def do_alarm_delete(cc, args={}):
     '''Delete an alarm.'''
@@ -500,7 +500,7 @@ def do_alarm_state_set(cc, args={}):
     utils.print_dict({'state': state}, wrap=72)
 
 
-@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+@utils.arg('alarm_id', metavar='<ALARM_ID>',
            help='ID of the alarm state to show.')
 def do_alarm_state_get(cc, args={}):
     '''Get the state of an alarm.'''
@@ -544,7 +544,7 @@ def do_resource_list(cc, args={}):
                      sortby=1)
 
 
-@utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>', required=True,
+@utils.arg('resource_id', metavar='<RESOURCE_ID>',
            help='ID of the resource to show.')
 def do_resource_show(cc, args={}):
     '''Show the resource.'''
