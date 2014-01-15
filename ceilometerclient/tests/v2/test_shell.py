@@ -260,8 +260,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self._test_alarm_threshold_action_args('create', argv)
 
     def test_alarm_threshold_update_args(self):
-        argv = ['alarm-threshold-update',
-                '--alarm_id', 'x'] + self.THRESHOLD_ALARM_CLI_ARGS
+        argv = ['alarm-threshold-update', 'x'] + self.THRESHOLD_ALARM_CLI_ARGS
         self._test_alarm_threshold_action_args('update', argv)
 
     @mock.patch('sys.stdout', new=six.StringIO())
