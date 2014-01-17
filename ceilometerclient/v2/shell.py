@@ -93,7 +93,7 @@ def do_sample_list(cc, args):
                 '(only settable by admin users)')
 @utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>', required=True,
            help='ID of the resource.')
-@utils.arg('-m', '--meter-name', metavar='<METER_NAME>',
+@utils.arg('-m', '--meter-name', metavar='<METER_NAME>', required=True,
            help='the meter name')
 @utils.arg('--meter-type', metavar='<METER_TYPE>', required=True,
            help='the meter type')
