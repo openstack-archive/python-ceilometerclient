@@ -41,11 +41,14 @@ OPERATORS_STRING = dict(gt='>', ge='>=',
            help='Name of meter to show samples for.')
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
+@utils.arg('-g', '--groupby', metavar='<FIELD>', action='append',
+           help='Field for group aggregation.')
 def do_statistics(cc, args):
     '''List the statistics for a meter.'''
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query),
-              'period': args.period}
+              'period': args.period,
+              'groupby': args.groupby}
     try:
         statistics = cc.statistics.list(**fields)
     except exc.HTTPNotFound:
@@ -57,6 +60,9 @@ def do_statistics(cc, args):
         fields = ['period', 'period_start', 'period_end',
                   'count', 'min', 'max', 'sum', 'avg',
                   'duration', 'duration_start', 'duration_end']
+        if args.groupby:
+            field_labels.append('Group By')
+            fields.append('groupby')
         utils.print_list(statistics, fields, field_labels)
 
 
