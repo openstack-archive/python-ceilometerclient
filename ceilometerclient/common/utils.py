@@ -14,7 +14,6 @@
 #    under the License.
 
 from __future__ import print_function
-import os
 import six
 import sys
 import textwrap
@@ -131,19 +130,6 @@ def find_resource(manager, name_or_id):
         msg = "No %s with a name or ID of '%s' exists." % \
               (manager.resource_class.__name__.lower(), name_or_id)
         raise exc.CommandError(msg)
-
-
-def env(*vars, **kwargs):
-    """Search for the first defined of possibly many env vars
-
-    Returns the first environment variable defined in vars, or
-    returns the default defined in kwargs.
-    """
-    for v in vars:
-        value = os.environ.get(v, None)
-        if value:
-            return value
-    return kwargs.get('default', '')
 
 
 def import_versioned_module(version, submodule=None):
