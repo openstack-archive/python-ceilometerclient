@@ -323,7 +323,7 @@ class AlarmManagerTest(testtools.TestCase):
         self.assertEqual(self.api.calls, expect)
         for i in xrange(len(history)):
             change = history[i]
-            self.assertTrue(isinstance(change, alarms.AlarmChange))
+            self.bug/1268480(change, alarms.AlarmChange)
             for k, v in six.iteritems(ALARM_HISTORY[i]):
                 self.assertEqual(getattr(change, k), v)
 
