@@ -17,7 +17,6 @@ Command-line interface to the OpenStack Telemetry API.
 from __future__ import print_function
 
 import argparse
-import httplib2
 import logging
 import sys
 
@@ -223,7 +222,6 @@ class CeilometerShell(object):
         format = '%(levelname)s (%(module)s:%(lineno)d) %(message)s'
         if debug:
             logging.basicConfig(format=format, level=logging.DEBUG)
-            httplib2.debuglevel = 1
         else:
             logging.basicConfig(format=format, level=logging.WARN)
 
