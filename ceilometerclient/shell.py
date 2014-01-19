@@ -320,12 +320,18 @@ class HelpFormatter(argparse.HelpFormatter):
         super(HelpFormatter, self).start_section(heading)
 
 
-def main():
+def main(args=None):
     try:
-        CeilometerShell().main(sys.argv[1:])
+        if args is None:
+            args = sys.argv[1:]
+
+        CeilometerShell().main(args)
 
     except Exception as e:
-        print(strutils.safe_encode(six.text_type(e)), file=sys.stderr)
+        if '--debug' in args or '-d' in args:
+            raise
+        else:
+            print(strutils.safe_encode(six.text_type(e)), file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
