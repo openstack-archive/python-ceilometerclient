@@ -10,7 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import httplib2
 import re
 import six
 import sys
@@ -64,11 +63,6 @@ class ShellTest(utils.BaseTestCase):
 
     def test_help_unknown_command(self):
         self.assertRaises(exc.CommandError, self.shell, 'help foofoo')
-
-    def test_debug(self):
-        httplib2.debuglevel = 0
-        self.shell('--debug help')
-        self.assertEqual(httplib2.debuglevel, 1)
 
     def test_help(self):
         required = [
