@@ -44,9 +44,8 @@ class ShellTest(utils.BaseTestCase):
         super(ShellTest, self).setUp()
 
     @mock.patch.object(ksclient, 'Client')
-    @mock.patch.object(v1client.http.HTTPClient, 'json_request')
-    @mock.patch.object(v1client.http.HTTPClient, 'raw_request')
-    def shell(self, argstr, mock_ksclient, mock_json, mock_raw):
+    @mock.patch.object(v1client.client.HTTPClient, 'client_request')
+    def shell(self, argstr, mock_ksclient, mock_request):
         orig = sys.stdout
         try:
             sys.stdout = six.StringIO()
