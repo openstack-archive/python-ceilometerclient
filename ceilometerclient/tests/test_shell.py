@@ -49,9 +49,8 @@ class ShellTest(utils.BaseTestCase):
 
     @mock.patch('sys.stdout', new=six.StringIO())
     @mock.patch.object(ks_session, 'Session')
-    @mock.patch.object(v1client.http.HTTPClient, 'json_request')
-    @mock.patch.object(v1client.http.HTTPClient, 'raw_request')
-    def shell(self, argstr, mock_ksclient, mock_json, mock_raw):
+    @mock.patch.object(v1client.client.HTTPClient, 'client_request')
+    def shell(self, argstr, mock_request, mock_ksclient):
         try:
             _shell = ceilometer_shell.CeilometerShell()
             _shell.main(argstr.split())
@@ -103,7 +102,7 @@ class ShellKeystoneV2Test(ShellTest):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env(FAKE_V2_ENV)
         args = ['--debug', 'event-list']
-        self.assertRaises(exc.HTTPUnauthorized, ceilometer_shell.main, args)
+        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
 
     @mock.patch.object(ks_session, 'Session')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
@@ -132,7 +131,7 @@ class ShellKeystoneV3Test(ShellTest):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env(FAKE_V3_ENV)
         args = ['--debug', 'event-list']
-        self.assertRaises(exc.HTTPUnauthorized, ceilometer_shell.main, args)
+        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
 
     @mock.patch.object(ks_session, 'Session')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
