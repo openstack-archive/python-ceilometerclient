@@ -152,14 +152,12 @@ class AlarmManager(base.Manager):
         return self._delete(self._path(alarm_id))
 
     def set_state(self, alarm_id, state):
-        resp, body = self.api.json_request('PUT',
-                                           "%s/state" % self._path(alarm_id),
-                                           body=state)
+        body = self.api.put("%s/state" % self._path(alarm_id),
+                            json=state).json()
         return body
 
     def get_state(self, alarm_id):
-        resp, body = self.api.json_request('GET',
-                                           "%s/state" % self._path(alarm_id))
+        body = self.api.get("%s/state" % self._path(alarm_id)).json()
         return body
 
     def get_history(self, alarm_id, q=None):
