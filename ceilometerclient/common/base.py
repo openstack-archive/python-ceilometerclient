@@ -49,36 +49,36 @@ class Manager(object):
         self.api = api
 
     def _create(self, url, body):
-        resp, body = self.api.json_request('POST', url, body=body)
-        if body:
-            return self.resource_class(self, body)
+        resp = self.api.post(url, json=body).json()
+        if resp:
+            return self.resource_class(self, resp)
 
     def _list(self, url, response_key=None, obj_class=None, body=None,
               expect_single=False):
-        resp, body = self.api.json_request('GET', url)
+        resp = self.api.get(url).json()
 
         if obj_class is None:
             obj_class = self.resource_class
 
         if response_key:
             try:
-                data = body[response_key]
+                data = resp[response_key]
             except KeyError:
                 return []
         else:
-            data = body
+            data = resp
         if expect_single:
             data = [data]
         return [obj_class(self, res, loaded=True) for res in data if res]
 
     def _update(self, url, body, response_key=None):
-        resp, body = self.api.json_request('PUT', url, body=body)
+        resp = self.api.put(url, json=body).json()
         # PUT requests may not return a body
-        if body:
-            return self.resource_class(self, body)
+        if resp:
+            return self.resource_class(self, resp)
 
     def _delete(self, url):
-        self.api.raw_request('DELETE', url)
+        self.api.delete(url)
 
 
 class Resource(base.Resource):
