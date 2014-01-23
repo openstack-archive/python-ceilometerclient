@@ -12,6 +12,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v2.event_types
 
@@ -30,15 +33,16 @@ class EventTypesManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(EventTypesManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v2.event_types.EventTypeManager(self.api)
 
     def test_list(self):
         event_types = list(self.mgr.list())
         expect = [
-            ('GET', '/v2/event_types/', {}, None),
+            'GET', '/v2/event_types/'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(event_types), 4)
         self.assertEqual(event_types[0].event_type, "Foo")
         self.assertEqual(event_types[1].event_type, "Bar")

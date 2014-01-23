@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v2.resources
 
@@ -70,15 +71,16 @@ class ResourceManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(ResourceManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v2.resources.ResourceManager(self.api)
 
     def test_list_all(self):
         resources = list(self.mgr.list())
         expect = [
-            ('GET', '/v2/resources', {}, None),
+            'GET', '/v2/resources'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 2)
         self.assertEqual(resources[0].resource_id, 'a')
         self.assertEqual(resources[1].resource_id, 'b')
@@ -86,9 +88,9 @@ class ResourceManagerTest(utils.BaseTestCase):
     def test_list_one(self):
         resource = self.mgr.get(resource_id='a')
         expect = [
-            ('GET', '/v2/resources/a', {}, None),
+            'GET', '/v2/resources/a'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertTrue(resource)
         self.assertEqual(resource.resource_id, 'a')
 
@@ -97,11 +99,10 @@ class ResourceManagerTest(utils.BaseTestCase):
                                            "value": "a"},
                                           ]))
         expect = [
-            ('GET', '/v2/resources?q.field=resource_id&q.op='
-                    '&q.type=&q.value=a',
-             {}, None),
+            'GET', '/v2/resources?q.field=resource_id&q.op='
+            '&q.type=&q.value=a'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0].resource_id, 'a')
 
@@ -110,8 +111,8 @@ class ResourceManagerTest(utils.BaseTestCase):
         self.assertTrue(resource)
         resource.get()
         expect = [
-            ('GET', '/v2/resources/a', {}, None),
-            ('GET', '/v2/resources/a', {}, None),
+            'GET', '/v2/resources/a'
         ]
-        self.assertEqual(expect, self.api.calls)
+        self.http_client.assert_called(*expect, pos=0)
+        self.http_client.assert_called(*expect, pos=1)
         self.assertEqual('a', resource.resource_id)

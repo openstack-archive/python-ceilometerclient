@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v1.meters
 
@@ -40,15 +41,16 @@ class UserManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(UserManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v1.meters.UserManager(self.api)
 
     def test_list_all(self):
         users = list(self.mgr.list())
         expect = [
-            ('GET', '/v1/users', {}, None),
+            'GET', '/v1/users'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(users), 2)
         self.assertEqual(users[0].user_id, 'a')
         self.assertEqual(users[1].user_id, 'b')
@@ -56,8 +58,8 @@ class UserManagerTest(utils.BaseTestCase):
     def test_list_by_source(self):
         users = list(self.mgr.list(source='source_b'))
         expect = [
-            ('GET', '/v1/sources/source_b/users', {}, None),
+            'GET', '/v1/sources/source_b/users'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0].user_id, 'b')
