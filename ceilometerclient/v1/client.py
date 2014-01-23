@@ -14,6 +14,7 @@
 #    under the License.
 
 from ceilometerclient.common import http
+from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.v1 import meters
 
 
@@ -29,9 +30,32 @@ class Client(object):
 
     def __init__(self, *args, **kwargs):
         """Initialize a new client for the Ceilometer v1 API."""
-        self.http_client = http.HTTPClient(*args, **kwargs)
+        if kwargs.get('auth_plugin'):
+            self.get_common_http_client(kwargs['auth_plugin'], **kwargs)
+        else:
+            self.client = http.HTTPClient(*args, **kwargs)
+            self.http_client = client.BaseClient(self.client)
         self.meters = meters.MeterManager(self.http_client)
         self.samples = meters.SampleManager(self.http_client)
         self.users = meters.UserManager(self.http_client)
         self.resources = meters.ResourceManager(self.http_client)
         self.projects = meters.ProjectManager(self.http_client)
+
+    def get_common_http_client(self, auth_plugin, **kwargs):
+        self.client = client.HTTPClient(auth_plugin,
+                                        region_name=kwargs.get('region_name'),
+                                        endpoint_type=
+                                        kwargs.get('endpoint_type'),
+                                        original_ip=kwargs.get('original_ip'),
+                                        verify=kwargs.get('verify'),
+                                        cert=kwargs.get('cacert'),
+                                        timeout=kwargs.get('timeout'),
+                                        timings=kwargs.get('timings'),
+                                        keyring_saver=
+                                        kwargs.get('keyring_saver'),
+                                        debug=kwargs.get('debug'),
+                                        user_agent=kwargs.get('user_agent'),
+                                        http=kwargs.get('http')
+                                        )
+
+        self.http_client = client.BaseClient(self.client)
