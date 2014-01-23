@@ -330,6 +330,7 @@ def do_alarm_create(cc, args={}):
            dest='threshold_rule/threshold',
            help='Threshold to evaluate against')
 @utils.arg('-q', '--query', metavar='<QUERY>',
+           dest='threshold_rule/query',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean')
 @utils.arg('--repeat-actions', dest='repeat_actions',

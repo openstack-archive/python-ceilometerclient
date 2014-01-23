@@ -227,7 +227,7 @@ class CeilometerShell(object):
         else:
             logging.basicConfig(format=format, level=logging.WARN)
 
-    def main(self, argv):
+    def parse_args(self, argv):
         # Parse args once to find version
         parser = self.get_base_parser()
         (options, args) = parser.parse_known_args(argv)
@@ -244,8 +244,14 @@ class CeilometerShell(object):
             self.do_help(options)
             return 0
 
-        # Parse args again and call whatever callback was selected
-        args = subcommand_parser.parse_args(argv)
+        # Return parsed args
+        return api_version, subcommand_parser.parse_args(argv)
+
+    def main(self, argv):
+        parsed = self.parse_args(argv)
+        if parsed == 0:
+            return 0
+        api_version, args = parsed
 
         # Short-circuit and deal with help command right away.
         if args.func == self.do_help:
@@ -278,6 +284,7 @@ class CeilometerShell(object):
 
         client = ceiloclient.get_client(api_version, **(args.__dict__))
 
+        # call whatever callback was selected
         try:
             args.func(client, args)
         except exc.Unauthorized:
