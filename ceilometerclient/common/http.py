@@ -32,6 +32,8 @@ except ImportError:
 import six
 from six.moves import http_client as httplib  # noqa
 
+import requests
+
 from ceilometerclient import exc
 from ceilometerclient.openstack.common.py3kcompat import urlutils
 
@@ -48,6 +50,16 @@ class HTTPClient(object):
         self.auth_token = kwargs.get('token')
         self.connection_params = self.get_connection_params(endpoint, **kwargs)
         self.proxy_url = self.get_proxy_url()
+
+    def add_client(self, base_client_instance):
+        """Add a new instance of :class:`BaseClient` descendant.
+
+        `self` will store a reference to `base_client_instance`.
+
+        """
+        service_type = base_client_instance.service_type
+        if service_type and not hasattr(self, service_type):
+            setattr(self, service_type, base_client_instance)
 
     @staticmethod
     def get_connection_params(endpoint, **kwargs):
@@ -204,6 +216,12 @@ class HTTPClient(object):
             body = None
 
         return resp, body
+
+    def client_request(self, client, method, url, **kwargs):
+        resp, body = self.json_request(method, url, **kwargs)
+        r = requests.Response()
+        r._content = json.dumps(body)
+        return r
 
     def raw_request(self, method, url, **kwargs):
         kwargs.setdefault('headers', {})

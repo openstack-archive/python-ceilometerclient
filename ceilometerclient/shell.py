@@ -26,6 +26,8 @@ import ceilometerclient
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
 from ceilometerclient import exc
+from ceilometerclient.openstack.common.apiclient import auth
+from ceilometerclient.openstack.common.apiclient import exceptions
 from ceilometerclient.openstack.common import cliutils
 from ceilometerclient.openstack.common import strutils
 
@@ -82,70 +84,9 @@ class CeilometerShell(object):
                             ' This option is not necessary if your key is '
                             'prepended to your cert file.')
 
-        parser.add_argument('--os-cacert',
-                            metavar='<ca-certificate-file>',
-                            dest='os_cacert',
-                            default=cliutils.env('OS_CACERT'),
-                            help='Path of CA TLS certificate(s) used to verify'
-                            'the remote server\'s certificate. Without this '
-                            'option ceilometer looks for the default system '
-                            'CA certificates.')
-        parser.add_argument('--ca-file',
-                            dest='os_cacert',
-                            help='DEPRECATED! Use --os-cacert.')
-
         parser.add_argument('--timeout',
                             default=600,
                             help='Number of seconds to wait for a response.')
-
-        parser.add_argument('--os-username',
-                            default=cliutils.env('OS_USERNAME'),
-                            help='Defaults to env[OS_USERNAME].')
-
-        parser.add_argument('--os_username',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-password',
-                            default=cliutils.env('OS_PASSWORD'),
-                            help='Defaults to env[OS_PASSWORD].')
-
-        parser.add_argument('--os_password',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-tenant-id',
-                            default=cliutils.env('OS_TENANT_ID'),
-                            help='Defaults to env[OS_TENANT_ID].')
-
-        parser.add_argument('--os_tenant_id',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-tenant-name',
-                            default=cliutils.env('OS_TENANT_NAME'),
-                            help='Defaults to env[OS_TENANT_NAME].')
-
-        parser.add_argument('--os_tenant_name',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-auth-url',
-                            default=cliutils.env('OS_AUTH_URL'),
-                            help='Defaults to env[OS_AUTH_URL].')
-
-        parser.add_argument('--os_auth_url',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-region-name',
-                            default=cliutils.env('OS_REGION_NAME'),
-                            help='Defaults to env[OS_REGION_NAME].')
-
-        parser.add_argument('--os_region_name',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-auth-token',
-                            default=cliutils.env('OS_AUTH_TOKEN'),
-                            help='Defaults to env[OS_AUTH_TOKEN].')
-
-        parser.add_argument('--os_auth_token',
-                            help=argparse.SUPPRESS)
 
         parser.add_argument('--ceilometer-url',
                             default=cliutils.env('CEILOMETER_URL'),
@@ -163,19 +104,8 @@ class CeilometerShell(object):
         parser.add_argument('--ceilometer_api_version',
                             help=argparse.SUPPRESS)
 
-        parser.add_argument('--os-service-type',
-                            default=cliutils.env('OS_SERVICE_TYPE'),
-                            help='Defaults to env[OS_SERVICE_TYPE].')
-
-        parser.add_argument('--os_service_type',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-endpoint-type',
-                            default=cliutils.env('OS_ENDPOINT_TYPE'),
-                            help='Defaults to env[OS_ENDPOINT_TYPE].')
-
-        parser.add_argument('--os_endpoint_type',
-                            help=argparse.SUPPRESS)
+        self.auth_plugin.add_opts(parser)
+        self.auth_plugin.add_common_opts(parser)
 
         return parser
 
@@ -229,8 +159,10 @@ class CeilometerShell(object):
 
     def parse_args(self, argv):
         # Parse args once to find version
+        self.auth_plugin = AuthPlugin(argv)
         parser = self.get_base_parser()
         (options, args) = parser.parse_known_args(argv)
+        self.auth_plugin.parse_opts(options)
         self._setup_logging(options.debug)
 
         # build available subcommands based on version
@@ -261,28 +193,31 @@ class CeilometerShell(object):
             self.do_bash_completion(args)
             return 0
 
-        if not (args.os_auth_token and args.ceilometer_url):
-            if not args.os_username:
+        if not (self.auth_plugin.opts['token'] and args.ceilometer_url):
+            if not self.auth_plugin.opts['username']:
                 raise exc.CommandError("You must provide a username via "
                                        "either --os-username or via "
                                        "env[OS_USERNAME]")
 
-            if not args.os_password:
+            if not self.auth_plugin.opts['password']:
                 raise exc.CommandError("You must provide a password via "
                                        "either --os-password or via "
                                        "env[OS_PASSWORD]")
 
-            if not (args.os_tenant_id or args.os_tenant_name):
+            if not (self.auth_plugin.opts['tenant_id']
+                    or self.auth_plugin.opts['tenant_name']):
                 raise exc.CommandError("You must provide a tenant_id via "
                                        "either --os-tenant-id or via "
                                        "env[OS_TENANT_ID]")
 
-            if not args.os_auth_url:
+            if not self.auth_plugin.opts['auth_url']:
                 raise exc.CommandError("You must provide an auth url via "
                                        "either --os-auth-url or via "
                                        "env[OS_AUTH_URL]")
 
-        client = ceiloclient.get_client(api_version, **(args.__dict__))
+        args.__dict__.update(self.auth_plugin.opts)
+        args.__dict__['auth_plugin'] = self.auth_plugin
+        client = ceiloclient.Client(api_version, **args.__dict__)
 
         # call whatever callback was selected
         try:
@@ -325,6 +260,60 @@ class HelpFormatter(argparse.HelpFormatter):
         # Title-case the headings
         heading = '%s%s' % (heading[0].upper(), heading[1:])
         super(HelpFormatter, self).start_section(heading)
+
+
+class AuthPlugin(auth.BaseAuthPlugin):
+    opt_names = ['tenant_id', 'region_name', 'token',
+                 'service_type', 'endpoint_type', 'cacert']
+
+    def __init__(self, auth_system=None, **kwargs):
+        self.opt_names.extend(self.common_opt_names)
+        super(AuthPlugin, self).__init__(auth_system=None, **kwargs)
+
+    def _do_authenticate(self, http_client):
+        if self.opts.get('token') and self.opts.get('ceilometer_url'):
+            token = self.opts.get('token')
+            endpoint = self.opts.get('ceilometer_url')
+        elif (self.opts.get('username') and
+              self.opts.get('password') and
+              self.opts.get('auth_url') and
+              (self.opts.get('tenant_id') or self.opts.get('tenant_name'))):
+
+            ks_kwargs = {
+                'username': self.opts.get('username'),
+                'password': self.opts.get('password'),
+                'tenant_id': self.opts.get('tenant_id'),
+                'tenant_name': self.opts.get('tenant_name'),
+                'auth_url': self.opts.get('auth_url'),
+                'region_name': self.opts.get('region_name'),
+                'service_type': self.opts.get('service_type'),
+                'endpoint_type': self.opts.get('endpoint_type'),
+                'cacert': self.opts.get('cacert'),
+                'insecure': self.opts.get('insecure'),
+            }
+            _ksclient = ceiloclient._get_ksclient(**ks_kwargs)
+            token = ((lambda: self.opts.get('auth_token'))
+                     if self.opts.get('auth_token')
+                     else (lambda: _ksclient.auth_token))
+
+            endpoint = self.opts.get('ceilometer_url') or \
+                ceiloclient._get_endpoint(_ksclient, **ks_kwargs)
+        self.opts['token'] = token()
+        self.opts['endpoint'] = endpoint
+
+    def token_and_endpoint(self, endpoint_type, service_type):
+        return self.opts.get('token'), self.opts.get('endpoint')
+
+    def sufficient_options(self):
+        """Check if all required options are present.
+
+        :raises: AuthPluginOptionsMissing
+        """
+        missing = [opt
+                   for opt in self.opt_names
+                   if self.opts.get(opt) is None]
+        if missing:
+            raise exceptions.AuthPluginOptionsMissing(missing)
 
 
 def main(args=None):
