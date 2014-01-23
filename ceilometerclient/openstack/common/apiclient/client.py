@@ -110,7 +110,6 @@ class HTTPClient(object):
         for element in kwargs['headers']:
             header = "-H '%s: %s'" % (element, kwargs['headers'][element])
             string_parts.append(header)
-
         _logger.debug("REQ: %s" % " ".join(string_parts))
         if 'data' in kwargs:
             _logger.debug("REQ BODY: %s\n" % (kwargs['data']))

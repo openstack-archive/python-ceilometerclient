@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ceilometerclient.common import http
+from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import event_types
 from ceilometerclient.v2 import events
@@ -35,9 +35,26 @@ class Client(object):
                             http requests. (optional)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, auth_plugin, **kwargs):
         """Initialize a new client for the Ceilometer v1 API."""
-        self.http_client = http.HTTPClient(*args, **kwargs)
+        self.client = client.HTTPClient(auth_plugin,
+                                        region_name=kwargs.get('region_name'),
+                                        endpoint_type=
+                                        kwargs.get('endpoint_type'),
+                                        original_ip=kwargs.get('original_ip'),
+                                        verify=kwargs.get('verify'),
+                                        cert=kwargs.get('cacert'),
+                                        timeout=kwargs.get('timeout'),
+                                        timings=kwargs.get('timings'),
+                                        keyring_saver=
+                                        kwargs.get('keyring_saver'),
+                                        debug=kwargs.get('debug'),
+                                        user_agent=kwargs.get('user_agent'),
+                                        http=kwargs.get('http')
+                                        )
+
+        self.http_client = client.BaseClient(self.client)
+
         self.meters = meters.MeterManager(self.http_client)
         self.samples = samples.SampleManager(self.http_client)
         self.statistics = statistics.StatisticsManager(self.http_client)
