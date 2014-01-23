@@ -21,7 +21,8 @@ import six
 from six.moves import xrange  # noqa
 import testtools
 
-from ceilometerclient.tests import utils
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.v2 import alarms
 
 AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
@@ -206,11 +207,11 @@ fixtures = {
     {
         'PUT': (
             {},
-            'alarm'
+            {'alarm': 'alarm'}
         ),
         'GET': (
             {},
-            'alarm'
+            {'alarm': 'alarm'}
         ),
 
     },
@@ -250,15 +251,16 @@ class AlarmManagerTest(testtools.TestCase):
 
     def setUp(self):
         super(AlarmManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = alarms.AlarmManager(self.api)
 
     def test_list_all(self):
         alarms = list(self.mgr.list())
         expect = [
-            ('GET', '/v2/alarms', {}, None),
+            'GET', '/v2/alarms'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(alarms), 1)
         self.assertEqual(alarms[0].alarm_id, 'alarm-id')
 
@@ -268,21 +270,20 @@ class AlarmManagerTest(testtools.TestCase):
                                        {"field": "name",
                                         "value": "SwiftObjectAlarm"}]))
         expect = [
-            ('GET',
-             '/v2/alarms?q.field=project_id&q.field=name&q.op=&q.op='
-             '&q.type=&q.type=&q.value=project-id&q.value=SwiftObjectAlarm',
-             {}, None),
+            'GET',
+            '/v2/alarms?q.field=project_id&q.field=name&q.op=&q.op='
+            '&q.type=&q.type=&q.value=project-id&q.value=SwiftObjectAlarm',
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(alarms), 1)
         self.assertEqual(alarms[0].alarm_id, 'alarm-id')
 
     def test_get(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
         expect = [
-            ('GET', '/v2/alarms/alarm-id', {}, None),
+            'GET', '/v2/alarms/alarm-id'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         self.assertEqual(alarm.rule, alarm.threshold_rule)
@@ -290,18 +291,21 @@ class AlarmManagerTest(testtools.TestCase):
     def test_create(self):
         alarm = self.mgr.create(**CREATE_ALARM)
         expect = [
-            ('POST', '/v2/alarms', {}, CREATE_ALARM),
+            'POST', '/v2/alarms'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect, body=CREATE_ALARM)
         self.assertTrue(alarm)
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **UPDATE_ALARM)
-        expect = [
-            ('GET', '/v2/alarms/alarm-id', {}, None),
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
+        expect_get = [
+            'GET', '/v2/alarms/alarm-id'
         ]
-        self.assertEqual(self.api.calls, expect)
+        expect_put = [
+            'PUT', '/v2/alarms/alarm-id', UPDATED_ALARM
+        ]
+        self.http_client.assert_called(*expect_get, pos=0)
+        self.http_client.assert_called(*expect_put, pos=1)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
@@ -309,11 +313,14 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_update_delta(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)
-        expect = [
-            ('GET', '/v2/alarms/alarm-id', {}, None),
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
+        expect_get = [
+            'GET', '/v2/alarms/alarm-id'
         ]
-        self.assertEqual(self.api.calls, expect)
+        expect_put = [
+            'PUT', '/v2/alarms/alarm-id', UPDATED_ALARM
+        ]
+        self.http_client.assert_called(*expect_get, pos=0)
+        self.http_client.assert_called(*expect_put, pos=1)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
@@ -322,31 +329,31 @@ class AlarmManagerTest(testtools.TestCase):
     def test_set_state(self):
         state = self.mgr.set_state(alarm_id='alarm-id', state='alarm')
         expect = [
-            ('PUT', '/v2/alarms/alarm-id/state', {}, 'alarm'),
+            'PUT', '/v2/alarms/alarm-id/state'
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(state, 'alarm')
+        self.http_client.assert_called(*expect, body='alarm')
+        self.assertEqual(state, {'alarm': 'alarm'})
 
     def test_get_state(self):
         state = self.mgr.get_state(alarm_id='alarm-id')
         expect = [
-            ('GET', '/v2/alarms/alarm-id/state', {}, None),
+            'GET', '/v2/alarms/alarm-id/state'
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(state, 'alarm')
+        self.http_client.assert_called(*expect)
+        self.assertEqual(state, {'alarm': 'alarm'})
 
     def test_delete(self):
         deleted = self.mgr.delete(alarm_id='victim-id')
         expect = [
-            ('DELETE', '/v2/alarms/victim-id', {}, None),
+            'DELETE', '/v2/alarms/victim-id'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertTrue(deleted is None)
 
     def _do_test_get_history(self, q, url):
         history = self.mgr.get_history(q=q, alarm_id='alarm-id')
-        expect = [('GET', url, {}, None)]
-        self.assertEqual(self.api.calls, expect)
+        expect = ['GET', url]
+        self.http_client.assert_called(*expect)
         for i in xrange(len(history)):
             change = history[i]
             self.assertIsInstance(change, alarms.AlarmChange)
@@ -368,15 +375,17 @@ class AlarmLegacyManagerTest(testtools.TestCase):
 
     def setUp(self):
         super(AlarmLegacyManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = alarms.AlarmManager(self.api)
 
     def test_create(self):
         alarm = self.mgr.create(**CREATE_LEGACY_ALARM)
         expect = [
-            ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
+            'POST', '/v2/alarms', CREATE_ALARM_WITHOUT_TC,
         ]
-        self.assertEqual(self.api.calls, expect)
+
+        self.http_client.assert_called(*expect)
         self.assertTrue(alarm)
 
     def test_create_counter_name(self):
@@ -386,18 +395,17 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         del create['meter_name']
         alarm = self.mgr.create(**create)
         expect = [
-            ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
+            'POST', '/v2/alarms', CREATE_ALARM_WITHOUT_TC,
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertTrue(alarm)
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_LEGACY_ALARM)
-        expect = [
-            ('GET', '/v2/alarms/alarm-id', {}, None),
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
+        expect_put = [
+            'PUT', '/v2/alarms/alarm-id', UPDATED_ALARM
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect_put)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
@@ -409,11 +417,10 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         updated['counter_name'] = UPDATED_LEGACY_ALARM['meter_name']
         del updated['meter_name']
         alarm = self.mgr.update(alarm_id='alarm-id', **updated)
-        expect = [
-            ('GET', '/v2/alarms/alarm-id', {}, None),
-            ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
+        expect_put = [
+            'PUT', '/v2/alarms/alarm-id', UPDATED_ALARM
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect_put)
         self.assertTrue(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
@@ -424,7 +431,8 @@ class AlarmTimeConstraintTest(testtools.TestCase):
 
     def setUp(self):
         super(AlarmTimeConstraintTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = alarms.AlarmManager(self.api)
 
     def test_add_new(self):
@@ -433,26 +441,37 @@ class AlarmTimeConstraintTest(testtools.TestCase):
                               duration=500)
         kwargs = dict(time_constraints=[new_constraint])
         self.mgr.update(alarm_id='alarm-id', **kwargs)
-        actual = self.api.calls[1][3]['time_constraints']
-        expected = AN_ALARM[u'time_constraints'] + [new_constraint]
-        self.assertEqual(expected, actual)
+        body = copy.deepcopy(AN_ALARM)
+        body[u'time_constraints'] = \
+            AN_ALARM[u'time_constraints'] + [new_constraint]
+        expect = [
+            'PUT', '/v2/alarms/alarm-id', body
+        ]
+        self.http_client.assert_called(*expect)
 
     def test_update_existing(self):
         updated_constraint = dict(name='cons2',
                                   duration=500)
         kwargs = dict(time_constraints=[updated_constraint])
         self.mgr.update(alarm_id='alarm-id', **kwargs)
-        actual = self.api.calls[1][3]['time_constraints']
-        expected = [AN_ALARM[u'time_constraints'][0], dict(name='cons2',
-                                                           description='desc2',
-                                                           start='0 23 * * *',
-                                                           duration=500,
-                                                           timezone='')]
-        self.assertEqual(expected, actual)
+        body = copy.deepcopy(AN_ALARM)
+        body[u'time_constraints'][1] = dict(name='cons2',
+                                            description='desc2',
+                                            start='0 23 * * *',
+                                            duration=500,
+                                            timezone='')
+
+        expect = [
+            'PUT', '/v2/alarms/alarm-id', body
+        ]
+        self.http_client.assert_called(*expect)
 
     def test_remove(self):
         kwargs = dict(remove_time_constraints=['cons2'])
         self.mgr.update(alarm_id='alarm-id', **kwargs)
-        actual = self.api.calls[1][3]['time_constraints']
-        expected = [AN_ALARM[u'time_constraints'][0]]
-        self.assertEqual(expected, actual)
+        body = copy.deepcopy(AN_ALARM)
+        body[u'time_constraints'] = AN_ALARM[u'time_constraints'][:1]
+        expect = [
+            'PUT', '/v2/alarms/alarm-id', body
+        ]
+        self.http_client.assert_called(*expect)
