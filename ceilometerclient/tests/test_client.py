@@ -29,7 +29,7 @@ class ClientTest(utils.BaseTestCase):
 
     def create_client(self, api_version=2, exclude=[]):
         env = dict((k, v) for k, v in FAKE_ENV.items() if k not in exclude)
-        return client.get_client(api_version, **env)
+        return client.Client(api_version, **env)
 
     def setUp(self):
         super(ClientTest, self).setUp()
@@ -41,17 +41,15 @@ class ClientTest(utils.BaseTestCase):
         c2 = self.create_client(api_version=2)
         self.assertIsInstance(c2, v2client.Client)
 
-    def test_client_auth_token_lambda(self):
-        FAKE_ENV['os_auth_token'] = lambda: '1234'
-        self._test_client_auth_token()
-
-    def test_client_auth_token_non_lambda(self):
-        FAKE_ENV['os_auth_token'] = "1234"
-        self._test_client_auth_token()
-
-    def _test_client_auth_token(self):
+    def test_client_auth_lambda(self):
+        FAKE_ENV['os_auth_token'] = lambda: FAKE_ENV['os_auth_token']
+        self.assertIsInstance(FAKE_ENV['os_auth_token'],
+                              types.FunctionType)
         c2 = self.create_client()
         self.assertIsInstance(c2, v2client.Client)
-        self.assertIsInstance(c2.http_client.auth_token,
-                              types.FunctionType)
-        self.assertEqual('1234', c2.http_client.auth_token())
+
+    def test_client_auth_non_lambda(self):
+        FAKE_ENV['os_auth_token'] = "1234"
+        self.assertIsInstance(FAKE_ENV['os_auth_token'], str)
+        c2 = self.create_client()
+        self.assertIsInstance(c2, v2client.Client)

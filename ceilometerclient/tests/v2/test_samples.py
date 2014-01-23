@@ -15,6 +15,8 @@
 
 import copy
 
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v2.samples
 
@@ -71,15 +73,16 @@ class SampleManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(SampleManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v2.samples.SampleManager(self.api)
 
     def test_list_by_meter_name(self):
         samples = list(self.mgr.list(meter_name='instance'))
         expect = [
-            ('GET', '/v2/meters/instance', {}, None),
+            'GET', '/v2/meters/instance'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
         self.assertEqual(samples[0].resource_id, 'resource-id')
 
@@ -91,20 +94,20 @@ class SampleManagerTest(utils.BaseTestCase):
                                          {"field": "source",
                                           "value": "bar"},
                                      ]))
-        expect = [('GET', '%s?%s' % (base_url, args), {}, None)]
-        self.assertEqual(self.api.calls, expect)
+        expect = ['GET', '%s?%s' % (base_url, args)]
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 0)
 
     def test_create(self):
         sample = self.mgr.create(**CREATE_SAMPLE)
         expect = [
-            ('POST', '/v2/meters/instance', {}, [CREATE_SAMPLE]),
+            'POST', '/v2/meters/instance'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect, body=CREATE_SAMPLE)
         self.assertTrue(sample)
 
     def test_limit(self):
         samples = list(self.mgr.list(meter_name='instance', limit=1))
-        expect = [('GET', '/v2/meters/instance?limit=1', {}, None)]
-        self.assertEqual(self.api.calls, expect)
+        expect = ['GET', '/v2/meters/instance?limit=1']
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
