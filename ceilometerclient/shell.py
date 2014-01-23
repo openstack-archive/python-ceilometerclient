@@ -32,157 +32,6 @@ from ceilometerclient.openstack.common import strutils
 
 class CeilometerShell(object):
 
-    def _append_identity_args(self, parser):
-        # FIXME(fabgia): identity related parameters should be passed by the
-        # Keystone client itself to avoid constant update in all the services
-        # clients. When this fix is merged this method can be made obsolete.
-        # Bug: https://bugs.launchpad.net/python-keystoneclient/+bug/1332337
-        parser.add_argument('-k', '--insecure',
-                            default=False,
-                            action='store_true',
-                            help="Explicitly allow ceilometerclient to "
-                            "perform \"insecure\" SSL (https) requests. "
-                            "The server's certificate will "
-                            "not be verified against any certificate "
-                            "authorities. This option should be used with "
-                            "caution.")
-
-        # User related options
-        parser.add_argument('--os-username',
-                            default=cliutils.env('OS_USERNAME'),
-                            help='Defaults to env[OS_USERNAME].')
-
-        parser.add_argument('--os_username',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-user-id',
-                            default=cliutils.env('OS_USER_ID'),
-                            help='Defaults to env[OS_USER_ID].')
-
-        parser.add_argument('--os-password',
-                            default=cliutils.env('OS_PASSWORD'),
-                            help='Defaults to env[OS_PASSWORD].')
-
-        parser.add_argument('--os_password',
-                            help=argparse.SUPPRESS)
-
-        # Domain related options
-        parser.add_argument('--os-user-domain-id',
-                            default=cliutils.env('OS_USER_DOMAIN_ID'),
-                            help='Defaults to env[OS_USER_DOMAIN_ID].')
-
-        parser.add_argument('--os-user-domain-name',
-                            default=cliutils.env('OS_USER_DOMAIN_NAME'),
-                            help='Defaults to env[OS_USER_DOMAIN_NAME].')
-
-        parser.add_argument('--os-project-domain-id',
-                            default=cliutils.env('OS_PROJECT_DOMAIN_ID'),
-                            help='Defaults to env[OS_PROJECT_DOMAIN_ID].')
-
-        parser.add_argument('--os-project-domain-name',
-                            default=cliutils.env('OS_PROJECT_DOMAIN_NAME'),
-                            help='Defaults to env[OS_PROJECT_DOMAIN_NAME].')
-
-        # Project V3 or Tenant V2 related options
-        parser.add_argument('--os-project-id',
-                            default=cliutils.env('OS_PROJECT_ID'),
-                            help='Another way to specify tenant ID. '
-                                 'This option is mutually exclusive with '
-                                 ' --os-tenant-id. '
-                                 'Defaults to env[OS_PROJECT_ID].')
-
-        parser.add_argument('--os-project-name',
-                            default=cliutils.env('OS_PROJECT_NAME'),
-                            help='Another way to specify tenant name. '
-                                 'This option is mutually exclusive with '
-                                 ' --os-tenant-name. '
-                                 'Defaults to env[OS_PROJECT_NAME].')
-
-        parser.add_argument('--os-tenant-id',
-                            default=cliutils.env('OS_TENANT_ID'),
-                            help='This option is mutually exclusive with '
-                                 ' --os-project-id. '
-                                 'Defaults to env[OS_PROJECT_ID].')
-
-        parser.add_argument('--os_tenant_id',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-tenant-name',
-                            default=cliutils.env('OS_TENANT_NAME'),
-                            help='Defaults to env[OS_TENANT_NAME].')
-
-        parser.add_argument('--os_tenant_name',
-                            help=argparse.SUPPRESS)
-
-        # Auth related options
-        parser.add_argument('--os-auth-url',
-                            default=cliutils.env('OS_AUTH_URL'),
-                            help='Defaults to env[OS_AUTH_URL].')
-
-        parser.add_argument('--os_auth_url',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-auth-token',
-                            default=cliutils.env('OS_AUTH_TOKEN'),
-                            help='Defaults to env[OS_AUTH_TOKEN].')
-
-        parser.add_argument('--os_auth_token',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-cacert',
-                            metavar='<ca-certificate-file>',
-                            dest='os_cacert',
-                            default=cliutils.env('OS_CACERT'),
-                            help='Path of CA TLS certificate(s) used to verify'
-                            'the remote server\'s certificate. Without this '
-                            'option ceilometer looks for the default system '
-                            'CA certificates.')
-
-        parser.add_argument('--os-cert',
-                            help='Path of certificate file to use in SSL '
-                            'connection. This file can optionally be '
-                            'prepended with the private key.')
-
-        parser.add_argument('--os-key',
-                            help='Path of client key to use in SSL '
-                            'connection. This option is not necessary '
-                            'if your key is prepended to your cert file.')
-
-        # Service Catalog related options
-        parser.add_argument('--os-service-type',
-                            default=cliutils.env('OS_SERVICE_TYPE'),
-                            help='Defaults to env[OS_SERVICE_TYPE].')
-
-        parser.add_argument('--os_service_type',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-endpoint-type',
-                            default=cliutils.env('OS_ENDPOINT_TYPE'),
-                            help='Defaults to env[OS_ENDPOINT_TYPE].')
-
-        parser.add_argument('--os_endpoint_type',
-                            help=argparse.SUPPRESS)
-
-        parser.add_argument('--os-region-name',
-                            default=cliutils.env('OS_REGION_NAME'),
-                            help='Defaults to env[OS_REGION_NAME].')
-
-        parser.add_argument('--os_region_name',
-                            help=argparse.SUPPRESS)
-
-        # Deprecated options
-        parser.add_argument('--ca-file',
-                            dest='os_cacert',
-                            help='DEPRECATED! Use --os-cacert.')
-
-        parser.add_argument('--cert-file',
-                            dest='os_cert',
-                            help='DEPRECATED! Use --os-cert.')
-
-        parser.add_argument('--key-file',
-                            dest='os_key',
-                            help='DEPRECATED! Use --os-key.')
-
     def get_base_parser(self):
         parser = argparse.ArgumentParser(
             prog='ceilometer',
@@ -233,9 +82,8 @@ class CeilometerShell(object):
         parser.add_argument('--ceilometer_api_version',
                             help=argparse.SUPPRESS)
 
-        # FIXME(fabgia): identity related parameters should be passed by the
-        # Keystone client itself.
-        self._append_identity_args(parser)
+        self.auth_plugin.add_opts(parser)
+        self.auth_plugin.add_common_opts(parser)
 
         return parser
 
@@ -291,8 +139,10 @@ class CeilometerShell(object):
 
     def parse_args(self, argv):
         # Parse args once to find version
+        self.auth_plugin = ceiloclient.AuthPlugin(argv)
         parser = self.get_base_parser()
         (options, args) = parser.parse_known_args(argv)
+        self.auth_plugin.parse_opts(options)
         self._setup_logging(options.debug)
 
         # build available subcommands based on version
@@ -331,13 +181,13 @@ class CeilometerShell(object):
             self.do_bash_completion(args)
             return 0
 
-        if not (args.os_auth_token and args.ceilometer_url):
-            if not args.os_username:
+        if not (self.auth_plugin.opts['auth_token'] and args.ceilometer_url):
+            if not self.auth_plugin.opts['username']:
                 raise exc.CommandError("You must provide a username via "
                                        "either --os-username or via "
                                        "env[OS_USERNAME]")
 
-            if not args.os_password:
+            if not self.auth_plugin.opts['password']:
                 raise exc.CommandError("You must provide a password via "
                                        "either --os-password or via "
                                        "env[OS_PASSWORD]")
@@ -354,13 +204,21 @@ class CeilometerShell(object):
                                        "--os-user-domain-id or via "
                                        "env[OS_USER_DOMAIN_ID]")
 
-            if not args.os_auth_url:
+            if not (self.auth_plugin.opts['tenant_id']
+                    or self.auth_plugin.opts['tenant_name']):
+                raise exc.CommandError("You must provide a tenant_id via "
+                                       "either --os-tenant-id or via "
+                                       "env[OS_TENANT_ID]")
+
+            if not self.auth_plugin.opts['auth_url']:
                 raise exc.CommandError("You must provide an auth url via "
                                        "either --os-auth-url or via "
                                        "env[OS_AUTH_URL]")
 
-        client = ceiloclient.get_client(api_version, **(args.__dict__))
-
+        client_kwargs = vars(args)
+        client_kwargs.update(self.auth_plugin.opts)
+        client_kwargs['auth_plugin'] = self.auth_plugin
+        client = ceiloclient.Client(api_version, **client_kwargs)
         # call whatever callback was selected
         try:
             args.func(client, args)
