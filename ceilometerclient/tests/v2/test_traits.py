@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v2.traits
 
@@ -38,15 +39,16 @@ class TraitManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(TraitManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v2.traits.TraitManager(self.api)
 
     def test_list(self):
         traits = list(self.mgr.list('Foo', 'trait_1'))
         expect = [
-            ('GET', '/v2/event_types/Foo/traits/trait_1', {}, None),
+            'GET', '/v2/event_types/Foo/traits/trait_1'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(traits), 2)
         for i, vals in enumerate([('trait_1',
                                    'datetime',
