@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v1.meters
 
@@ -40,15 +41,16 @@ class ProjectManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(ProjectManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v1.meters.ProjectManager(self.api)
 
     def test_list_all(self):
         projects = list(self.mgr.list())
         expect = [
-            ('GET', '/v1/projects', {}, None),
+            'GET', '/v1/projects'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(projects), 2)
         self.assertEqual(projects[0].project_id, 'a')
         self.assertEqual(projects[1].project_id, 'b')
@@ -56,8 +58,8 @@ class ProjectManagerTest(utils.BaseTestCase):
     def test_list_by_source(self):
         projects = list(self.mgr.list(source='source_b'))
         expect = [
-            ('GET', '/v1/sources/source_b/projects', {}, None),
+            'GET', '/v1/sources/source_b/projects'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(projects), 1)
         self.assertEqual(projects[0].project_id, 'b')

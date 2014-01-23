@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v1.meters
 
@@ -108,15 +109,16 @@ class ResourceManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(ResourceManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v1.meters.ResourceManager(self.api)
 
     def test_list_all(self):
         resources = list(self.mgr.list())
         expect = [
-            ('GET', '/v1/resources', {}, None),
+            'GET', '/v1/resources'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 2)
         self.assertEqual(resources[0].resource_id, 'a')
         self.assertEqual(resources[1].resource_id, 'b')
@@ -124,27 +126,27 @@ class ResourceManagerTest(utils.BaseTestCase):
     def test_list_by_user(self):
         resources = list(self.mgr.list(user_id='joey'))
         expect = [
-            ('GET', '/v1/users/joey/resources', {}, None),
+            'GET', '/v1/users/joey/resources'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0].resource_id, 'b')
 
     def test_list_by_metaquery(self):
         resources = list(self.mgr.list(metaquery='metadata.zxc_id=foo'))
         expect = [
-            ('GET', '/v1/resources?metadata.zxc_id=foo', {}, None),
+            'GET', '/v1/resources?metadata.zxc_id=foo'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0].resource_id, 'b')
 
     def test_list_by_project(self):
         resources = list(self.mgr.list(project_id='project_bla'))
         expect = [
-            ('GET', '/v1/projects/project_bla/resources', {}, None),
+            'GET', '/v1/projects/project_bla/resources'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0].resource_id, 'a')
 
@@ -152,9 +154,8 @@ class ResourceManagerTest(utils.BaseTestCase):
         resources = list(self.mgr.list(start_timestamp='now',
                                        end_timestamp='now'))
         expect = [
-            ('GET', '/v1/resources?start_timestamp=now&end_timestamp=now',
-             {}, None),
+            'GET', '/v1/resources?start_timestamp=now&end_timestamp=now'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0].resource_id, 'b')

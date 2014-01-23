@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v1.meters
 
@@ -122,24 +123,25 @@ class SampleManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(SampleManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v1.meters.SampleManager(self.api)
 
     def test_list_all(self):
         samples = list(self.mgr.list(counter_name=None))
         expect = [
-            ('GET', '/v1/meters', {}, None),
+            'GET', '/v1/meters'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 0)
 
     def test_list_by_source(self):
         samples = list(self.mgr.list(source='openstack',
                                      counter_name='this'))
         expect = [
-            ('GET', '/v1/sources/openstack/meters/this', {}, None),
+            'GET', '/v1/sources/openstack/meters/this'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
         self.assertEqual(samples[0].resource_id, 'b')
 
@@ -147,9 +149,9 @@ class SampleManagerTest(utils.BaseTestCase):
         samples = list(self.mgr.list(user_id='freddy',
                                      counter_name='balls'))
         expect = [
-            ('GET', '/v1/users/freddy/meters/balls', {}, None),
+            'GET', '/v1/users/freddy/meters/balls'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
         self.assertEqual(samples[0].project_id, 'melbourne_open')
         self.assertEqual(samples[0].user_id, 'freddy')
@@ -159,9 +161,9 @@ class SampleManagerTest(utils.BaseTestCase):
         samples = list(self.mgr.list(project_id='dig_the_ditch',
                                      counter_name='meters'))
         expect = [
-            ('GET', '/v1/projects/dig_the_ditch/meters/meters', {}, None),
+            'GET', '/v1/projects/dig_the_ditch/meters/meters'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
         self.assertEqual(samples[0].project_id, 'dig_the_ditch')
         self.assertEqual(samples[0].volume, 345)
@@ -171,9 +173,9 @@ class SampleManagerTest(utils.BaseTestCase):
         samples = list(self.mgr.list(metaquery='metadata.zxc_id=foo',
                                      counter_name='this'))
         expect = [
-            ('GET', '/v1/meters?metadata.zxc_id=foo', {}, None),
+            'GET', '/v1/meters?metadata.zxc_id=foo'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
         self.assertEqual(samples[0].resource_metadata['zxc_id'], 'foo')
 
@@ -183,12 +185,11 @@ class SampleManagerTest(utils.BaseTestCase):
                                      start_timestamp='now',
                                      end_timestamp='now'))
         expect = [
-            ('GET',
-             '/v1/users/freddy/meters/balls?' +
-             'start_timestamp=now&end_timestamp=now',
-             {}, None),
+            'GET',
+            '/v1/users/freddy/meters/balls?' +
+            'start_timestamp=now&end_timestamp=now'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
         self.assertEqual(samples[0].project_id, 'melbourne_open')
         self.assertEqual(samples[0].user_id, 'freddy')

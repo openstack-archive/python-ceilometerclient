@@ -43,9 +43,8 @@ class ShellTest(utils.BaseTestCase):
         super(ShellTest, self).setUp()
 
     @mock.patch.object(ksclient, 'Client')
-    @mock.patch.object(v1client.http.HTTPClient, 'json_request')
-    @mock.patch.object(v1client.http.HTTPClient, 'raw_request')
-    def shell(self, argstr, mock_ksclient, mock_json, mock_raw):
+    @mock.patch.object(v1client.client.HTTPClient, 'client_request')
+    def shell(self, argstr, mock_ksclient, mock_request):
         orig = sys.stdout
         try:
             sys.stdout = six.StringIO()
@@ -100,11 +99,11 @@ class ShellTest(utils.BaseTestCase):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env()
         args = ['--debug', 'event-list']
-        self.assertRaises(exc.HTTPUnauthorized, ceilometer_shell.main, args)
+        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
 
     @mock.patch.object(ksclient, 'Client')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
-        mock_ksclient.side_effect = exc.CommandError("FAIL")
+        mock_ksclient.side_effect = exc.HTTPUnauthorized("FAIL")
         self.make_env()
         args = ['-d', 'event-list']
         self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
