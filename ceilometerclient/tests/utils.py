@@ -13,12 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import copy
 import fixtures
-import six
 import testtools
-
-from ceilometerclient.common import http
 
 
 class BaseTestCase(testtools.TestCase):
@@ -26,41 +22,3 @@ class BaseTestCase(testtools.TestCase):
     def setUp(self):
         super(BaseTestCase, self).setUp()
         self.useFixture(fixtures.FakeLogger())
-
-
-class FakeAPI(object):
-    def __init__(self, fixtures):
-        self.fixtures = fixtures
-        self.calls = []
-
-    def _request(self, method, url, headers=None, body=None):
-        call = (method, url, headers or {}, body)
-        self.calls.append(call)
-        return self.fixtures[url][method]
-
-    def raw_request(self, *args, **kwargs):
-        fixture = self._request(*args, **kwargs)
-        body_iter = http.ResponseBodyIterator(six.StringIO(fixture[1]))
-        return FakeResponse(fixture[0]), body_iter
-
-    def json_request(self, *args, **kwargs):
-        fixture = self._request(*args, **kwargs)
-        return FakeResponse(fixture[0]), fixture[1]
-
-
-class FakeResponse(object):
-    def __init__(self, headers, body=None, version=None):
-        """:param headers: dict representing HTTP response headers
-        :param body: file-like object
-        """
-        self.headers = headers
-        self.body = body
-
-    def getheaders(self):
-        return copy.deepcopy(self.headers).items()
-
-    def getheader(self, key, default):
-        return self.headers.get(key, default)
-
-    def read(self, amt):
-        return self.body.read(amt)
