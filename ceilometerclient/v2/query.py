@@ -33,9 +33,10 @@ class QueryManager(base.Manager):
             query["limit"] = limit
 
         url = '/v2/query%s' % self.path_suffix
-        resp, body = self.api.json_request('POST',
-                                           url,
-                                           body=query)
+
+        resp = self.api.post(url, json=query)
+        body = resp.json()
+
         if body:
             return [self.resource_class(self, b) for b in body]
         else:

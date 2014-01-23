@@ -10,26 +10,40 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import mock
 import types
 
 from ceilometerclient import client
+from ceilometerclient.tests import fakes
 from ceilometerclient.tests import utils
 from ceilometerclient.v1 import client as v1client
 from ceilometerclient.v2 import client as v2client
 
-FAKE_ENV = {'os_username': 'username',
-            'os_password': 'password',
-            'os_tenant_name': 'tenant_name',
-            'os_auth_url': 'http://no.where',
-            'os_auth_token': '1234',
-            'ceilometer_url': 'http://no.where'}
+FAKE_ENV = {'username': 'username',
+            'password': 'password',
+            'tenant_name': 'tenant_name',
+            'auth_url': 'http://no.where',
+            'ceilometer_url': 'http://no.where',
+            'auth_plugin': 'fake_auth'}
+
+FAKE_ENV_NO_AUTH_PLUGIN = \
+    {'username': 'username',
+     'password': 'password',
+     'tenant_name': 'tenant_name',
+     'auth_url': 'http://no.where',
+     'auth_token': '1234',
+     }
 
 
 class ClientTest(utils.BaseTestCase):
 
-    def create_client(self, api_version=2, exclude=[]):
-        env = dict((k, v) for k, v in FAKE_ENV.items() if k not in exclude)
-        return client.get_client(api_version, **env)
+    def create_client(self, api_version=2, endpoint=None, exclude=[]):
+        env = dict((k, v) for k, v in FAKE_ENV.items()
+                   if k not in exclude) if not endpoint else \
+            dict((k, v) for k, v in FAKE_ENV_NO_AUTH_PLUGIN.items()
+                 if k not in exclude)
+
+        return client.Client(api_version, endpoint, **env)
 
     def setUp(self):
         super(ClientTest, self).setUp()
@@ -41,17 +55,24 @@ class ClientTest(utils.BaseTestCase):
         c2 = self.create_client(api_version=2)
         self.assertIsInstance(c2, v2client.Client)
 
-    def test_client_auth_token_lambda(self):
-        FAKE_ENV['os_auth_token'] = lambda: '1234'
-        self._test_client_auth_token()
-
-    def test_client_auth_token_non_lambda(self):
-        FAKE_ENV['os_auth_token'] = "1234"
-        self._test_client_auth_token()
-
-    def _test_client_auth_token(self):
+    def test_client_auth_lambda(self):
+        FAKE_ENV['auth_token'] = lambda: FAKE_ENV['auth_token']
+        self.assertIsInstance(FAKE_ENV['auth_token'],
+                              types.FunctionType)
         c2 = self.create_client()
         self.assertIsInstance(c2, v2client.Client)
-        self.assertIsInstance(c2.http_client.auth_token,
-                              types.FunctionType)
-        self.assertEqual('1234', c2.http_client.auth_token())
+
+    def test_client_auth_non_lambda(self):
+        FAKE_ENV['auth_token'] = "1234"
+        self.assertIsInstance(FAKE_ENV['auth_token'], str)
+        c2 = self.create_client()
+        self.assertIsInstance(c2, v2client.Client)
+
+    @mock.patch('keystoneclient.v2_0.client', fakes.FakeKeystone)
+    def test_client_without_auth_plugin(self):
+        c = self.create_client(api_version=2, endpoint='fake_endpoint')
+        self.assertIsInstance(c.auth_plugin, client.AuthPlugin)
+
+    def test_client_with_auth_plugin(self):
+        c = self.create_client(api_version=2)
+        self.assertIsInstance(c.auth_plugin, str)

@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v2.statistics
 
@@ -114,15 +115,16 @@ class StatisticsManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(StatisticsManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v2.statistics.StatisticsManager(self.api)
 
     def test_list_by_meter_name(self):
         stats = list(self.mgr.list(meter_name='instance'))
         expect = [
-            ('GET', '/v2/meters/instance/statistics', {}, None),
+            'GET', '/v2/meters/instance/statistics'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(stats), 1)
         self.assertEqual(stats[0].count, 135)
 
@@ -135,10 +137,9 @@ class StatisticsManagerTest(utils.BaseTestCase):
                                         "value": "bar"},
                                    ]))
         expect = [
-            ('GET',
-             '%s?%s' % (base_url, qry), {}, None),
+            'GET', '%s?%s' % (base_url, qry)
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(stats), 1)
         self.assertEqual(stats[0].count, 135)
 
@@ -152,10 +153,9 @@ class StatisticsManagerTest(utils.BaseTestCase):
                                    ],
                                    period=60))
         expect = [
-            ('GET',
-             '%s?%s%s' % (base_url, qry, period), {}, None),
+            'GET', '%s?%s%s' % (base_url, qry, period)
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(stats), 1)
         self.assertEqual(stats[0].count, 135)
 
@@ -169,10 +169,10 @@ class StatisticsManagerTest(utils.BaseTestCase):
                                    ],
                                    groupby=['resource_id']))
         expect = [
-            ('GET',
-             '%s?%s%s' % (base_url, qry, groupby), {}, None),
+            'GET',
+            '%s?%s%s' % (base_url, qry, groupby)
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(stats), 2)
         self.assertEqual(stats[0].count, 135)
         self.assertEqual(stats[1].count, 12)
@@ -189,10 +189,10 @@ class StatisticsManagerTest(utils.BaseTestCase):
                                    ],
                                    groupby='resource_id'))
         expect = [
-            ('GET',
-             '%s?%s%s' % (base_url, qry, groupby), {}, None),
+            'GET',
+            '%s?%s%s' % (base_url, qry, groupby), None
         ]
-        self.assertEqual(expect, self.api.calls)
+        self.http_client.assert_called(*expect)
         self.assertEqual(2, len(stats))
         self.assertEqual(135, stats[0].count)
         self.assertEqual(12, stats[1].count)
@@ -212,10 +212,10 @@ class StatisticsManagerTest(utils.BaseTestCase):
         stats = list(self.mgr.list(meter_name='instance',
                                    aggregates=aggregates))
         expect = [
-            ('GET',
-             '%s?%s' % (base_url, aggregate_query), {}, None),
+            'GET',
+            '%s?%s' % (base_url, aggregate_query)
         ]
-        self.assertEqual(expect, self.api.calls)
+        self.http_client.assert_called(*expect, body=None)
         self.assertEqual(1, len(stats))
         self.assertEqual(2, stats[0].count)
         self.assertEqual(2.0, stats[0].aggregate.get('count'))

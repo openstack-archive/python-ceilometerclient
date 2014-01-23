@@ -12,7 +12,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v2.events
 
@@ -125,15 +126,16 @@ class EventManagerTest(utils.BaseTestCase):
 
     def setUp(self):
         super(EventManagerTest, self).setUp()
-        self.api = utils.FakeAPI(fixtures)
+        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v2.events.EventManager(self.api)
 
     def test_list_all(self):
         events = list(self.mgr.list())
         expect = [
-            ('GET', '/v2/events', {}, None),
+            'GET', '/v2/events'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(events), 3)
         self.assertEqual(events[0].event_type, 'Foo')
         self.assertEqual(events[1].event_type, 'Foo')
@@ -142,9 +144,9 @@ class EventManagerTest(utils.BaseTestCase):
     def test_list_one(self):
         event = self.mgr.get(2)
         expect = [
-            ('GET', '/v2/events/2', {}, None),
+            'GET', '/v2/events/2'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertTrue(event)
         self.assertEqual(event.event_type, 'Foo')
 
@@ -153,11 +155,10 @@ class EventManagerTest(utils.BaseTestCase):
                                         "value": "localhost",
                                         "type": "string"}]))
         expect = [
-            ('GET', '/v2/events?q.field=hostname&q.op=&q.type=string'
-                    '&q.value=localhost',
-             {}, None),
+            'GET', '/v2/events?q.field=hostname&q.op=&q.type=string'
+            '&q.value=localhost'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(events), 2)
         self.assertEqual(events[0].event_type, 'Foo')
 
@@ -165,11 +166,10 @@ class EventManagerTest(utils.BaseTestCase):
         events = list(self.mgr.list(q=[{"field": "hostname",
                                         "value": "foreignhost"}]))
         expect = [
-            ('GET', '/v2/events?q.field=hostname&q.op='
-                    '&q.type=&q.value=foreignhost',
-             {}, None),
+            'GET', '/v2/events?q.field=hostname&q.op='
+            '&q.type=&q.value=foreignhost'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(events), 2)
         self.assertEqual(events[0].event_type, 'Foo')
 
@@ -181,9 +181,8 @@ class EventManagerTest(utils.BaseTestCase):
                                         "type": "integer"}]))
 
         expect = [
-            ('GET', '/v2/events?q.field=hostname&q.field=num_cpus&q.op=&q.op='
-                    '&q.type=&q.type=integer&q.value=localhost&q.value=5',
-             {}, None),
+            'GET', '/v2/events?q.field=hostname&q.field=num_cpus&q.op=&q.op='
+            '&q.type=&q.type=integer&q.value=localhost&q.value=5'
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.http_client.assert_called(*expect)
         self.assertEqual(len(events), 1)
