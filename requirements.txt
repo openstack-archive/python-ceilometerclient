@@ -3,5 +3,5 @@ argparse
 httplib2
 iso8601>=0.1.8
 PrettyTable>=0.7,<0.8
-python-keystoneclient>=0.4.1
+python-keystoneclient>=0.4.2
 six>=1.4.1
