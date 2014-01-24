@@ -17,7 +17,7 @@ from ceilometerclient.common import http
 from ceilometerclient.v1 import meters
 
 
-class Client(http.HTTPClient):
+class Client(object):
     """Client for the Ceilometer v1 API.
 
     :param string endpoint: A user-supplied endpoint URL for the ceilometer
@@ -29,9 +29,9 @@ class Client(http.HTTPClient):
 
     def __init__(self, *args, **kwargs):
         """Initialize a new client for the Ceilometer v1 API."""
-        super(Client, self).__init__(*args, **kwargs)
-        self.meters = meters.MeterManager(self)
-        self.samples = meters.SampleManager(self)
-        self.users = meters.UserManager(self)
-        self.resources = meters.ResourceManager(self)
-        self.projects = meters.ProjectManager(self)
+        self.http_client = http.HTTPClient(*args, **kwargs)
+        self.meters = meters.MeterManager(self.http_client)
+        self.samples = meters.SampleManager(self.http_client)
+        self.users = meters.UserManager(self.http_client)
+        self.resources = meters.ResourceManager(self.http_client)
+        self.projects = meters.ProjectManager(self.http_client)
