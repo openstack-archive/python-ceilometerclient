@@ -23,8 +23,9 @@ class Statistics(base.Resource):
 class StatisticsManager(base.Manager):
     resource_class = Statistics
 
-    def list(self, meter_name, q=None, period=None):
-        p = ['period=%s' % period] if period else None
+    def list(self, meter_name, q=None, period=None, groupby=[]):
+        p = ['period=%s' % period] if period else []
+        p.extend(['groupby=%s' % g for g in groupby] if groupby else [])
         return self._list(options.build_url(
             '/v2/meters/' + meter_name + '/statistics',
             q, p))
