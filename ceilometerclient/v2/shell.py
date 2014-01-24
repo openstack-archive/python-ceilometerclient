@@ -22,6 +22,7 @@ import six
 
 from ceilometerclient.common import utils
 from ceilometerclient import exc
+from ceilometerclient.openstack.common import strutils
 from ceilometerclient.v2 import options
 
 
@@ -257,7 +258,7 @@ def common_alarm_arguments(create=False):
                    help='Free text description of the alarm')
         @utils.arg('--state', metavar='<STATE>',
                    help='State of the alarm, one of: ' + str(ALARM_STATES))
-        @utils.arg('--enabled', type=utils.string_to_bool,
+        @utils.arg('--enabled', type=strutils.bool_from_string,
                    metavar='{True|False}',
                    help='True if alarm evaluation/actioning is enabled')
         @utils.arg('--alarm-action', dest='alarm_actions',
@@ -298,7 +299,7 @@ def common_alarm_arguments(create=False):
            help=('A meter should match this resource metadata (key=value) '
                  'additionally to the meter_name'))
 @utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=utils.string_to_bool,
+           metavar='{True|False}', type=strutils.bool_from_string,
            default=False,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state'))
@@ -333,7 +334,7 @@ def do_alarm_create(cc, args={}):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean')
 @utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=utils.string_to_bool,
+           metavar='{True|False}', type=strutils.bool_from_string,
            default=False,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state'))
@@ -358,7 +359,7 @@ def do_alarm_threshold_create(cc, args={}):
            help='Operator to compare with, one of: ' + str(
                ALARM_COMBINATION_OPERATORS))
 @utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=utils.string_to_bool,
+           metavar='{True|False}', type=strutils.bool_from_string,
            default=False,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state'))
@@ -391,7 +392,7 @@ def do_alarm_combination_create(cc, args={}):
            help=('A meter should match this resource metadata (key=value) '
                  'additionally to the meter_name'))
 @utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=utils.string_to_bool,
+           metavar='{True|False}', type=strutils.bool_from_string,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state'))
 def do_alarm_update(cc, args={}):
@@ -431,7 +432,7 @@ def do_alarm_update(cc, args={}):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean')
 @utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=utils.string_to_bool,
+           metavar='{True|False}', type=strutils.bool_from_string,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state'))
 def do_alarm_threshold_update(cc, args={}):
@@ -461,7 +462,7 @@ def do_alarm_threshold_update(cc, args={}):
            help='Operator to compare with, one of: ' + str(
                ALARM_COMBINATION_OPERATORS))
 @utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=utils.string_to_bool,
+           metavar='{True|False}', type=strutils.bool_from_string,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state'))
 def do_alarm_combination_update(cc, args={}):
