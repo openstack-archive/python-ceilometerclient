@@ -286,7 +286,7 @@ def common_alarm_arguments(create=False):
            help='Length of each period (seconds) to evaluate over')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
            help='Number of periods to evaluate over')
-@utils.arg('--meter-name', metavar='<METRIC>', required=True,
+@utils.arg('-m', '--meter-name', metavar='<METRIC>', required=True,
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
            help='Statistic to evaluate, one of: ' + str(STATISTICS))
@@ -312,7 +312,7 @@ def do_alarm_create(cc, args={}):
 
 
 @common_alarm_arguments(create=True)
-@utils.arg('--meter-name', metavar='<METRIC>', required=True,
+@utils.arg('-m', '--meter-name', metavar='<METRIC>', required=True,
            dest='threshold_rule/meter_name',
            help='Metric to evaluate against')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
@@ -379,7 +379,7 @@ def do_alarm_combination_create(cc, args={}):
            help='Length of each period (seconds) to evaluate over')
 @utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
            help='Number of periods to evaluate over')
-@utils.arg('--meter-name', metavar='<METRIC>',
+@utils.arg('-m', '--meter-name', metavar='<METRIC>',
            help='Metric to evaluate against')
 @utils.arg('--statistic', metavar='<STATISTIC>',
            help='Statistic to evaluate, one of: ' + str(STATISTICS))
@@ -410,7 +410,7 @@ def do_alarm_update(cc, args={}):
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm to update.')
 @common_alarm_arguments()
-@utils.arg('--meter-name', metavar='<METRIC>',
+@utils.arg('-m', '--meter-name', metavar='<METRIC>',
            dest='threshold_rule/meter_name',
            help='Metric to evaluate against')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
