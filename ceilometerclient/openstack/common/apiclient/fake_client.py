@@ -80,7 +80,7 @@ class FakeHTTPClient(client.HTTPClient):
             args = (None, )
         super(FakeHTTPClient, self).__init__(*args, **kwargs)
 
-    def assert_called(self, method, url, body=None, pos=-1):
+    def assert_called(self, method, url, data=None, pos=-1):
         """Assert than an API method was just called.
         """
         expected = (method, url)
@@ -96,7 +96,7 @@ class FakeHTTPClient(client.HTTPClient):
                 raise AssertionError('%r != %r' %
                                      (self.callstack[pos][3], body))
 
-    def assert_called_anytime(self, method, url, body=None):
+    def assert_called_anytime(self, method, url, data=None):
         """Assert than an API method was called anytime in the test.
         """
         expected = (method, url)

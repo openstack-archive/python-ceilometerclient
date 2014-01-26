@@ -49,11 +49,11 @@ class Manager(object):
         self.api = api
 
     def _create(self, url, body):
-        resp, body = self.api.json_request('POST', url, body=body)
+        resp, body = self.api.json_request('POST', url, data=body)
         if body:
             return self.resource_class(self, body)
 
-    def _list(self, url, response_key=None, obj_class=None, body=None,
+    def _list(self, url, response_key=None, obj_class=None, data=None,
               expect_single=False):
         resp, body = self.api.json_request('GET', url)
 
@@ -72,7 +72,7 @@ class Manager(object):
         return [obj_class(self, res, loaded=True) for res in data if res]
 
     def _update(self, url, body, response_key=None):
-        resp, body = self.api.json_request('PUT', url, body=body)
+        resp, body = self.api.json_request('PUT', url, data=body)
         # PUT requests may not return a body
         if body:
             return self.resource_class(self, body)

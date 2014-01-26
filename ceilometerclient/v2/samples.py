@@ -49,6 +49,6 @@ class SampleManager(base.Manager):
         url = self._path(counter_name=kwargs['counter_name'])
         resp, body = self.api.json_request('POST',
                                            url,
-                                           body=[new])
+                                           data=[new])
         if body:
             return [Sample(self, b) for b in body]

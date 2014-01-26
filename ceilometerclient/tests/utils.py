@@ -15,10 +15,9 @@
 
 import copy
 import fixtures
+import requests
 import six
 import testtools
-
-from ceilometerclient.common import http
 
 
 class BaseTestCase(testtools.TestCase):
@@ -33,15 +32,16 @@ class FakeAPI(object):
         self.fixtures = fixtures
         self.calls = []
 
-    def _request(self, method, url, headers=None, body=None):
-        call = (method, url, headers or {}, body)
+    def _request(self, method, url, headers=None, data=None):
+        call = (method, url, headers or {}, data)
         self.calls.append(call)
         return self.fixtures[url][method]
 
     def raw_request(self, *args, **kwargs):
         fixture = self._request(*args, **kwargs)
-        body_iter = http.ResponseBodyIterator(six.StringIO(fixture[1]))
-        return FakeResponse(fixture[0]), body_iter
+        r = requests.Response()
+        r._content = six.StringIO(fixture[1])
+        return FakeResponse(fixture[0]), r.iter_content()
 
     def json_request(self, *args, **kwargs):
         fixture = self._request(*args, **kwargs)
@@ -49,12 +49,12 @@ class FakeAPI(object):
 
 
 class FakeResponse(object):
-    def __init__(self, headers, body=None, version=None):
+    def __init__(self, headers, data=None, version=None):
         """:param headers: dict representing HTTP response headers
-        :param body: file-like object
+        :param data: file-like object
         """
         self.headers = headers
-        self.body = body
+        self.data = data
 
     def getheaders(self):
         return copy.deepcopy(self.headers).items()
@@ -63,4 +63,4 @@ class FakeResponse(object):
         return self.headers.get(key, default)
 
     def read(self, amt):
-        return self.body.read(amt)
+        return self.data.read(amt)

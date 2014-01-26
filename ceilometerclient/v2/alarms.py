@@ -131,7 +131,7 @@ class AlarmManager(base.Manager):
     def set_state(self, alarm_id, state):
         resp, body = self.api.json_request('PUT',
                                            "%s/state" % self._path(alarm_id),
-                                           body=state)
+                                           data=state)
         return body
 
     def get_state(self, alarm_id):
