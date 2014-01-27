@@ -1,0 +1,14 @@
+Verified+2: Jenkins
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Approved+1: gordon chung <chungg@ca.ibm.com>
+Code-Review+2: gordon chung <chungg@ca.ibm.com>
+Code-Review+1: ZhiQiang Fan <aji.zqfan@gmail.com>
+Code-Review+1: huangtianhua <huangtianhua@huawei.com>
+Code-Review+1: wanghao <wanghao749@huawei.com>
+Code-Review+1: ling-yun <zengyunling@huawei.com>
+Code-Review+1: shihanzhang <shihanzhang@huawei.com>
+Submitted-by: Jenkins
+Submitted-at: Mon, 27 Jan 2014 22:59:05 +0000
+Reviewed-on: https://review.openstack.org/66125
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
