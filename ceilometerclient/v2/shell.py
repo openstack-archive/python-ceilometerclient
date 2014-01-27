@@ -278,7 +278,7 @@ def common_alarm_arguments(create=False):
         @utils.arg('--insufficient-data-action',
                    dest='insufficient_data_actions',
                    metavar='<Webhook URL>', action='append', default=None,
-                   help=('URL to invoke when state transitions to unkown. '
+                   help=('URL to invoke when state transitions to unknown. '
                          'May be used multiple times.'))
         @functools.wraps(func)
         def _wrapped(*args, **kwargs):

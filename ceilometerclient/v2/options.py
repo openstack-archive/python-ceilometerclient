@@ -93,7 +93,7 @@ def cli_to_array(cli_query):
     for q in queries:
         frag = split_by_op(q)
         if len(frag) > 1:
-            raise ValueError('incorrect seperator %s in query "%s"' %
+            raise ValueError('incorrect separator %s in query "%s"' %
                              ('(should be ";")', q))
         if len(frag) == 0:
             raise ValueError('invalid query %s' % q)
