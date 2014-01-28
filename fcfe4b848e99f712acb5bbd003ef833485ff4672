@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Approved+1: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+2: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Code-Review+1: Yuuichi Fujioka <fujioka.yuuichi@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Tue, 28 Jan 2014 18:19:09 +0000
+Reviewed-on: https://review.openstack.org/63984
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
