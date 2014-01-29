@@ -29,6 +29,7 @@ from ceilometerclient.v2 import options
 ALARM_STATES = ['ok', 'alarm', 'insufficient_data']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
+NOTIFICATION_TYPE_OPERATORS = ['eq', 'ne']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
 OPERATORS_STRING = dict(gt='>', ge='>=',
                         lt='<', le="<=",
@@ -378,6 +379,36 @@ def do_alarm_combination_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@common_alarm_arguments(create=True)
+@utils.arg('--notification-type', metavar='<METRIC>', required=True,
+           dest='notification_rule/notification_type',
+           help='Metric to evaluate against')
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           dest='notification_rule/comparison_operator',
+           help=('Operator to compare with, one of: ' +
+                 str(NOTIFICATION_TYPE_OPERATORS)))
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           dest='notification_rule/query',
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=strutils.bool_from_string,
+           default=False,
+           help=('True if actions should be repeatedly notified '
+                 'while alarm remains in target state'))
+def do_alarm_notification_create(cc, args={}):
+    '''Create a new alarm based on notification.'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields['type'] = 'notification'
+    if 'query' in fields['notification_rule']:
+        fields['notification_rule']['query'] = options.cli_to_array(
+            fields['notification_rule']['query'])
+
+    alarm = cc.alarms.create(**fields)
+    _display_alarm(alarm)
+
+
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm to update.')
 @common_alarm_arguments()
@@ -477,6 +508,42 @@ def do_alarm_combination_update(cc, args={}):
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields.pop('alarm_id')
     fields['type'] = 'combination'
+    try:
+        alarm = cc.alarms.update(args.alarm_id, **fields)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
+    _display_alarm(alarm)
+
+
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+           help='ID of the alarm to update.')
+@common_alarm_arguments()
+@utils.arg('--notification-type', metavar='<METRIC>',
+           dest='notification_rule/notification_type',
+           help='Metric to evaluate against')
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           dest='notification_rule/comparison_operator',
+           help=('Operator to compare with, one of: ' +
+                 str(NOTIFICATION_TYPE_OPERATORS)))
+@utils.arg('-q', '--query', metavar='<QUERY>',
+           dest='notification_rule/query',
+           help='key[op]data_type::value; list. data_type is optional, '
+                'but if supplied must be string, integer, float, or boolean')
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=strutils.bool_from_string,
+           default=False,
+           help=('True if actions should be repeatedly notified '
+                 'while alarm remains in target state'))
+def do_alarm_notification_update(cc, args={}):
+    '''Update an existing notification alarm.'''
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields.pop('alarm_id')
+    fields['type'] = 'notification'
+    if ('notification_rule' in fields and
+            'query' in fields['notification_rule']):
+        fields['notification_rule']['query'] = options.cli_to_array(
+            fields['notification_rule']['query'])
     try:
         alarm = cc.alarms.update(args.alarm_id, **fields)
     except exc.HTTPNotFound:

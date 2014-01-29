@@ -35,6 +35,7 @@ UPDATABLE_ATTRIBUTES = [
     'repeat_actions',
     'threshold_rule',
     'combination_rule',
+    'notification_rule',
 ]
 CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['project_id', 'user_id']
 
