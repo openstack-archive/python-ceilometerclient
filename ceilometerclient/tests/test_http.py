@@ -13,6 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import contextlib
+import mock
+
 from ceilometerclient.common import http
 from ceilometerclient.tests import utils
 
@@ -44,6 +47,29 @@ class HttpClientTest(utils.BaseTestCase):
         client = http.HTTPClient(self.url)
         self.assertIsNotNone(client.get_connection())
 
+    def test_url_generation_with_proxy(self):
+        client = http.HTTPClient(self.url)
+        client.proxy_url = "http://localhost:3128/"
+        conn = mock.MagicMock()
+        with contextlib.nested(
+            mock.patch.object(client, 'get_connection'),
+            mock.patch.object(client, 'auth_token')
+        ) as (get_conn, auth_token):
+            conn.request.side_effect = Exception("stop")
+            get_conn.return_value = conn
+            auth_token.return_value = "token"
+            try:
+                client._http_request('/v1/resources', 'GET')
+            except:
+                pass
+        conn.request.assert_called_once_with('GET', (self.url.rstrip('/') +
+                                                     '/v1/resources'),
+                                             headers=mock.ANY)
+
 
 class HttpsClientTest(HttpClientTest):
     url = 'https://localhost'
+
+
+class HttpEndingSlashClientTest(HttpClientTest):
+    url = 'http://localhost/'
