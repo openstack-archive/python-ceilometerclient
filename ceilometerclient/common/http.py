@@ -143,7 +143,8 @@ class HTTPClient(object):
 
         try:
             if self.proxy_url:
-                conn_url = self.endpoint + self._make_connection_url(url)
+                conn_url = (self.endpoint.rstrip('/') +
+                            self._make_connection_url(url))
             else:
                 conn_url = self._make_connection_url(url)
             conn.request(method, conn_url, **kwargs)
