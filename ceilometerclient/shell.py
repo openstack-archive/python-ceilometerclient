@@ -56,11 +56,11 @@ class CeilometerShell(object):
                             default=bool(cliutils.env('CEILOMETERCLIENT_DEBUG')
                                          ),
                             action='store_true',
-                            help='Defaults to env[CEILOMETERCLIENT_DEBUG]')
+                            help='Defaults to env[CEILOMETERCLIENT_DEBUG].')
 
         parser.add_argument('-v', '--verbose',
                             default=False, action="store_true",
-                            help="Print more verbose output")
+                            help="Print more verbose output.")
 
         parser.add_argument('-k', '--insecure',
                             default=False,
@@ -96,60 +96,60 @@ class CeilometerShell(object):
 
         parser.add_argument('--timeout',
                             default=600,
-                            help='Number of seconds to wait for a response')
+                            help='Number of seconds to wait for a response.')
 
         parser.add_argument('--os-username',
                             default=cliutils.env('OS_USERNAME'),
-                            help='Defaults to env[OS_USERNAME]')
+                            help='Defaults to env[OS_USERNAME].')
 
         parser.add_argument('--os_username',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-password',
                             default=cliutils.env('OS_PASSWORD'),
-                            help='Defaults to env[OS_PASSWORD]')
+                            help='Defaults to env[OS_PASSWORD].')
 
         parser.add_argument('--os_password',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-tenant-id',
                             default=cliutils.env('OS_TENANT_ID'),
-                            help='Defaults to env[OS_TENANT_ID]')
+                            help='Defaults to env[OS_TENANT_ID].')
 
         parser.add_argument('--os_tenant_id',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-tenant-name',
                             default=cliutils.env('OS_TENANT_NAME'),
-                            help='Defaults to env[OS_TENANT_NAME]')
+                            help='Defaults to env[OS_TENANT_NAME].')
 
         parser.add_argument('--os_tenant_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-auth-url',
                             default=cliutils.env('OS_AUTH_URL'),
-                            help='Defaults to env[OS_AUTH_URL]')
+                            help='Defaults to env[OS_AUTH_URL].')
 
         parser.add_argument('--os_auth_url',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-region-name',
                             default=cliutils.env('OS_REGION_NAME'),
-                            help='Defaults to env[OS_REGION_NAME]')
+                            help='Defaults to env[OS_REGION_NAME].')
 
         parser.add_argument('--os_region_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-auth-token',
                             default=cliutils.env('OS_AUTH_TOKEN'),
-                            help='Defaults to env[OS_AUTH_TOKEN]')
+                            help='Defaults to env[OS_AUTH_TOKEN].')
 
         parser.add_argument('--os_auth_token',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ceilometer-url',
                             default=cliutils.env('CEILOMETER_URL'),
-                            help='Defaults to env[CEILOMETER_URL]')
+                            help='Defaults to env[CEILOMETER_URL].')
 
         parser.add_argument('--ceilometer_url',
                             help=argparse.SUPPRESS)
@@ -158,21 +158,21 @@ class CeilometerShell(object):
                             default=cliutils.env(
                             'CEILOMETER_API_VERSION', default='2'),
                             help='Defaults to env[CEILOMETER_API_VERSION] '
-                            'or 2')
+                            'or 2.')
 
         parser.add_argument('--ceilometer_api_version',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-service-type',
                             default=cliutils.env('OS_SERVICE_TYPE'),
-                            help='Defaults to env[OS_SERVICE_TYPE]')
+                            help='Defaults to env[OS_SERVICE_TYPE].')
 
         parser.add_argument('--os_service_type',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-endpoint-type',
                             default=cliutils.env('OS_ENDPOINT_TYPE'),
-                            help='Defaults to env[OS_ENDPOINT_TYPE]')
+                            help='Defaults to env[OS_ENDPOINT_TYPE].')
 
         parser.add_argument('--os_endpoint_type',
                             help=argparse.SUPPRESS)
