@@ -10,8 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ceilometerclient.common import utils
 from keystoneclient.v2_0 import client as ksclient
+import six
+
+from ceilometerclient.common import utils
 
 
 def _get_ksclient(**kwargs):
@@ -58,8 +60,11 @@ def get_client(api_version, **kwargs):
             * insecure: allow insecure SSL (no cert verification)
             * os_tenant_{name|id}: name or ID of tenant
     """
-    if kwargs.get('os_auth_token') and kwargs.get('ceilometer_url'):
-        token = kwargs.get('os_auth_token')
+    token = kwargs.get('os_auth_token')
+    if token:
+        token = (token if six.callable(token) else lambda: token)
+        
+    if token and kwargs.get('ceilometer_url'):
         endpoint = kwargs.get('ceilometer_url')
     elif (kwargs.get('os_username') and
           kwargs.get('os_password') and
@@ -79,9 +84,8 @@ def get_client(api_version, **kwargs):
             'insecure': kwargs.get('insecure'),
         }
         _ksclient = _get_ksclient(**ks_kwargs)
-        token = ((lambda: kwargs.get('os_auth_token'))
-                 if kwargs.get('os_auth_token')
-                 else (lambda: _ksclient.auth_token))
+        if not token:
+            token = lambda: _ksclient.auth_token
 
         endpoint = kwargs.get('ceilometer_url') or \
             _get_endpoint(_ksclient, **ks_kwargs)
@@ -90,7 +94,7 @@ def get_client(api_version, **kwargs):
         'token': token,
         'insecure': kwargs.get('insecure'),
         'timeout': kwargs.get('timeout'),
-        'cacert': kwargs.get('os_cacert'),
+        'cacert': kwargs.get('cacert'),
         'cert_file': kwargs.get('cert_file'),
         'key_file': kwargs.get('key_file'),
     }
