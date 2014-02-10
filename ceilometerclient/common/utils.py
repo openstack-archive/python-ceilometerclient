@@ -78,7 +78,7 @@ def format_nested_list_of_dict(l, column_names):
                                  header=True, hrules=prettytable.FRAME,
                                  field_names=column_names)
     for d in l:
-        pt.add_row(map(lambda k: d[k], column_names))
+        pt.add_row(list(map(lambda k: d[k], column_names)))
     return pt.get_string()
 
 
