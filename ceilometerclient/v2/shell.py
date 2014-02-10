@@ -317,7 +317,7 @@ def common_alarm_arguments(create=False):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state'))
 def do_alarm_create(cc, args={}):
-    '''Create a new alarm (Deprecated).'''
+    '''Create a new alarm (Deprecated). Use alarm-threshold-create instead.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_dict(fields, "matching_metadata")
     alarm = cc.alarms.create(**fields)
