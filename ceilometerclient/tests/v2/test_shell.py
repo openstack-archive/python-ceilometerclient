@@ -308,7 +308,6 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
     def setUp(self):
         super(ShellSampleListCommandTest, self).setUp()
         self.cc = mock.Mock()
-        self.cc.alarms = mock.Mock()
         self.args = mock.Mock()
         self.args.meter = self.METER
         self.args.query = None
