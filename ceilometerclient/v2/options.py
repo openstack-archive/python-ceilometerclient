@@ -11,7 +11,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ceilometerclient.openstack.common.py3kcompat import urlutils
+from six.moves.urllib import parse
+
 import re
 
 
@@ -38,7 +39,7 @@ def build_url(path, q, params=None):
         # Transform the dict to a sequence of two-element tuples in fixed
         # order, then the encoded string will be consistent in Python 2&3.
         new_qparams = sorted(query_params.items(), key=lambda x: x[0])
-        path += "?" + urlutils.urlencode(new_qparams, doseq=True)
+        path += "?" + parse.urlencode(new_qparams, doseq=True)
 
         if params:
             for p in params:
