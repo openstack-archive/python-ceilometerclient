@@ -134,9 +134,8 @@ class HTTPClient(object):
         # Copy the kwargs so we can reuse the original in case of redirects
         kwargs['headers'] = copy.deepcopy(kwargs.get('headers', {}))
         kwargs['headers'].setdefault('User-Agent', USER_AGENT)
-        auth_token = self.auth_token()
-        if auth_token:
-            kwargs['headers'].setdefault('X-Auth-Token', auth_token)
+        if self.auth_token:
+            kwargs['headers'].setdefault('X-Auth-Token', self.auth_token)
 
         self.log_curl_request(method, url, kwargs)
         conn = self.get_connection()
