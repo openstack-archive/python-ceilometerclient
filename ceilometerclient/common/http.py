@@ -31,9 +31,9 @@ except ImportError:
 
 import six
 from six.moves import http_client as httplib  # noqa
+from six.moves.urllib import parse
 
 from ceilometerclient import exc
-from ceilometerclient.openstack.common.py3kcompat import urlutils
 
 
 LOG = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class HTTPClient(object):
 
     @staticmethod
     def get_connection_params(endpoint, **kwargs):
-        parts = urlutils.urlparse(endpoint)
+        parts = parse.urlparse(endpoint)
 
         _args = (parts.hostname, parts.port, parts.path)
         _kwargs = {'timeout': (float(kwargs.get('timeout'))
@@ -75,7 +75,7 @@ class HTTPClient(object):
         _class = self.connection_params[0]
         try:
             if self.proxy_url:
-                proxy_parts = urlutils.urlparse(self.proxy_url)
+                proxy_parts = parse.urlparse(self.proxy_url)
                 return _class(proxy_parts.hostname, proxy_parts.port,
                               **self.connection_params[2])
             else:
@@ -212,7 +212,7 @@ class HTTPClient(object):
         return self._http_request(url, method, **kwargs)
 
     def get_proxy_url(self):
-        scheme = urlutils.urlparse(self.endpoint).scheme
+        scheme = parse.urlparse(self.endpoint).scheme
         if scheme == 'https':
             return os.environ.get('https_proxy')
         elif scheme == 'http':
