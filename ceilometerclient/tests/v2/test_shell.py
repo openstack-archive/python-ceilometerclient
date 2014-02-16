@@ -10,6 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import argparse
 import mock
 import re
 import six
@@ -275,6 +276,54 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         finally:
             sys.stdout.close()
             sys.stdout = orig
+
+    def test_alarm_notification_create(self):
+        method = ceilometer_shell.do_alarm_notification_create
+
+        args = argparse.Namespace()
+        args.name = 'newalarm'
+        args.notification_rule = {'comparison_operator': 'ne',
+                                  'period': 100,
+                                  'notification_type': 'jiao*',
+                                  'query': 'aaa=10;bbb.cc<=34'}
+        res = mock.Mock()
+        res.type = 'notification'
+        res.rule = {}
+        self.cc.alarms.create.return_value = res
+        method(self.cc, args)
+        call_args, kwargs = self.cc.alarms.create.call_args
+        self.assertEqual(kwargs.get('name'), 'newalarm')
+        self.assertEqual(kwargs.get('type'), 'notification')
+        self.assertEqual(kwargs.get('notification_rule'),
+                         {'notification_type': 'jiao*',
+                          'comparison_operator': 'ne',
+                          'period': 100,
+                          'query': [{'field': 'aaa', 'type': '',
+                                     'value': '10', 'op': 'eq'},
+                                    {'field': 'bbb.cc', 'type': '',
+                                     'value': '34', 'op': 'le'}]})
+
+    def test_alarm_notification_update(self):
+        method = ceilometer_shell.do_alarm_notification_update
+
+        args = argparse.Namespace()
+        args.name = 'newalarm'
+        args.alarm_id = 'the_id'
+        args.notification_rule = {'comparison_operator': 'ne',
+                                  'period': 10,
+                                  'notification_type': 'nova.vm.*'}
+        res = mock.Mock()
+        res.type = 'notification'
+        res.rule = {}
+        self.cc.alarms.update.return_value = res
+        method(self.cc, args)
+        call_args, kwargs = self.cc.alarms.update.call_args
+        self.assertEqual(kwargs.get('name'), 'newalarm')
+        self.assertEqual(kwargs.get('type'), 'notification')
+        self.assertEqual(kwargs.get('notification_rule'),
+                         {'notification_type': 'nova.vm.*',
+                          'period': 10,
+                          'comparison_operator': 'ne'})
 
 
 class ShellSampleListCommandTest(utils.BaseTestCase):

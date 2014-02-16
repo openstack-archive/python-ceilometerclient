@@ -2,6 +2,7 @@
 *.egg-info
 build
 .coverage
+.venv
 .tox
 cover
 .testrepository
