@@ -410,3 +410,58 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 | volume            | 1.0                                         |
 +-------------------+---------------------------------------------+
 ''')
+
+
+class ShellQuerySamplesCommandTest(utils.BaseTestCase):
+
+    SAMPLE = [{u'id': u'b55d1526-9929-11e3-a3f6-02163e5df1e6',
+               u'metadata': {
+                   u'name1': u'value1',
+                   u'name2': u'value2'},
+               u'meter': 'instance',
+               u'project_id': u'35b17138-b364-4e6a-a131-8f3099c5be68',
+               u'resource_id': u'bd9431c1-8d69-4ad3-803a-8d4a6b89fd36',
+               u'source': u'openstack',
+               u'timestamp': u'2014-02-19T05:50:16.673604',
+               u'type': u'gauge',
+               u'unit': u'instance',
+               u'volume': 1,
+               u'user_id': 'efd87807-12d2-4b38-9c70-5f5c2ac427ff'}]
+
+    QUERY = {"filter": {"and": [{"=": {"source": "openstack"}},
+                                {">": {"timestamp": "2014-02-19T05:50:16"}}]},
+             "orderby": [{"timestamp": "desc"}, {"volume": "asc"}],
+             "limit": 10}
+
+    def setUp(self):
+        super(ShellQuerySamplesCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.args = mock.Mock()
+        self.args.filter = self.QUERY["filter"]
+        self.args.orderby = self.QUERY["orderby"]
+        self.args.limit = self.QUERY["limit"]
+
+    def test_query(self):
+
+        ret_sample = [samples.Sample(mock.Mock(), sample)
+                      for sample in self.SAMPLE]
+        self.cc.query_samples.query.return_value = ret_sample
+        org_stdout = sys.stdout
+        try:
+            sys.stdout = output = six.StringIO()
+            ceilometer_shell.do_query_samples(self.cc, self.args)
+        finally:
+            sys.stdout = org_stdout
+
+        self.assertEqual(output.getvalue(), '''\
++--------------------------------------+----------+-------+--------+---------\
+-+----------------------------+
+| Resource ID                          | Meter    | Type  | Volume | Unit    \
+ | Timestamp                  |
++--------------------------------------+----------+-------+--------+---------\
+-+----------------------------+
+| bd9431c1-8d69-4ad3-803a-8d4a6b89fd36 | instance | gauge | 1      | instance\
+ | 2014-02-19T05:50:16.673604 |
++--------------------------------------+----------+-------+--------+---------\
+-+----------------------------+
+''')
