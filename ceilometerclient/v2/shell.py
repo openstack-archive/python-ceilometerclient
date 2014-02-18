@@ -633,3 +633,27 @@ def do_trait_list(cc, args={}):
     field_labels = ['Trait Name', 'Value', 'Data Type']
     fields = ['name', 'value', 'type']
     utils.print_list(traits, fields, field_labels)
+
+
+@utils.arg('-f', '--filter', metavar='<FILTER>',
+           help='WRITE DOC!')
+@utils.arg('-o', '--orderby', metavar='<ORDERBY>',
+           help='WRITE DOC!')
+@utils.arg('-l', '--limit', metavar='<LIMIT>',
+           help='Maximum number of samples to return.')
+def do_query_samples(cc, args):
+    '''List the samples for a meter.'''
+    fields = {'filter': args.filter,
+              'orderby': args.orderby,
+              'limit': args.limit}
+    try:
+        samples = cc.query_samples.query(**fields)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Samples not found')
+    else:
+        field_labels = ['Resource ID', 'Meter', 'Type', 'Volume', 'Unit',
+                        'Timestamp']
+        fields = ['resource_id', 'meter', 'type',
+                  'volume', 'unit', 'timestamp']
+        utils.print_list(samples, fields, field_labels,
+                         sortby=None)
