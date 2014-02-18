@@ -23,7 +23,7 @@ from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import statistics
 from ceilometerclient.v2 import trait_descriptions
 from ceilometerclient.v2 import traits
-
+from ceilometerclient.v2 import query_samples
 
 class Client(object):
     """Client for the Ceilometer v2 API.
@@ -48,3 +48,4 @@ class Client(object):
         self.traits = traits.TraitManager(self.http_client)
         self.trait_info = trait_descriptions.\
             TraitDescriptionManager(self.http_client)
+        self.query_samples = query_samples.QuerySamplesManager(self.http_client)
