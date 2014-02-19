@@ -36,7 +36,7 @@ class Client(object):
     """
 
     def __init__(self, *args, **kwargs):
-        """Initialize a new client for the Ceilometer v1 API."""
+        """Initialize a new client for the Ceilometer v2 API."""
         self.http_client = http.HTTPClient(*args, **kwargs)
         self.meters = meters.MeterManager(self.http_client)
         self.samples = samples.SampleManager(self.http_client)
