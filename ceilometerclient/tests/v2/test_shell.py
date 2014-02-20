@@ -465,3 +465,70 @@ class ShellQuerySamplesCommandTest(utils.BaseTestCase):
 +--------------------------------------+----------+-------+--------+---------\
 -+----------------------------+
 ''')
+
+
+class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
+
+    ALARM = [{"alarm_actions": ["http://site:8000/alarm"],
+              "alarm_id": "768ff714-8cfb-4db9-9753-d484cb33a1cc",
+              "combination_rule": {
+                  "alarm_ids": [
+                      "739e99cb-c2ec-4718-b900-332502355f38",
+                      "153462d0-a9b8-4b5b-8175-9e4b05e9b856"],
+                  "operator": "or"},
+              "description": "An alarm",
+              "enabled": True,
+              "insufficient_data_actions": ["http://site:8000/nodata"],
+              "name": "SwiftObjectAlarm",
+              "ok_actions": ["http://site:8000/ok"],
+              "project_id": "c96c887c216949acbdfbd8b494863567",
+              "repeat_actions": False,
+              "state": "ok",
+              "state_timestamp": "2014-02-20T10:37:15.589860",
+              "threshold_rule": None,
+              "timestamp": "2014-02-20T10:37:15.589856",
+              "type": "combination",
+              "user_id": "c96c887c216949acbdfbd8b494863567"}]
+
+    QUERY = {"filter": {"and": [{"!=": {"state": "ok"}},
+                                {"=": {"type": "combination"}}]},
+             "orderby": [{"state_timestamp": "desc"}],
+             "limit": 10}
+
+    def setUp(self):
+        super(ShellQueryAlarmsCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.args = mock.Mock()
+        self.args.filter = self.QUERY["filter"]
+        self.args.orderby = self.QUERY["orderby"]
+        self.args.limit = self.QUERY["limit"]
+
+    def test_query(self):
+
+        ret_alarm = [alarms.Alarm(mock.Mock(), alarm)
+                     for alarm in self.ALARM]
+        self.cc.query_alarms.query.return_value = ret_alarm
+        org_stdout = sys.stdout
+        try:
+            sys.stdout = output = six.StringIO()
+            ceilometer_shell.do_query_alarms(self.cc, self.args)
+        finally:
+            sys.stdout = org_stdout
+
+        self.assertEqual(output.getvalue(), '''\
++--------------------------------------+------------------+-------+---------\
++------------+--------------------------------------------------------------\
+----------------------------------------+
+| Alarm ID                             | Name             | State | Enabled \
+| Continuous | Alarm condition                                              \
+                                        |
++--------------------------------------+------------------+-------+---------\
++------------+--------------------------------------------------------------\
+----------------------------------------+
+| 768ff714-8cfb-4db9-9753-d484cb33a1cc | SwiftObjectAlarm | ok    | True    \
+| False      | combinated states (OR) of 739e99cb-c2ec-4718-b900-332502355f3\
+8, 153462d0-a9b8-4b5b-8175-9e4b05e9b856 |
++--------------------------------------+------------------+-------+---------\
++------------+--------------------------------------------------------------\
+----------------------------------------+
+''')
