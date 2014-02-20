@@ -671,3 +671,31 @@ def do_query_samples(cc, args):
                   'volume', 'unit', 'timestamp']
         utils.print_list(samples, fields, field_labels,
                          sortby=None)
+
+
+@utils.arg('-f', '--filter', metavar='<FILTER>',
+           help=('{complex_op: [{simple_op: {field_name: value}}]} '
+                 'The complex_op is one of: ' + str(COMPLEX_OPERATORS) + ', '
+                 'simple_op is one of: ' + str(SIMPLE_OPERATORS) + '.'))
+@utils.arg('-o', '--orderby', metavar='<ORDERBY>',
+           help=('[{field_name: direction}, {field_name: direction}] '
+                 'The direction is one of: ' + str(ORDER_DIRECTIONS) + '.'))
+@utils.arg('-l', '--limit', metavar='<LIMIT>',
+           help='Maximum number of alarms to return.')
+def do_query_alarms(cc, args):
+    '''Query Alarms.'''
+    fields = {'filter': args.filter,
+              'orderby': args.orderby,
+              'limit': args.limit}
+    try:
+        alarms = cc.query_alarms.query(**fields)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarms not found')
+    else:
+        field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
+                        'Alarm condition']
+        fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
+                  'rule']
+        utils.print_list(alarms, fields, field_labels,
+                         formatters={'rule': alarm_rule_formatter},
+                         sortby=None)
