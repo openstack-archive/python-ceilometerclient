@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 from ceilometerclient.tests import utils
-from ceilometerclient.v2 import query_samples
+from ceilometerclient.v2 import query
 
 SAMPLE = {u'id': u'b55d1526-9929-11e3-a3f6-02163e5df1e6',
           u'metadata': {
@@ -51,7 +51,7 @@ class QuerySamplesManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(QuerySamplesManagerTest, self).setUp()
         self.api = utils.FakeAPI(fixtures)
-        self.mgr = query_samples.QuerySamplesManager(self.api)
+        self.mgr = query.QuerySamplesManager(self.api)
 
     def test_query(self):
         samples = self.mgr.query(**QUERY)
