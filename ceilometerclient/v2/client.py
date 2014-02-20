@@ -18,7 +18,7 @@ from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import event_types
 from ceilometerclient.v2 import events
 from ceilometerclient.v2 import meters
-from ceilometerclient.v2 import query_samples
+from ceilometerclient.v2 import query
 from ceilometerclient.v2 import resources
 from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import statistics
@@ -49,5 +49,7 @@ class Client(object):
         self.traits = traits.TraitManager(self.http_client)
         self.trait_info = trait_descriptions.\
             TraitDescriptionManager(self.http_client)
-        self.query_samples = query_samples.QuerySamplesManager(
+        self.query_samples = query.QuerySamplesManager(
+            self.http_client)
+        self.query_alarms = query.QueryAlarmsManager(
             self.http_client)
