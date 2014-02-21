@@ -39,7 +39,7 @@ class ClientException(Exception):
     """DEPRECATED."""
 
 
-class HTTPException(ClientException):
+class HTTPException(Exception):
     """Base exception for all HTTP-derived exceptions."""
     code = 'N/A'
 
@@ -60,13 +60,12 @@ class HTTPMultipleChoices(HTTPException):
                                     self.details)
 
 
-class BadRequest(HTTPException):
-    """DEPRECATED."""
-    code = 400
+class ClientError(HTTPException):
+    """Base class for client error (http status code 4xx).
 
-
-class HTTPBadRequest(BadRequest):
-
+    ceilometerclient.common.http will catch all status codes in [400, 600],
+    and extract information from http response's body.
+    """
     def __str__(self):
         try:
             data = json.loads(self.details)
@@ -76,7 +75,16 @@ class HTTPBadRequest(BadRequest):
                     self.__class__.__name__, self.code, message)
         except (ValueError, TypeError, AttributeError):
             pass
-        return super(HTTPBadRequest, self).__str__()
+        return super(ClientError, self).__str__()
+
+
+class BadRequest(HTTPException):
+    """DEPRECATED."""
+    code = 400
+
+
+class HTTPBadRequest(ClientError):
+    code = 400
 
 
 class Unauthorized(HTTPException):
@@ -84,8 +92,8 @@ class Unauthorized(HTTPException):
     code = 401
 
 
-class HTTPUnauthorized(Unauthorized):
-    pass
+class HTTPUnauthorized(ClientError):
+    code = 401
 
 
 class Forbidden(HTTPException):
@@ -93,8 +101,8 @@ class Forbidden(HTTPException):
     code = 403
 
 
-class HTTPForbidden(Forbidden):
-    pass
+class HTTPForbidden(ClientError):
+    code = 403
 
 
 class NotFound(HTTPException):
@@ -102,11 +110,11 @@ class NotFound(HTTPException):
     code = 404
 
 
-class HTTPNotFound(NotFound):
-    pass
+class HTTPNotFound(ClientError):
+    code = 404
 
 
-class HTTPMethodNotAllowed(HTTPException):
+class HTTPMethodNotAllowed(ClientError):
     code = 405
 
 
@@ -115,8 +123,8 @@ class Conflict(HTTPException):
     code = 409
 
 
-class HTTPConflict(Conflict):
-    pass
+class HTTPConflict(ClientError):
+    code = 409
 
 
 class OverLimit(HTTPException):
@@ -124,8 +132,8 @@ class OverLimit(HTTPException):
     code = 413
 
 
-class HTTPOverLimit(OverLimit):
-    pass
+class HTTPOverLimit(ClientError):
+    code = 413
 
 
 class HTTPInternalServerError(HTTPException):

@@ -20,32 +20,49 @@ from ceilometerclient import exc
 from ceilometerclient.tests import utils
 
 
-class HTTPBadRequestTest(utils.BaseTestCase):
+class ClientErrorTest(utils.BaseTestCase):
+    exc_cls = exc.ClientError
+    code = 'N/A'
+
+    def setUp(self):
+        super(ClientErrorTest, self).setUp()
+        self.expected_base_str = "%s (HTTP %s)" % (self.exc_cls.__name__,
+                                                   self.code)
 
     def test_str_no_details(self):
-        exception = exc.HTTPBadRequest()
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        exception = self.exc_cls()
+        self.assertEqual(self.expected_base_str, str(exception))
 
     def test_str_no_json(self):
-        exception = exc.HTTPBadRequest(details="foo")
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        exception = self.exc_cls(details="foo")
+        self.assertEqual(self.expected_base_str, str(exception))
 
     def test_str_no_error_message(self):
-        exception = exc.HTTPBadRequest(details=json.dumps({}))
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        exception = self.exc_cls(details=json.dumps({}))
+        self.assertEqual(self.expected_base_str, str(exception))
 
     def test_str_no_faultstring(self):
-        exception = exc.HTTPBadRequest(
+        exception = self.exc_cls(
             details=json.dumps({"error_message": {"foo": "bar"}}))
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        self.assertEqual(self.expected_base_str, str(exception))
 
     def test_str_error_message_unknown_format(self):
-        exception = exc.HTTPBadRequest(
+        exception = self.exc_cls(
             details=json.dumps({"error_message": "oops"}))
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        self.assertEqual(self.expected_base_str, str(exception))
 
     def test_str_faultstring(self):
-        exception = exc.HTTPBadRequest(
+        exception = self.exc_cls(
             details=json.dumps({"error_message": {"faultstring": "oops"}}))
-        self.assertEqual("HTTPBadRequest (HTTP 400) ERROR oops",
+        self.assertEqual(self.expected_base_str + " ERROR oops",
                          str(exception))
+
+
+class HTTPBadRequestTest(ClientErrorTest):
+    exc_cls = exc.HTTPBadRequest
+    code = 400
+
+
+class HTTPConflict(ClientErrorTest):
+    exc_cls = exc.HTTPConflict
+    code = 409
