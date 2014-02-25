@@ -46,5 +46,5 @@ class Client(object):
         self.events = events.EventManager(self.http_client)
         self.event_types = event_types.EventTypeManager(self.http_client)
         self.traits = traits.TraitManager(self.http_client)
-        self.trait_info = trait_descriptions.\
+        self.trait_descriptions = trait_descriptions.\
             TraitDescriptionManager(self.http_client)
