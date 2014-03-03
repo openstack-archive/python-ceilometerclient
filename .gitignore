@@ -5,6 +5,7 @@ build
 .tox
 cover
 .testrepository
+.venv
 subunit.log
 AUTHORS
 ChangeLog
