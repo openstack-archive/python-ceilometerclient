@@ -154,6 +154,27 @@ def args_array_to_dict(kwargs, key_to_convert):
     return kwargs
 
 
+def args_array_to_list_of_dicts(kwargs, key_to_convert):
+    """Converts ['a=1;b=2','c=3;d=4'] to [{a:1,b:2},{c:3,d:4}]
+    """
+    values_to_convert = kwargs.get(key_to_convert)
+    if values_to_convert:
+        try:
+            kwargs[key_to_convert] = []
+            for lst in values_to_convert:
+                pairs = lst.split(";")
+                dct = dict()
+                for pair in pairs:
+                    kv = pair.split("=", 1)
+                    dct[kv[0]] = kv[1].strip(" \"'")  # strip spaces and quotes
+                kwargs[key_to_convert].append(dct)
+        except ValueError:
+            raise exc.CommandError(
+                '%s must be a list of key1=value1;key2=value2;... not "%s"' % (
+                    key_to_convert, values_to_convert))
+    return kwargs
+
+
 def key_with_slash_to_nested_dict(kwargs):
     nested_kwargs = {}
     for k in list(kwargs):
