@@ -40,6 +40,16 @@ AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
                 u'threshold': 200.0,
                 u'comparison_operator': 'gt',
             },
+            u'time_constraints': [{u'name': u'cons1',
+                                  u'description': u'desc1',
+                                  u'start': u'0 11 * * *',
+                                  u'duration': 300,
+                                  u'timezone': u''},
+                                  {u'name': u'cons2',
+                                  u'description': u'desc2',
+                                  u'start': u'0 23 * * *',
+                                  u'duration': 600,
+                                  u'timezone': ''}],
             u'timestamp': u'2013-05-09T13:41:23.085000',
             u'enabled': True,
             u'alarm_id': u'alarm-id',
@@ -54,6 +64,8 @@ CREATE_ALARM = copy.deepcopy(AN_ALARM)
 del CREATE_ALARM['timestamp']
 del CREATE_ALARM['state_timestamp']
 del CREATE_ALARM['alarm_id']
+CREATE_ALARM_WITHOUT_TC = copy.deepcopy(CREATE_ALARM)
+del CREATE_ALARM_WITHOUT_TC['time_constraints']
 DELTA_ALARM = {u'alarm_actions': ['url1', 'url2']}
 DELTA_ALARM_RULE = {u'comparison_operator': u'lt',
                     u'threshold': 42.1,
@@ -61,11 +73,21 @@ DELTA_ALARM_RULE = {u'comparison_operator': u'lt',
                     u'query': [{u'field': u'key_name',
                                 u'op': u'eq',
                                 u'value': u'key_value'}]}
+DELTA_ALARM_TC = [{u'name': u'cons1',
+                  u'duration': 500}]
+DELTA_ALARM['time_constraints'] = DELTA_ALARM_TC
 UPDATED_ALARM = copy.deepcopy(AN_ALARM)
 UPDATED_ALARM.update(DELTA_ALARM)
 UPDATED_ALARM['threshold_rule'].update(DELTA_ALARM_RULE)
+DELTA_ALARM['remove_time_constraints'] = 'cons2'
+UPDATED_ALARM['time_constraints'] = [{u'name': u'cons1',
+                                      u'description': u'desc1',
+                                      u'start': u'0 11 * * *',
+                                      u'duration': 500,
+                                      u'timezone': u''}]
 DELTA_ALARM['threshold_rule'] = DELTA_ALARM_RULE
 UPDATE_ALARM = copy.deepcopy(UPDATED_ALARM)
+UPDATE_ALARM['remove_time_constraints'] = 'cons2'
 del UPDATE_ALARM['user_id']
 del UPDATE_ALARM['project_id']
 del UPDATE_ALARM['name']
@@ -101,6 +123,9 @@ DELTA_LEGACY_ALARM = {u'alarm_actions': ['url1', 'url2'],
                       u'comparison_operator': u'lt',
                       u'meter_name': u'foobar',
                       u'threshold': 42.1}
+DELTA_LEGACY_ALARM['time_constraints'] = [{u'name': u'cons1',
+                                           u'duration': 500}]
+DELTA_LEGACY_ALARM['remove_time_constraints'] = 'cons2'
 UPDATED_LEGACY_ALARM = copy.deepcopy(AN_LEGACY_ALARM)
 UPDATED_LEGACY_ALARM.update(DELTA_LEGACY_ALARM)
 UPDATE_LEGACY_ALARM = copy.deepcopy(UPDATED_LEGACY_ALARM)
@@ -348,7 +373,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
     def test_create(self):
         alarm = self.mgr.create(**CREATE_LEGACY_ALARM)
         expect = [
-            ('POST', '/v2/alarms', {}, CREATE_ALARM),
+            ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
@@ -360,7 +385,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         del create['meter_name']
         alarm = self.mgr.create(**create)
         expect = [
-            ('POST', '/v2/alarms', {}, CREATE_ALARM),
+            ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(alarm)
