@@ -176,6 +176,21 @@ def alarm_rule_formatter(alarm):
     return _display_rule(alarm.type, alarm.rule)
 
 
+def _display_time_constraints(time_constraints):
+    return ', '.join('%(name)s at %(start)s %(timezone)s for %(duration)ss' %
+                     {
+                         'name': tc['name'],
+                         'start': tc['start'],
+                         'duration': tc['duration'],
+                         'timezone': tc.get('timezone', '')
+                     }
+                     for tc in time_constraints)
+
+
+def time_constraints_formatter(alarm):
+    return _display_time_constraints(alarm.time_constraints)
+
+
 def _infer_type(detail):
     if 'type' in detail:
         return detail['type']
@@ -199,6 +214,10 @@ def alarm_change_detail_formatter(change):
                                                          detail[k]))
             else:
                 fields.append('%s: %s' % (k, detail[k]))
+        if 'time_constraints' in detail:
+            fields.append('time_constraints: %s' %
+                          _display_time_constraints(
+                              detail['time_constraints']))
     elif change.type == 'rule change':
         for k, v in six.iteritems(detail):
             if k == 'rule':
@@ -218,11 +237,13 @@ def do_alarm_list(cc, args={}):
     # omit action initially to keep output width sane
     # (can switch over to vertical formatting when available from CLIFF)
     field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
-                    'Alarm condition']
+                    'Alarm condition', 'Time constraints']
     fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
-              'rule']
-    utils.print_list(alarms, fields, field_labels,
-                     formatters={'rule': alarm_rule_formatter}, sortby=0)
+              'rule', 'time_constraints']
+    utils.print_list(
+        alarms, fields, field_labels,
+        formatters={'rule': alarm_rule_formatter,
+                    'time_constraints': time_constraints_formatter}, sortby=0)
 
 
 def alarm_query_formater(alarm):
@@ -231,6 +252,17 @@ def alarm_query_formater(alarm):
         qs.append('%s %s %s' % (
             q['field'], OPERATORS_STRING.get(q['op']), q['value']))
     return r' AND\n'.join(qs)
+
+
+def alarm_time_constraints_formatter(alarm):
+    time_constraints = []
+    for tc in alarm.time_constraints:
+        lines = []
+        for k in ['name', 'description', 'start', 'duration', 'timezone']:
+            if k in tc and tc[k]:
+                lines.append(r'%s: %s' % (k, tc[k]))
+        time_constraints.append('{' + r',\n  '.join(lines) + '}')
+    return '[' + r',\n '.join(time_constraints) + ']'
 
 
 def _display_alarm(alarm):
@@ -242,6 +274,8 @@ def _display_alarm(alarm):
     data.update(alarm.rule)
     if alarm.type == 'threshold':
         data['query'] = alarm_query_formater(alarm)
+    if alarm.time_constraints:
+        data['time_constraints'] = alarm_time_constraints_formatter(alarm)
     utils.print_dict(data, wrap=72)
 
 
@@ -287,6 +321,18 @@ def common_alarm_arguments(create=False):
                    metavar='<Webhook URL>', action='append', default=None,
                    help=('URL to invoke when state transitions to '
                          'insufficient_data. May be used multiple times.'))
+        @utils.arg('--time-constraint', dest='time_constraints',
+                   metavar='<Time Constraint>', action='append',
+                   default=None,
+                   help=('Only evaluate the alarm if the time at evaluation '
+                         'is within this time constraint. Start point(s) of '
+                         'the constraint are specified with a cron expression '
+                         'and its duration in seconds. Can be specified '
+                         'multiple times for multiple time constraints, format'
+                         'is: '
+                         'name=<CONSTRAINT_NAME>;start=<CRON>;'
+                         'duration=<SECONDS>;[description=<DESCRIPTION>;'
+                         '[timezone=<OLSON TZ>]]'))
         @functools.wraps(func)
         def _wrapped(*args, **kwargs):
             return func(*args, **kwargs)
@@ -320,6 +366,7 @@ def common_alarm_arguments(create=False):
 def do_alarm_create(cc, args={}):
     '''Create a new alarm (Deprecated).'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.args_array_to_dict(fields, "matching_metadata")
     alarm = cc.alarms.create(**fields)
     _display_alarm(alarm)
@@ -357,6 +404,7 @@ def do_alarm_create(cc, args={}):
 def do_alarm_threshold_create(cc, args={}):
     '''Create a new alarm based on computed statistics.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields['type'] = 'threshold'
     if 'query' in fields['threshold_rule']:
@@ -382,6 +430,7 @@ def do_alarm_threshold_create(cc, args={}):
 def do_alarm_combination_create(cc, args={}):
     '''Create a new alarm based on state of other alarms.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields['type'] = 'combination'
     alarm = cc.alarms.create(**fields)
@@ -415,6 +464,7 @@ def do_alarm_combination_create(cc, args={}):
 def do_alarm_update(cc, args={}):
     '''Update an existing alarm.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.args_array_to_dict(fields, "matching_metadata")
     fields.pop('alarm_id')
     try:
@@ -457,6 +507,7 @@ def do_alarm_update(cc, args={}):
 def do_alarm_threshold_update(cc, args={}):
     '''Update an existing alarm based on computed statistics.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields.pop('alarm_id')
     fields['type'] = 'threshold'
@@ -487,6 +538,7 @@ def do_alarm_threshold_update(cc, args={}):
 def do_alarm_combination_update(cc, args={}):
     '''Update an existing alarm based on state of other alarms.'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields.pop('alarm_id')
     fields['type'] = 'combination'
