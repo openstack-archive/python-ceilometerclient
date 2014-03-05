@@ -36,7 +36,8 @@ UPDATABLE_ATTRIBUTES = [
     'threshold_rule',
     'combination_rule',
 ]
-CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['project_id', 'user_id']
+CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['project_id', 'user_id',
+                                              'time_constraints']
 
 
 class Alarm(base.Resource):
@@ -111,6 +112,26 @@ class AlarmManager(base.Manager):
             del kwargs['matching_metadata']
             kwargs['threshold_rule']['query'] = query
 
+    @staticmethod
+    def _merge_time_constraints(dest, kwargs):
+        new_tcs = kwargs.get('time_constraints', [])
+        if 'time_constraints' not in dest:
+            dest['time_constraints'] = new_tcs
+        else:
+            for tc in new_tcs:
+                new = True
+                for i, old_tc in enumerate(dest['time_constraints']):
+                    if old_tc['name'] == tc['name']:  # if names match, merge
+                        utils.merge_nested_dict(dest['time_constraints'][i],
+                                                tc)
+                        new = False
+                if new:
+                    dest['time_constraints'].append(tc)
+        tcs_to_remove = kwargs.get('remove_time_constraints', [])
+        for tc in dest['time_constraints']:
+            if tc['name'] in tcs_to_remove:
+                dest['time_constraints'].remove(tc)
+
     def create(self, **kwargs):
         self._compat_legacy_alarm_kwargs(kwargs, create=True)
         new = dict((key, value) for (key, value) in kwargs.items()
@@ -120,6 +141,7 @@ class AlarmManager(base.Manager):
     def update(self, alarm_id, **kwargs):
         self._compat_legacy_alarm_kwargs(kwargs)
         updated = self.get(alarm_id).to_dict()
+        self._merge_time_constraints(updated, kwargs)
         kwargs = dict((k, v) for k, v in kwargs.items()
                       if k in updated and k in UPDATABLE_ATTRIBUTES)
         utils.merge_nested_dict(updated, kwargs, depth=1)
