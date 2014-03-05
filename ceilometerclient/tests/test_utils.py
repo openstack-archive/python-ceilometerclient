@@ -117,6 +117,33 @@ class UtilsTest(test_utils.BaseTestCase):
             'other': 'value'
         })
 
+    def test_args_array_to_list_of_dicts(self):
+        starts = ['0 11 * * *', '"0 11 * * *"', '\'0 11 * * *\'']
+        timezones = [None, 'US/Eastern', '"US/Eastern"', '\'US/Eastern\'']
+        descs = [None, 'de sc', '"de sc"', '\'de sc\'']
+        for start, tz, desc in zip(starts, timezones, descs):
+            my_args = {
+                'time_constraints': ['name=const1;start=%s;duration=1'
+                                     % start],
+                'other': 'value'
+            }
+            expected = {
+                'time_constraints': [dict(name='const1',
+                                          start='0 11 * * *',
+                                          duration='1')],
+                'other': 'value'
+            }
+            if tz:
+                my_args['time_constraints'][0] += ';timezone=%s' % tz
+                expected['time_constraints'][0]['timezone'] = 'US/Eastern'
+            if desc:
+                my_args['time_constraints'][0] += ';description=%s' % desc
+                expected['time_constraints'][0]['description'] = 'de sc'
+
+            cleaned = utils.args_array_to_list_of_dicts(my_args,
+                                                        'time_constraints')
+            self.assertEqual(expected, cleaned)
+
     def test_key_with_slash_to_nested_dict(self):
         my_args = {
             'combination_rule/alarm_ids': ['id1', 'id2'],

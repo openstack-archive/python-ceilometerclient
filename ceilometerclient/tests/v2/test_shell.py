@@ -158,6 +158,16 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
                                            "value": "INSTANCE_ID",
                                            "op": "eq"}],
                                 "comparison_operator": "gt"},
+             "time_constraints": [{"name": "cons1",
+                                   "description": "desc1",
+                                   "start": "0 11 * * *",
+                                   "duration": 300,
+                                   "timezone": ""},
+                                  {"name": "cons2",
+                                   "description": "desc2",
+                                   "start": "0 23 * * *",
+                                   "duration": 600,
+                                   "timezone": ""}],
              "alarm_id": ALARM_ID,
              "state": "insufficient data",
              "insufficient_data_actions": [],
@@ -272,6 +282,36 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
             query = dict(field='resource_id', type='',
                          value='INSTANCE_ID', op='eq')
             self.assertEqual([query], rule['query'])
+        finally:
+            sys.stdout.close()
+            sys.stdout = orig
+
+    def test_alarm_create_time_constraints(self):
+        shell = base_shell.CeilometerShell()
+        argv = ['alarm-threshold-create',
+                '--name', 'cpu_high',
+                '--meter-name', 'cpu_util',
+                '--threshold', '70.0',
+                '--time-constraint',
+                'name=cons1;start="0 11 * * *";duration=300',
+                '--time-constraint',
+                'name=cons2;start="0 23 * * *";duration=600',
+                ]
+        _, args = shell.parse_args(argv)
+
+        orig = sys.stdout
+        sys.stdout = six.StringIO()
+        alarm = alarms.Alarm(mock.Mock(), self.ALARM)
+        self.cc.alarms.create.return_value = alarm
+
+        try:
+            ceilometer_shell.do_alarm_threshold_create(self.cc, args)
+            _, kwargs = self.cc.alarms.create.call_args
+            time_constraints = [dict(name='cons1', start='0 11 * * *',
+                                     duration='300'),
+                                dict(name='cons2', start='0 23 * * *',
+                                     duration='600')]
+            self.assertEqual(time_constraints, kwargs['time_constraints'])
         finally:
             sys.stdout.close()
             sys.stdout = orig
