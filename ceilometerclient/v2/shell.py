@@ -26,7 +26,7 @@ from ceilometerclient.openstack.common import strutils
 from ceilometerclient.v2 import options
 
 
-ALARM_STATES = ['ok', 'alarm', 'insufficient_data']
+ALARM_STATES = ['ok', 'alarm', 'insufficient data']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
