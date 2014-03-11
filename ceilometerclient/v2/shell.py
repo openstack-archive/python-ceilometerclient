@@ -5,6 +5,7 @@
 #
 # Authors: Angus Salkeld <asalkeld@redhat.com>
 #          Balazs Gibizer <balazs.gibizer@ericsson.com>
+#          Ildiko Vancsa <ildiko.vancsa@ericsson.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -698,4 +699,30 @@ def do_query_alarms(cc, args):
                   'rule']
         utils.print_list(alarms, fields, field_labels,
                          formatters={'rule': alarm_rule_formatter},
+                         sortby=None)
+
+
+@utils.arg('-f', '--filter', metavar='<FILTER>',
+           help=('{complex_op: [{simple_op: {field_name: value}}]} '
+                 'The complex_op is one of: ' + str(COMPLEX_OPERATORS) + ', '
+                 'simple_op is one of: ' + str(SIMPLE_OPERATORS) + '.'))
+@utils.arg('-o', '--orderby', metavar='<ORDERBY>',
+           help=('[{field_name: direction}, {field_name: direction}] '
+                 'The direction is one of: ' + str(ORDER_DIRECTIONS) + '.'))
+@utils.arg('-l', '--limit', metavar='<LIMIT>',
+           help='Maximum number of alarm history items to return.')
+def do_query_alarm_history(cc, args):
+    '''Query Alarm History.'''
+    fields = {'filter': args.filter,
+              'orderby': args.orderby,
+              'limit': args.limit}
+    try:
+        alarm_history = cc.query_alarm_history.query(**fields)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarm history not found')
+    else:
+        field_labels = ['Alarm ID', 'Event ID', 'Type', 'Detail', 'Timestamp']
+        fields = ['alarm_id', 'event_id', 'type', 'detail', 'timestamp']
+        utils.print_list(alarm_history, fields, field_labels,
+                         formatters={'rule': alarm_change_detail_formatter},
                          sortby=None)

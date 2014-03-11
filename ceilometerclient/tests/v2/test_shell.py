@@ -1,6 +1,7 @@
 # Copyright Ericsson AB 2014. All rights reserved
 #
-# Author: Balazs Gibizer <balazs.gibizer@ericsson.com>
+# Authors: Balazs Gibizer <balazs.gibizer@ericsson.com>
+#          Ildiko Vancsa <ildiko.vancsa@ericsson.com>
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -535,4 +536,61 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
 ----------------------------------------+
+''', output.getvalue())
+
+
+class ShellQueryAlarmHistoryCommandTest(utils.BaseTestCase):
+
+    ALARM_HISTORY = [{"alarm_id": "e8ff32f772a44a478182c3fe1f7cad6a",
+                      "event_id": "c74a8611-6553-4764-a860-c15a6aabb5d0",
+                      "detail":
+                      "{\"threshold\": 42.0, \"evaluation_periods\": 4}",
+                      "on_behalf_of": "92159030020611e3b26dde429e99ee8c",
+                      "project_id": "b6f16144010811e387e4de429e99ee8c",
+                      "timestamp": "2014-03-11T16:02:58.376261",
+                      "type": "rule change",
+                      "user_id": "3e5d11fda79448ac99ccefb20be187ca"
+                      }]
+
+    QUERY = {"filter": {"and": [{">": {"timestamp": "2014-03-11T16:02:58"}},
+                                {"=": {"type": "rule change"}}]},
+             "orderby": [{"timestamp": "desc"}],
+             "limit": 10}
+
+    def setUp(self):
+        super(ShellQueryAlarmHistoryCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.args = mock.Mock()
+        self.args.filter = self.QUERY["filter"]
+        self.args.orderby = self.QUERY["orderby"]
+        self.args.limit = self.QUERY["limit"]
+
+    def test_query(self):
+
+        ret_alarm_history = [alarms.AlarmChange(mock.Mock(), alarm_history)
+                             for alarm_history in self.ALARM_HISTORY]
+        self.cc.query_alarm_history.query.return_value = ret_alarm_history
+        org_stdout = sys.stdout
+        try:
+            sys.stdout = output = six.StringIO()
+            ceilometer_shell.do_query_alarm_history(self.cc, self.args)
+        finally:
+            sys.stdout = org_stdout
+
+        self.assertEqual('''\
++----------------------------------+--------------------------------------+-\
+------------+----------------------------------------------+----------------\
+------------+
+| Alarm ID                         | Event ID                             | \
+Type        | Detail                                       | Timestamp      \
+            |
++----------------------------------+--------------------------------------+-\
+------------+----------------------------------------------+----------------\
+------------+
+| e8ff32f772a44a478182c3fe1f7cad6a | c74a8611-6553-4764-a860-c15a6aabb5d0 | \
+rule change | {"threshold": 42.0, "evaluation_periods": 4} | 2014-03-11T16:0\
+2:58.376261 |
++----------------------------------+--------------------------------------+-\
+------------+----------------------------------------------+----------------\
+------------+
 ''', output.getvalue())
