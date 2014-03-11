@@ -1,6 +1,7 @@
 # Copyright Ericsson AB 2014. All rights reserved
 #
-# Author: Balazs Gibizer <balazs.gibizer@ericsson.com>
+# Authors: Balazs Gibizer <balazs.gibizer@ericsson.com>
+#          Ildiko Vancsa <ildiko.vancsa@ericsson.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -54,3 +55,11 @@ class QueryAlarmsManager(QueryManager):
     @staticmethod
     def _path():
         return '/v2/query/alarms'
+
+
+class QueryAlarmHistoryManager(QueryManager):
+    resource_class = alarms.AlarmChange
+
+    @staticmethod
+    def _path():
+        return '/v2/query/alarms/history'
