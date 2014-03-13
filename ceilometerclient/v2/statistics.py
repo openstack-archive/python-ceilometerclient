@@ -23,9 +23,23 @@ class Statistics(base.Resource):
 class StatisticsManager(base.Manager):
     resource_class = Statistics
 
-    def list(self, meter_name, q=None, period=None, groupby=[]):
+    def _build_aggregates(self, aggregates):
+        url_aggregates = []
+        for aggregate in aggregates:
+            url_aggregates.append(
+                "aggregate.func={func}".format(**aggregate)
+            )
+            if 'param' in aggregate:
+                url_aggregates.append(
+                    "aggregate.param={param}".format(**aggregate)
+                )
+        return url_aggregates
+
+    def list(self, meter_name, q=None, period=None, groupby=[], aggregates=[]):
         p = ['period=%s' % period] if period else []
         p.extend(['groupby=%s' % g for g in groupby] if groupby else [])
+        if aggregates:
+            p.extend(self._build_aggregates(aggregates))
         return self._list(options.build_url(
             '/v2/meters/' + meter_name + '/statistics',
             q, p))

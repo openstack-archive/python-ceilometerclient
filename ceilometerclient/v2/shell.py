@@ -43,13 +43,21 @@ OPERATORS_STRING = dict(gt='>', ge='>=',
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
 @utils.arg('-g', '--groupby', metavar='<FIELD>', action='append',
-           help='Field for group aggregation.')
+           help='Field for group by.')
+@utils.arg('-a', '--aggregate', metavar='<FUNC>[::<PARAM>]', action='append',
+           default=[], help=('Field for data aggregation'
+                 'formated as func::parameter, parameter is optional'))
 def do_statistics(cc, args):
     '''List the statistics for a meter.'''
+    aggregates = []
+    # from ipdb import set_trace; set_trace()
+    for a in args.aggregate:
+        aggregates.append(dict(zip(('func', 'param'), a.split("::"))))
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query),
               'period': args.period,
-              'groupby': args.groupby}
+              'groupby': args.groupby,
+              'aggregates': aggregates}
     try:
         statistics = cc.statistics.list(**fields)
     except exc.HTTPNotFound:
@@ -64,6 +72,9 @@ def do_statistics(cc, args):
         if args.groupby:
             field_labels.append('Group By')
             fields.append('groupby')
+        if args.aggregate:
+            field_labels.append('Aggregate')
+            fields.append('aggregate')
         utils.print_list(statistics, fields, field_labels)
 
 
