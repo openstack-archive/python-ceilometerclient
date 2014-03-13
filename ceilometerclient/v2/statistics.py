@@ -25,6 +25,8 @@ class StatisticsManager(base.Manager):
 
     def list(self, meter_name, q=None, period=None, groupby=[]):
         p = ['period=%s' % period] if period else []
+        if isinstance(str, groupby):
+            groupby = [groupby]
         p.extend(['groupby=%s' % g for g in groupby] if groupby else [])
         return self._list(options.build_url(
             '/v2/meters/' + meter_name + '/statistics',
