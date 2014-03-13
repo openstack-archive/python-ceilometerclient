@@ -156,3 +156,23 @@ class StatisticsManagerTest(utils.BaseTestCase):
         self.assertEqual(stats[1].count, 12)
         self.assertEqual(stats[0].groupby.get('resource_id'), 'foo')
         self.assertEqual(stats[1].groupby.get('resource_id'), 'bar')
+
+    def test_list_by_meter_name_with_groupby_as_str(self):
+        stats = list(self.mgr.list(meter_name='instance',
+                                   q=[
+                                       {"field": "resource_id",
+                                        "value": "foo"},
+                                       {"field": "source",
+                                        "value": "bar"},
+                                   ],
+                                   groupby='resource_id'))
+        expect = [
+            ('GET',
+             '%s?%s%s' % (base_url, qry, groupby), {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(stats), 2)
+        self.assertEqual(stats[0].count, 135)
+        self.assertEqual(stats[1].count, 12)
+        self.assertEqual(stats[0].groupby.get('resource_id'), 'foo')
+        self.assertEqual(stats[1].groupby.get('resource_id'), 'bar')
