@@ -30,6 +30,13 @@ ALARM_STATES = ['ok', 'alarm', 'insufficient_data']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
+AGGREGATES = {'avg': 'Avg',
+              'count': 'Count',
+              'max': 'Max',
+              'min': 'Min',
+              'sum': 'Sum',
+              'stddev': 'Standard deviation',
+              'cardinality': 'Cardinality'}
 OPERATORS_STRING = dict(gt='>', ge='>=',
                         lt='<', le="<=",
                         eq='==', ne='!=')
@@ -43,28 +50,50 @@ OPERATORS_STRING = dict(gt='>', ge='>=',
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
 @utils.arg('-g', '--groupby', metavar='<FIELD>', action='append',
-           help='Field for group aggregation.')
+           help='Field for group by.')
+@utils.arg('-a', '--aggregate', metavar='<FUNC>[<-<PARAM>]', action='append',
+           default=[], help=('Function for data aggregation. '
+                 'Available aggregates are: '
+                 '%s.' % ", ".join(AGGREGATES.keys())))
 def do_statistics(cc, args):
     '''List the statistics for a meter.'''
-    fields = {'meter_name': args.meter,
-              'q': options.cli_to_array(args.query),
-              'period': args.period,
-              'groupby': args.groupby}
+    aggregates = []
+    for a in args.aggregate:
+        aggregates.append(dict(zip(('func', 'param'), a.split("<-"))))
+    api_args = {'meter_name': args.meter,
+                'q': options.cli_to_array(args.query),
+                'period': args.period,
+                'groupby': args.groupby,
+                'aggregates': aggregates}
     try:
-        statistics = cc.statistics.list(**fields)
+        statistics = cc.statistics.list(**api_args)
     except exc.HTTPNotFound:
         raise exc.CommandError('Samples not found: %s' % args.meter)
     else:
-        field_labels = ['Period', 'Period Start', 'Period End',
-                        'Count', 'Min', 'Max', 'Sum', 'Avg',
-                        'Duration', 'Duration Start', 'Duration End']
-        fields = ['period', 'period_start', 'period_end',
-                  'count', 'min', 'max', 'sum', 'avg',
-                  'duration', 'duration_start', 'duration_end']
+        fields_display = {'duration': 'Duration',
+                          'duration_end': 'Duration End',
+                          'duration_start': 'Duration Start',
+                          'period': 'Period',
+                          'period_end': 'Period End',
+                          'period_start': 'Period Start',
+                          'groupby': 'Group By'}
+        fields_display.update(AGGREGATES)
+        fields = ['period', 'period_start', 'period_end']
         if args.groupby:
-            field_labels.append('Group By')
             fields.append('groupby')
-        utils.print_list(statistics, fields, field_labels)
+        if args.aggregate:
+            for a in aggregates:
+                if 'param' in a:
+                    fields.append("%(func)s/%(param)s" % a)
+                else:
+                    fields.append(a['func'])
+            for stat in statistics:
+                stat.__dict__.update(stat.aggregate)
+        else:
+            fields.extend(['max', 'min', 'avg', 'sum', 'count'])
+        fields.extend(['duration', 'duration_start', 'duration_end'])
+        cols = [fields_display.get(f, f) for f in fields]
+        utils.print_list(statistics, fields, cols)
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',

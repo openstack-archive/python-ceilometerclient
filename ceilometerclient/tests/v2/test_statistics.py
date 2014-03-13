@@ -21,6 +21,8 @@ qry = ('q.field=resource_id&q.field=source&q.op=&q.op='
        '&q.type=&q.type=&q.value=foo&q.value=bar')
 period = '&period=60'
 groupby = '&groupby=resource_id'
+aggregate_query = ("aggregate.func=cardinality&aggregate.param=resource_id"
+                   "&aggregate.func=count")
 samples = [
     {u'count': 135,
      u'duration_start': u'2013-02-04T10:51:42',
@@ -56,6 +58,19 @@ groupby_samples = [
      u'groupby': {u'resource_id': u'bar'}
      },
 ]
+aggregate_samples = [
+    {u'aggregate': {u'cardinality/resource_id': 4.0, u'count': 3.0},
+     u'count': 2,
+     u'duration': 0.442451,
+     u'duration_end': u'2014-03-12T14:00:21.774154',
+     u'duration_start': u'2014-03-12T14:00:21.331703',
+     u'groupby': None,
+     u'period': 0,
+     u'period_end': u'2014-03-12T14:00:21.774154',
+     u'period_start': u'2014-03-12T14:00:21.331703',
+     u'unit': u'instance',
+     },
+]
 fixtures = {
     base_url:
     {
@@ -85,6 +100,13 @@ fixtures = {
             groupby_samples
         ),
     },
+    '%s?%s' % (base_url, aggregate_query):
+    {
+        'GET': (
+            {},
+            aggregate_samples
+        ),
+    }
 }
 
 
@@ -156,3 +178,27 @@ class StatisticsManagerTest(utils.BaseTestCase):
         self.assertEqual(stats[1].count, 12)
         self.assertEqual(stats[0].groupby.get('resource_id'), 'foo')
         self.assertEqual(stats[1].groupby.get('resource_id'), 'bar')
+
+    def test_list_by_meter_name_with_aggregates(self):
+        aggregates = [
+            {
+                'func': 'cardinality',
+                'param': 'resource_id',
+            },
+            {
+                'func': 'count',
+            }
+        ]
+        stats = list(self.mgr.list(meter_name='instance',
+                                   aggregates=aggregates))
+        expect = [
+            ('GET',
+             '%s?%s' % (base_url, aggregate_query), {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(len(stats), 1)
+        self.assertEqual(stats[0].count, 2)
+        self.assertEqual(stats[0].aggregate.get('count'), 3.0)
+        self.assertEqual(stats[0].aggregate.get(
+            'cardinality/resource_id',
+        ), 4.0)
