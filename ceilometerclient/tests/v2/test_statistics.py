@@ -122,9 +122,9 @@ class StatisticsManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v2/meters/instance/statistics', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(stats), 1)
-        self.assertEqual(stats[0].count, 135)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(stats))
+        self.assertEqual(135, stats[0].count)
 
     def test_list_by_meter_name_extended(self):
         stats = list(self.mgr.list(meter_name='instance',
@@ -138,9 +138,9 @@ class StatisticsManagerTest(utils.BaseTestCase):
             ('GET',
              '%s?%s' % (base_url, qry), {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(stats), 1)
-        self.assertEqual(stats[0].count, 135)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(stats))
+        self.assertEqual(135, stats[0].count)
 
     def test_list_by_meter_name_with_period(self):
         stats = list(self.mgr.list(meter_name='instance',
@@ -155,9 +155,9 @@ class StatisticsManagerTest(utils.BaseTestCase):
             ('GET',
              '%s?%s%s' % (base_url, qry, period), {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(stats), 1)
-        self.assertEqual(stats[0].count, 135)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(stats))
+        self.assertEqual(135, stats[0].count)
 
     def test_list_by_meter_name_with_groupby(self):
         stats = list(self.mgr.list(meter_name='instance',
@@ -172,12 +172,12 @@ class StatisticsManagerTest(utils.BaseTestCase):
             ('GET',
              '%s?%s%s' % (base_url, qry, groupby), {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(stats), 2)
-        self.assertEqual(stats[0].count, 135)
-        self.assertEqual(stats[1].count, 12)
-        self.assertEqual(stats[0].groupby.get('resource_id'), 'foo')
-        self.assertEqual(stats[1].groupby.get('resource_id'), 'bar')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(2, len(stats))
+        self.assertEqual(135, stats[0].count)
+        self.assertEqual(12, stats[1].count)
+        self.assertEqual('foo', stats[0].groupby.get('resource_id'))
+        self.assertEqual('bar', stats[1].groupby.get('resource_id'))
 
     def test_list_by_meter_name_with_aggregates(self):
         aggregates = [

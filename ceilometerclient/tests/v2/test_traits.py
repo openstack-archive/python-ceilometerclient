@@ -46,8 +46,8 @@ class TraitManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v2/event_types/Foo/traits/trait_1', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(traits), 2)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(2, len(traits))
         for i, vals in enumerate([('trait_1',
                                    'datetime',
                                    '2014-01-07T17:22:10.925553'),
@@ -56,6 +56,6 @@ class TraitManagerTest(utils.BaseTestCase):
                                    '2014-01-07T17:23:10.925553')]):
 
             name, type, value = vals
-            self.assertEqual(traits[i].name, name)
-            self.assertEqual(traits[i].type, type)
-            self.assertEqual(traits[i].value, value)
+            self.assertEqual(name, traits[i].name)
+            self.assertEqual(type, traits[i].type)
+            self.assertEqual(value, traits[i].value)

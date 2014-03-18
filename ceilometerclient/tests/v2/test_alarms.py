@@ -257,9 +257,9 @@ class AlarmManagerTest(testtools.TestCase):
         expect = [
             ('GET', '/v2/alarms', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(alarms), 1)
-        self.assertEqual(alarms[0].alarm_id, 'alarm-id')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(alarms))
+        self.assertEqual('alarm-id', alarms[0].alarm_id)
 
     def test_list_with_query(self):
         alarms = list(self.mgr.list(q=[{"field": "project_id",
@@ -272,26 +272,26 @@ class AlarmManagerTest(testtools.TestCase):
              '&q.type=&q.type=&q.value=project-id&q.value=SwiftObjectAlarm',
              {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(alarms), 1)
-        self.assertEqual(alarms[0].alarm_id, 'alarm-id')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(alarms))
+        self.assertEqual('alarm-id', alarms[0].alarm_id)
 
     def test_get(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
         expect = [
             ('GET', '/v2/alarms/alarm-id', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
-        self.assertEqual(alarm.rule, alarm.threshold_rule)
+        self.assertEqual('alarm-id', alarm.alarm_id)
+        self.assertEqual(alarm.threshold_rule, alarm.rule)
 
     def test_create(self):
         alarm = self.mgr.create(**CREATE_ALARM)
         expect = [
             ('POST', '/v2/alarms', {}, CREATE_ALARM),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
 
     def test_update(self):
@@ -300,11 +300,11 @@ class AlarmManagerTest(testtools.TestCase):
             ('GET', '/v2/alarms/alarm-id', {}, None),
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
-            self.assertEqual(getattr(alarm, key), value)
+            self.assertEqual(value, getattr(alarm, key))
 
     def test_update_delta(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_ALARM)
@@ -312,45 +312,45 @@ class AlarmManagerTest(testtools.TestCase):
             ('GET', '/v2/alarms/alarm-id', {}, None),
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
-            self.assertEqual(getattr(alarm, key), value)
+            self.assertEqual(value, getattr(alarm, key))
 
     def test_set_state(self):
         state = self.mgr.set_state(alarm_id='alarm-id', state='alarm')
         expect = [
             ('PUT', '/v2/alarms/alarm-id/state', {}, 'alarm'),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(state, 'alarm')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual('alarm', state)
 
     def test_get_state(self):
         state = self.mgr.get_state(alarm_id='alarm-id')
         expect = [
             ('GET', '/v2/alarms/alarm-id/state', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(state, 'alarm')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual('alarm', state)
 
     def test_delete(self):
         deleted = self.mgr.delete(alarm_id='victim-id')
         expect = [
             ('DELETE', '/v2/alarms/victim-id', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(deleted is None)
 
     def _do_test_get_history(self, q, url):
         history = self.mgr.get_history(q=q, alarm_id='alarm-id')
         expect = [('GET', url, {}, None)]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         for i in xrange(len(history)):
             change = history[i]
             self.assertIsInstance(change, alarms.AlarmChange)
             for k, v in six.iteritems(ALARM_HISTORY[i]):
-                self.assertEqual(getattr(change, k), v)
+                self.assertEqual(v, getattr(change, k))
 
     def test_get_all_history(self):
         url = '/v2/alarms/alarm-id/history'
@@ -375,7 +375,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         expect = [
             ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
 
     def test_create_counter_name(self):
@@ -387,7 +387,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         expect = [
             ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
 
     def test_update(self):
@@ -396,11 +396,11 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             ('GET', '/v2/alarms/alarm-id', {}, None),
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
-            self.assertEqual(getattr(alarm, key), value)
+            self.assertEqual(value, getattr(alarm, key))
 
     def test_update_counter_name(self):
         updated = {}
@@ -412,11 +412,11 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             ('GET', '/v2/alarms/alarm-id', {}, None),
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
-            self.assertEqual(getattr(alarm, key), value)
+            self.assertEqual(value, getattr(alarm, key))
 
 
 class AlarmTimeConstraintTest(testtools.TestCase):

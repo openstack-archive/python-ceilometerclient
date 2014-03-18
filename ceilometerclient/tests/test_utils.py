@@ -39,14 +39,14 @@ class UtilsTest(test_utils.BaseTestCase):
         finally:
             sys.stdout = saved_stdout
 
-        self.assertEqual(output_dict.getvalue(), '''\
+        self.assertEqual('''\
 +----------+-------+
 | Property | Value |
 +----------+-------+
 | K        | k     |
 | Key      | Value |
 +----------+-------+
-''')
+''', output_dict.getvalue())
 
     def test_print_list(self):
         class Foo:
@@ -74,7 +74,7 @@ class UtilsTest(test_utils.BaseTestCase):
             return output.getvalue()
 
         printed = do_print_list(None)
-        self.assertEqual(printed, '''\
+        self.assertEqual('''\
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
@@ -82,10 +82,10 @@ class UtilsTest(test_utils.BaseTestCase):
 | 80  | c   | c   |
 | 120 | 0   | Z   |
 +-----+-----+-----+
-''')
+''', printed)
 
         printed = do_print_list(0)
-        self.assertEqual(printed, '''\
+        self.assertEqual('''\
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
@@ -93,10 +93,10 @@ class UtilsTest(test_utils.BaseTestCase):
 | 100 | a   | B   |
 | 120 | 0   | Z   |
 +-----+-----+-----+
-''')
+''', printed)
 
         printed = do_print_list(1)
-        self.assertEqual(printed, '''\
+        self.assertEqual('''\
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
@@ -104,7 +104,7 @@ class UtilsTest(test_utils.BaseTestCase):
 | 100 | a   | B   |
 | 80  | c   | c   |
 +-----+-----+-----+
-''')
+''', printed)
 
     def test_args_array_to_dict(self):
         my_args = {
@@ -113,10 +113,10 @@ class UtilsTest(test_utils.BaseTestCase):
         }
         cleaned_dict = utils.args_array_to_dict(my_args,
                                                 "matching_metadata")
-        self.assertEqual(cleaned_dict, {
+        self.assertEqual({
             'matching_metadata': {'metadata.key': 'metadata_value'},
             'other': 'value'
-        })
+        }, cleaned_dict)
 
     def test_args_array_to_list_of_dicts(self):
         starts = ['0 11 * * *', '"0 11 * * *"', '\'0 11 * * *\'']
@@ -154,32 +154,32 @@ class UtilsTest(test_utils.BaseTestCase):
             'threshold_rule/comparison_operator': 'or',
         }
         nested_dict = utils.key_with_slash_to_nested_dict(my_args)
-        self.assertEqual(nested_dict, {
+        self.assertEqual({
             'combination_rule': {'alarm_ids': ['id1', 'id2'],
                                  'operator': 'and'},
             'threshold_rule': {'threshold': 400,
                                'statictic': 'avg',
                                'comparison_operator': 'or'},
-        })
+        }, nested_dict)
 
     def test_arg(self):
         @utils.arg(help="not_required_no_default.")
         def not_required_no_default():
             pass
         _, args = not_required_no_default.__dict__['arguments'][0]
-        self.assertEqual(args['help'], "not_required_no_default.")
+        self.assertEqual("not_required_no_default.", args['help'])
 
         @utils.arg(required=True, help="required_no_default.")
         def required_no_default():
             pass
         _, args = required_no_default.__dict__['arguments'][0]
-        self.assertEqual(args['help'], "required_no_default. Required.")
+        self.assertEqual("required_no_default. Required.", args['help'])
 
         @utils.arg(default=42, help="not_required_default.")
         def not_required_default():
             pass
         _, args = not_required_default.__dict__['arguments'][0]
-        self.assertEqual(args['help'], "not_required_default. Defaults to 42.")
+        self.assertEqual("not_required_default. Defaults to 42.", args['help'])
 
     def test_merge_nested_dict(self):
         dest = {'key': 'value',
@@ -192,10 +192,10 @@ class UtilsTest(test_utils.BaseTestCase):
                              'nested2': {'key5': 'value5'}}}
         utils.merge_nested_dict(dest, source, depth=1)
 
-        self.assertEqual(dest, {'key': 'modified',
-                                'nested': {'key2': 'value2',
-                                           'key3': 'modified3',
-                                           'nested2': {'key5': 'value5'}}})
+        self.assertEqual({'key': 'modified',
+                          'nested': {'key2': 'value2',
+                                     'key3': 'modified3',
+                                     'nested2': {'key5': 'value5'}}}, dest)
 
     def test_merge_nested_dict_no_depth(self):
         dest = {'key': 'value',
@@ -208,9 +208,9 @@ class UtilsTest(test_utils.BaseTestCase):
                              'nested2': {'key5': 'value5'}}}
         utils.merge_nested_dict(dest, source)
 
-        self.assertEqual(dest, {'key': 'modified',
-                                'nested': {'key3': 'modified3',
-                                           'nested2': {'key5': 'value5'}}})
+        self.assertEqual({'key': 'modified',
+                          'nested': {'key3': 'modified3',
+                                     'nested2': {'key5': 'value5'}}}, dest)
 
     @mock.patch('prettytable.PrettyTable')
     def test_format_nested_list_of_dict(self, pt_mock):
