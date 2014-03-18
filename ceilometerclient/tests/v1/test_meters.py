@@ -117,44 +117,44 @@ class MeterManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/meters', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 2)
-        self.assertEqual(resources[0].resource_id, 'a')
-        self.assertEqual(resources[1].resource_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(2, len(resources))
+        self.assertEqual('a', resources[0].resource_id)
+        self.assertEqual('b', resources[1].resource_id)
 
     def test_list_by_source(self):
         resources = list(self.mgr.list(source='openstack'))
         expect = [
             ('GET', '/v1/sources/openstack/meters', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 2)
-        self.assertEqual(resources[0].resource_id, 'b')
-        self.assertEqual(resources[1].resource_id, 'q')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(2, len(resources))
+        self.assertEqual('b', resources[0].resource_id)
+        self.assertEqual('q', resources[1].resource_id)
 
     def test_list_by_user(self):
         resources = list(self.mgr.list(user_id='joey'))
         expect = [
             ('GET', '/v1/users/joey/meters', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 1)
-        self.assertEqual(resources[0].resource_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(resources))
+        self.assertEqual('b', resources[0].resource_id)
 
     def test_list_by_project(self):
         resources = list(self.mgr.list(project_id='dig_the_ditch'))
         expect = [
             ('GET', '/v1/projects/dig_the_ditch/meters', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 1)
-        self.assertEqual(resources[0].resource_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(resources))
+        self.assertEqual('b', resources[0].resource_id)
 
     def test_list_by_metaquery(self):
         resources = list(self.mgr.list(metaquery='metadata.zxc_id=foo'))
         expect = [
             ('GET', '/v1/meters?metadata.zxc_id=foo', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 1)
-        self.assertEqual(resources[0].resource_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(resources))
+        self.assertEqual('b', resources[0].resource_id)

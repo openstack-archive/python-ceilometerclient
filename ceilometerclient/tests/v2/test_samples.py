@@ -79,9 +79,9 @@ class SampleManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v2/meters/instance', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 1)
-        self.assertEqual(samples[0].resource_id, 'resource-id')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(samples))
+        self.assertEqual('resource-id', samples[0].resource_id)
 
     def test_list_by_meter_name_extended(self):
         samples = list(self.mgr.list(meter_name='instance',
@@ -92,19 +92,19 @@ class SampleManagerTest(utils.BaseTestCase):
                                           "value": "bar"},
                                      ]))
         expect = [('GET', '%s?%s' % (base_url, args), {}, None)]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 0)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(0, len(samples))
 
     def test_create(self):
         sample = self.mgr.create(**CREATE_SAMPLE)
         expect = [
             ('POST', '/v2/meters/instance', {}, [CREATE_SAMPLE]),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(sample)
 
     def test_limit(self):
         samples = list(self.mgr.list(meter_name='instance', limit=1))
         expect = [('GET', '/v2/meters/instance?limit=1', {}, None)]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 1)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(samples))

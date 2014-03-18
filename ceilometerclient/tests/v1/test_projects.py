@@ -48,16 +48,16 @@ class ProjectManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/projects', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(projects), 2)
-        self.assertEqual(projects[0].project_id, 'a')
-        self.assertEqual(projects[1].project_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(2, len(projects))
+        self.assertEqual('a', projects[0].project_id)
+        self.assertEqual('b', projects[1].project_id)
 
     def test_list_by_source(self):
         projects = list(self.mgr.list(source='source_b'))
         expect = [
             ('GET', '/v1/sources/source_b/projects', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(projects), 1)
-        self.assertEqual(projects[0].project_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(projects))
+        self.assertEqual('b', projects[0].project_id)
