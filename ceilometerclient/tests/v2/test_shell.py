@@ -334,7 +334,7 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
         finally:
             sys.stdout = org_stdout
 
-        self.assertEqual(output.getvalue(), '''\
+        self.assertEqual('''\
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
 | Resource ID                          | Name     | Type  | Volume         \
@@ -351,7 +351,7 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
 | %    | 2013-10-15T05:40:29 |
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
-''')
+''', output.getvalue())
 
 
 class ShellSampleCreateCommandTest(utils.BaseTestCase):
@@ -397,7 +397,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
         finally:
             sys.stdout = org_stdout
 
-        self.assertEqual(output.getvalue(), '''\
+        self.assertEqual('''\
 +-------------------+---------------------------------------------+
 | Property          | Value                                       |
 +-------------------+---------------------------------------------+
@@ -413,7 +413,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 | user_id           | 21b442b8101d407d8242b6610e0ed0eb            |
 | volume            | 1.0                                         |
 +-------------------+---------------------------------------------+
-''')
+''', output.getvalue())
 
 
 class ShellQuerySamplesCommandTest(utils.BaseTestCase):

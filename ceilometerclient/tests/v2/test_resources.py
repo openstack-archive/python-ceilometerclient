@@ -78,19 +78,19 @@ class ResourceManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v2/resources', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 2)
-        self.assertEqual(resources[0].resource_id, 'a')
-        self.assertEqual(resources[1].resource_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(2, len(resources))
+        self.assertEqual('a', resources[0].resource_id)
+        self.assertEqual('b', resources[1].resource_id)
 
     def test_list_one(self):
         resource = self.mgr.get(resource_id='a')
         expect = [
             ('GET', '/v2/resources/a', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(resource)
-        self.assertEqual(resource.resource_id, 'a')
+        self.assertEqual('a', resource.resource_id)
 
     def test_list_by_query(self):
         resources = list(self.mgr.list(q=[{"field": "resource_id",
@@ -101,6 +101,6 @@ class ResourceManagerTest(utils.BaseTestCase):
                     '&q.type=&q.value=a',
              {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(resources), 1)
-        self.assertEqual(resources[0].resource_id, 'a')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(resources))
+        self.assertEqual('a', resources[0].resource_id)

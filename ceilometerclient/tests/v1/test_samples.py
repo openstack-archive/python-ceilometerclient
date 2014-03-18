@@ -130,8 +130,8 @@ class SampleManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/meters', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 0)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(0, len(samples))
 
     def test_list_by_source(self):
         samples = list(self.mgr.list(source='openstack',
@@ -139,9 +139,9 @@ class SampleManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/sources/openstack/meters/this', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 1)
-        self.assertEqual(samples[0].resource_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(samples))
+        self.assertEqual('b', samples[0].resource_id)
 
     def test_list_by_user(self):
         samples = list(self.mgr.list(user_id='freddy',
@@ -149,11 +149,11 @@ class SampleManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/users/freddy/meters/balls', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 1)
-        self.assertEqual(samples[0].project_id, 'melbourne_open')
-        self.assertEqual(samples[0].user_id, 'freddy')
-        self.assertEqual(samples[0].volume, 3)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(samples))
+        self.assertEqual('melbourne_open', samples[0].project_id)
+        self.assertEqual('freddy', samples[0].user_id)
+        self.assertEqual(3, samples[0].volume)
 
     def test_list_by_project(self):
         samples = list(self.mgr.list(project_id='dig_the_ditch',
@@ -161,11 +161,11 @@ class SampleManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/projects/dig_the_ditch/meters/meters', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 1)
-        self.assertEqual(samples[0].project_id, 'dig_the_ditch')
-        self.assertEqual(samples[0].volume, 345)
-        self.assertEqual(samples[0].unit, 'meters')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(samples))
+        self.assertEqual('dig_the_ditch', samples[0].project_id)
+        self.assertEqual(345, samples[0].volume)
+        self.assertEqual('meters', samples[0].unit)
 
     def test_list_by_metaquery(self):
         samples = list(self.mgr.list(metaquery='metadata.zxc_id=foo',
@@ -173,9 +173,9 @@ class SampleManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/meters?metadata.zxc_id=foo', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 1)
-        self.assertEqual(samples[0].resource_metadata['zxc_id'], 'foo')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(samples))
+        self.assertEqual('foo', samples[0].resource_metadata['zxc_id'])
 
     def test_list_by_timestamp(self):
         samples = list(self.mgr.list(user_id='freddy',
@@ -188,8 +188,8 @@ class SampleManagerTest(utils.BaseTestCase):
              'start_timestamp=now&end_timestamp=now',
              {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(samples), 1)
-        self.assertEqual(samples[0].project_id, 'melbourne_open')
-        self.assertEqual(samples[0].user_id, 'freddy')
-        self.assertEqual(samples[0].volume, 3)
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(samples))
+        self.assertEqual('melbourne_open', samples[0].project_id)
+        self.assertEqual('freddy', samples[0].user_id)
+        self.assertEqual(3, samples[0].volume)
