@@ -48,16 +48,16 @@ class UserManagerTest(utils.BaseTestCase):
         expect = [
             ('GET', '/v1/users', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(users), 2)
-        self.assertEqual(users[0].user_id, 'a')
-        self.assertEqual(users[1].user_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(2, len(users))
+        self.assertEqual('a', users[0].user_id)
+        self.assertEqual('b', users[1].user_id)
 
     def test_list_by_source(self):
         users = list(self.mgr.list(source='source_b'))
         expect = [
             ('GET', '/v1/sources/source_b/users', {}, None),
         ]
-        self.assertEqual(self.api.calls, expect)
-        self.assertEqual(len(users), 1)
-        self.assertEqual(users[0].user_id, 'b')
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual(1, len(users))
+        self.assertEqual('b', users[0].user_id)
