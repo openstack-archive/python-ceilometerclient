@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright © 2013 Red Hat, Inc
+# Copyright Ericsson AB 2014. All rights reserved
 #
-# Author:  Angus Salkeld <asalkeld@redhat.com>
+# Authors: Angus Salkeld <asalkeld@redhat.com>
+#          Balazs Gibizer <balazs.gibizer@ericsson.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -33,6 +35,9 @@ STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
 OPERATORS_STRING = dict(gt='>', ge='>=',
                         lt='<', le="<=",
                         eq='==', ne='!=')
+ORDER_DIRECTIONS = ['asc', 'desc']
+COMPLEX_OPERATORS = ['and', 'or']
+SIMPLE_OPERATORS = ["=", "!=", "<", "<=", '>', '>=']
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
@@ -639,3 +644,30 @@ def do_trait_list(cc, args={}):
     field_labels = ['Trait Name', 'Value', 'Data Type']
     fields = ['name', 'value', 'type']
     utils.print_list(traits, fields, field_labels)
+
+
+@utils.arg('-f', '--filter', metavar='<FILTER>',
+           help=('{complex_op: [{simple_op: {field_name: value}}]} '
+                 'The complex_op is one of: ' + str(COMPLEX_OPERATORS) + ', '
+                 'simple_op is one of: ' + str(SIMPLE_OPERATORS) + '.'))
+@utils.arg('-o', '--orderby', metavar='<ORDERBY>',
+           help=('[{field_name: direction}, {field_name: direction}] '
+                 'The direction is one of: ' + str(ORDER_DIRECTIONS) + '.'))
+@utils.arg('-l', '--limit', metavar='<LIMIT>',
+           help='Maximum number of samples to return.')
+def do_query_samples(cc, args):
+    '''Query samples.'''
+    fields = {'filter': args.filter,
+              'orderby': args.orderby,
+              'limit': args.limit}
+    try:
+        samples = cc.query_samples.query(**fields)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Samples not found')
+    else:
+        field_labels = ['Resource ID', 'Meter', 'Type', 'Volume', 'Unit',
+                        'Timestamp']
+        fields = ['resource_id', 'meter', 'type',
+                  'volume', 'unit', 'timestamp']
+        utils.print_list(samples, fields, field_labels,
+                         sortby=None)
