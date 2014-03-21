@@ -418,7 +418,7 @@ def do_alarm_combination_create(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 def do_alarm_update(cc, args={}):
-    '''Update an existing alarm.'''
+    '''Update an existing alarm (Deprecated).'''
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_dict(fields, "matching_metadata")
     fields.pop('alarm_id')
