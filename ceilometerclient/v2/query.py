@@ -1,6 +1,7 @@
 # Copyright Ericsson AB 2014. All rights reserved
 #
-# Author: Balazs Gibizer <balazs.gibizer@ericsson.com>
+# Authors: Balazs Gibizer <balazs.gibizer@ericsson.com>
+#          Ildiko Vancsa <ildiko.vancsa@ericsson.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -49,3 +50,8 @@ class QuerySamplesManager(QueryManager):
 class QueryAlarmsManager(QueryManager):
     resource_class = alarms.Alarm
     path_suffix = '/alarms'
+
+
+class QueryAlarmHistoryManager(QueryManager):
+    resource_class = alarms.AlarmChange
+    path_suffix = '/alarms/history'
