@@ -15,15 +15,12 @@
 #    under the License.
 
 from ceilometerclient.common import base
+from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import samples
 
 
-class QuerySamplesManager(base.Manager):
-    resource_class = samples.Sample
-
-    @staticmethod
-    def _path():
-        return '/v2/query/samples'
+class QueryManager(base.Manager):
+    path_suffix = None
 
     def query(self, filter, orderby, limit):
         query = {}
@@ -34,7 +31,7 @@ class QuerySamplesManager(base.Manager):
         if limit:
             query["limit"] = limit
 
-        url = self._path()
+        url = '/v2/query%s' % self.path_suffix
         resp, body = self.api.json_request('POST',
                                            url,
                                            body=query)
@@ -42,3 +39,13 @@ class QuerySamplesManager(base.Manager):
             return [self.resource_class(self, b) for b in body]
         else:
             return []
+
+
+class QuerySamplesManager(QueryManager):
+    resource_class = samples.Sample
+    path_suffix = '/samples'
+
+
+class QueryAlarmsManager(QueryManager):
+    resource_class = alarms.Alarm
+    path_suffix = '/alarms'
