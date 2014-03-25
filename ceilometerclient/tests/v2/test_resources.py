@@ -89,7 +89,7 @@ class ResourceManagerTest(utils.BaseTestCase):
             ('GET', '/v2/resources/a', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(resource)
+        self.assertIsNotNone(resource)
         self.assertEqual(resource.resource_id, 'a')
 
     def test_list_by_query(self):
@@ -107,7 +107,7 @@ class ResourceManagerTest(utils.BaseTestCase):
 
     def test_get_from_resource_class(self):
         resource = self.mgr.get(resource_id='a')
-        self.assertTrue(resource)
+        self.assertIsNotNone(resource)
         resource.get()
         expect = [
             ('GET', '/v2/resources/a', {}, None),

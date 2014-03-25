@@ -287,7 +287,7 @@ class AlarmManagerTest(testtools.TestCase):
             ('GET', '/v2/alarms/alarm-id', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         self.assertEqual(alarm.rule, alarm.threshold_rule)
 
@@ -297,7 +297,7 @@ class AlarmManagerTest(testtools.TestCase):
             ('POST', '/v2/alarms', {}, CREATE_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **UPDATE_ALARM)
@@ -306,7 +306,7 @@ class AlarmManagerTest(testtools.TestCase):
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
@@ -318,7 +318,7 @@ class AlarmManagerTest(testtools.TestCase):
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
@@ -349,7 +349,7 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_get_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         alarm.get()
         expect = [
             ('GET', '/v2/alarms/alarm-id', {}, None),
@@ -361,7 +361,7 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_get_state_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         state = alarm.get_state()
         expect = [
             ('GET', '/v2/alarms/alarm-id', {}, None),
@@ -372,7 +372,7 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_delete_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         deleted = alarm.delete()
         expect = [
             ('GET', '/v2/alarms/alarm-id', {}, None),
@@ -415,7 +415,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
 
     def test_create_counter_name(self):
         create = {}
@@ -427,7 +427,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             ('POST', '/v2/alarms', {}, CREATE_ALARM_WITHOUT_TC),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_LEGACY_ALARM)
@@ -436,7 +436,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
@@ -452,7 +452,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             ('PUT', '/v2/alarms/alarm-id', {}, UPDATED_ALARM),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
