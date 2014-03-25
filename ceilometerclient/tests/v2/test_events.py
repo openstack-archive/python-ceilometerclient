@@ -146,7 +146,7 @@ class EventManagerTest(utils.BaseTestCase):
             'GET', '/v2/events/2'
         ]
         self.http_client.assert_called(*expect)
-        self.assertTrue(event)
+        self.assertIsNotNone(event)
         self.assertEqual(event.event_type, 'Foo')
 
     def test_list_with_query(self):
@@ -188,7 +188,7 @@ class EventManagerTest(utils.BaseTestCase):
 
     def test_get_from_event_class(self):
         event = self.mgr.get(2)
-        self.assertTrue(event)
+        self.assertIsNotNone(event)
         event.get()
         expect = [
             'GET', '/v2/events/2'
