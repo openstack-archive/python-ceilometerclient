@@ -89,7 +89,7 @@ class ResourceManagerTest(utils.BaseTestCase):
             ('GET', '/v2/resources/a', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(resource)
+        self.assertIsNotNone(resource)
         self.assertEqual(resource.resource_id, 'a')
 
     def test_list_by_query(self):

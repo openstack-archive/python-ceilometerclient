@@ -101,7 +101,7 @@ class SampleManagerTest(utils.BaseTestCase):
             ('POST', '/v2/meters/instance', {}, [CREATE_SAMPLE]),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(sample)
+        self.assertIsNotNone(sample)
 
     def test_limit(self):
         samples = list(self.mgr.list(meter_name='instance', limit=1))

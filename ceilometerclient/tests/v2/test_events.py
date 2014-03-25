@@ -145,7 +145,7 @@ class EventManagerTest(utils.BaseTestCase):
             ('GET', '/v2/events/2', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(event)
+        self.assertIsNotNone(event)
         self.assertEqual(event.event_type, 'Foo')
 
     def test_list_with_query(self):
