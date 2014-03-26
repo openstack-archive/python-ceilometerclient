@@ -47,6 +47,14 @@ class HTTPException(ClientException):
         self.details = details
 
     def __str__(self):
+        try:
+            data = json.loads(self.details)
+            message = data.get("error_message", {}).get("faultstring")
+            if message:
+                return "%s (HTTP %s) ERROR %s" % (
+                    self.__class__.__name__, self.code, message)
+        except (ValueError, TypeError, AttributeError):
+            pass
         return "%s (HTTP %s)" % (self.__class__.__name__, self.code)
 
 
@@ -65,18 +73,8 @@ class BadRequest(HTTPException):
     code = 400
 
 
-class HTTPBadRequest(BadRequest):
-
-    def __str__(self):
-        try:
-            data = json.loads(self.details)
-            message = data.get("error_message", {}).get("faultstring")
-            if message:
-                return "%s (HTTP %s) ERROR %s" % (
-                    self.__class__.__name__, self.code, message)
-        except (ValueError, TypeError, AttributeError):
-            pass
-        return super(HTTPBadRequest, self).__str__()
+class HTTPBadRequest(HTTPException):
+    code = 400
 
 
 class Unauthorized(HTTPException):
@@ -84,8 +82,8 @@ class Unauthorized(HTTPException):
     code = 401
 
 
-class HTTPUnauthorized(Unauthorized):
-    pass
+class HTTPUnauthorized(HTTPException):
+    code = 401
 
 
 class Forbidden(HTTPException):
@@ -93,8 +91,8 @@ class Forbidden(HTTPException):
     code = 403
 
 
-class HTTPForbidden(Forbidden):
-    pass
+class HTTPForbidden(HTTPException):
+    code = 403
 
 
 class NotFound(HTTPException):
@@ -102,8 +100,8 @@ class NotFound(HTTPException):
     code = 404
 
 
-class HTTPNotFound(NotFound):
-    pass
+class HTTPNotFound(HTTPException):
+    code = 404
 
 
 class HTTPMethodNotAllowed(HTTPException):
@@ -115,8 +113,8 @@ class Conflict(HTTPException):
     code = 409
 
 
-class HTTPConflict(Conflict):
-    pass
+class HTTPConflict(HTTPException):
+    code = 409
 
 
 class OverLimit(HTTPException):
@@ -124,8 +122,8 @@ class OverLimit(HTTPException):
     code = 413
 
 
-class HTTPOverLimit(OverLimit):
-    pass
+class HTTPOverLimit(HTTPException):
+    code = 413
 
 
 class HTTPInternalServerError(HTTPException):
@@ -145,8 +143,8 @@ class ServiceUnavailable(HTTPException):
     code = 503
 
 
-class HTTPServiceUnavailable(ServiceUnavailable):
-    pass
+class HTTPServiceUnavailable(HTTPException):
+    code = 503
 
 
 #NOTE(bcwaldon): Build a mapping of HTTP codes to corresponding exception
