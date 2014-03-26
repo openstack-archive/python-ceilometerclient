@@ -19,33 +19,54 @@ from ceilometerclient import exc
 
 from ceilometerclient.tests import utils
 
+HTTPEXCEPTIONS = {'HTTPBadRequest': exc.HTTPBadRequest,
+                  'HTTPUnauthorized': exc.HTTPUnauthorized,
+                  'HTTPForbidden': exc.HTTPForbidden,
+                  'HTTPNotFound': exc.HTTPNotFound,
+                  'HTTPMethodNotAllowed': exc.HTTPMethodNotAllowed,
+                  'HTTPConflict': exc.HTTPConflict,
+                  'HTTPOverLimit': exc.HTTPOverLimit,
+                  'HTTPInternalServerError': exc.HTTPInternalServerError,
+                  'HTTPNotImplemented': exc.HTTPNotImplemented,
+                  'HTTPBadGateway': exc.HTTPBadGateway,
+                  'HTTPServiceUnavailable': exc.HTTPServiceUnavailable}
 
-class HTTPBadRequestTest(utils.BaseTestCase):
 
+class HTTPExceptionsTest(utils.BaseTestCase):
     def test_str_no_details(self):
-        exception = exc.HTTPBadRequest()
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        for k, v in HTTPEXCEPTIONS.items():
+            exception = v()
+            ret_str = k+" (HTTP "+str(exception.code)+")"
+            self.assertEqual(ret_str, str(exception))
 
     def test_str_no_json(self):
-        exception = exc.HTTPBadRequest(details="foo")
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        for k, v in HTTPEXCEPTIONS.items():
+            exception = v(details="foo")
+            ret_str = k+" (HTTP "+str(exception.code)+")"
+            self.assertEqual(ret_str, str(exception))
 
     def test_str_no_error_message(self):
-        exception = exc.HTTPBadRequest(details=json.dumps({}))
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        for k, v in HTTPEXCEPTIONS.items():
+            exception = v(details=json.dumps({}))
+            ret_str = k+" (HTTP "+str(exception.code)+")"
+            self.assertEqual(ret_str, str(exception))
 
     def test_str_no_faultstring(self):
-        exception = exc.HTTPBadRequest(
-            details=json.dumps({"error_message": {"foo": "bar"}}))
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        for k, v in HTTPEXCEPTIONS.items():
+            exception = v(
+                details=json.dumps({"error_message": {"foo": "bar"}}))
+            ret_str = k+" (HTTP "+str(exception.code)+")"
+            self.assertEqual(ret_str, str(exception))
 
     def test_str_error_message_unknown_format(self):
-        exception = exc.HTTPBadRequest(
-            details=json.dumps({"error_message": "oops"}))
-        self.assertEqual("HTTPBadRequest (HTTP 400)", str(exception))
+        for k, v in HTTPEXCEPTIONS.items():
+            exception = v(details=json.dumps({"error_message": "oops"}))
+            ret_str = k+" (HTTP "+str(exception.code)+")"
+            self.assertEqual(ret_str, str(exception))
 
     def test_str_faultstring(self):
-        exception = exc.HTTPBadRequest(
-            details=json.dumps({"error_message": {"faultstring": "oops"}}))
-        self.assertEqual("HTTPBadRequest (HTTP 400) ERROR oops",
-                         str(exception))
+        for k, v in HTTPEXCEPTIONS.items():
+            exception = v(details=json.dumps(
+                {"error_message": {"faultstring": "oops"}}))
+            ret_str = k+" (HTTP "+str(exception.code)+") ERROR oops"
+            self.assertEqual(ret_str, str(exception))
