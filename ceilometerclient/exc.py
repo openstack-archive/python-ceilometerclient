@@ -47,6 +47,14 @@ class HTTPException(ClientException):
         self.details = details
 
     def __str__(self):
+        try:
+            data = json.loads(self.details)
+            message = data.get("error_message", {}).get("faultstring")
+            if message:
+                return "%s (HTTP %s) ERROR %s" % (
+                    self.__class__.__name__, self.code, message)
+        except (ValueError, TypeError, AttributeError):
+            pass
         return "%s (HTTP %s)" % (self.__class__.__name__, self.code)
 
 
@@ -66,17 +74,7 @@ class BadRequest(HTTPException):
 
 
 class HTTPBadRequest(BadRequest):
-
-    def __str__(self):
-        try:
-            data = json.loads(self.details)
-            message = data.get("error_message", {}).get("faultstring")
-            if message:
-                return "%s (HTTP %s) ERROR %s" % (
-                    self.__class__.__name__, self.code, message)
-        except (ValueError, TypeError, AttributeError):
-            pass
-        return super(HTTPBadRequest, self).__str__()
+    pass
 
 
 class Unauthorized(HTTPException):

@@ -49,3 +49,34 @@ class HTTPBadRequestTest(utils.BaseTestCase):
             details=json.dumps({"error_message": {"faultstring": "oops"}}))
         self.assertEqual("HTTPBadRequest (HTTP 400) ERROR oops",
                          str(exception))
+
+
+class HTTPNotFound(utils.BaseTestCase):
+
+    def test_str_no_details(self):
+        exception = exc.HTTPNotFound()
+        self.assertEqual("HTTPNotFound (HTTP 404)", str(exception))
+
+    def test_str_no_json(self):
+        exception = exc.HTTPNotFound(details="foo")
+        self.assertEqual("HTTPNotFound (HTTP 404)", str(exception))
+
+    def test_str_no_error_message(self):
+        exception = exc.HTTPNotFound(details=json.dumps({}))
+        self.assertEqual("HTTPNotFound (HTTP 404)", str(exception))
+
+    def test_str_no_faultstring(self):
+        exception = exc.HTTPNotFound(
+            details=json.dumps({"error_message": {"foo": "bar"}}))
+        self.assertEqual("HTTPNotFound (HTTP 404)", str(exception))
+
+    def test_str_error_message_unknown_format(self):
+        exception = exc.HTTPNotFound(
+            details=json.dumps({"error_message": "oops"}))
+        self.assertEqual("HTTPNotFound (HTTP 404)", str(exception))
+
+    def test_str_faultstring(self):
+        exception = exc.HTTPNotFound(
+            details=json.dumps({"error_message": {"faultstring": "oops"}}))
+        self.assertEqual("HTTPNotFound (HTTP 404) ERROR oops",
+                         str(exception))
