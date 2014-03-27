@@ -182,12 +182,12 @@ class StatisticsManagerTest(utils.BaseTestCase):
     def test_list_by_meter_name_with_aggregates(self):
         aggregates = [
             {
+                'func': 'count',
+            },
+            {
                 'func': 'cardinality',
                 'param': 'resource_id',
             },
-            {
-                'func': 'count',
-            }
         ]
         stats = list(self.mgr.list(meter_name='instance',
                                    aggregates=aggregates))

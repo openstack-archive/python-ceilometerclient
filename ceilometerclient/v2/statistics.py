@@ -26,12 +26,18 @@ class StatisticsManager(base.Manager):
     def _build_aggregates(self, aggregates):
         url_aggregates = []
         for aggregate in aggregates:
-            url_aggregates.append(
-                "aggregate.func=%(func)s" % aggregate
-            )
             if 'param' in aggregate:
-                url_aggregates.append(
+                url_aggregates.insert(
+                    0,
                     "aggregate.param=%(param)s" % aggregate
+                )
+                url_aggregates.insert(
+                    0,
+                    "aggregate.func=%(func)s" % aggregate
+                )
+            else:
+                url_aggregates.append(
+                    "aggregate.func=%(func)s" % aggregate
                 )
         return url_aggregates
 
