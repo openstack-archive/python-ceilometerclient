@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Approved+1: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+2: Eoghan Glynn <eglynn@redhat.com>
+Approved+1: Ildiko Vancsa <ildiko.vancsa@ericsson.com>
+Code-Review+2: Ildiko Vancsa <ildiko.vancsa@ericsson.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 27 Mar 2014 22:00:29 +0000
+Reviewed-on: https://review.openstack.org/80499
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
