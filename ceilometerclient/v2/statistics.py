@@ -11,6 +11,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import six
+
 from ceilometerclient.common import base
 from ceilometerclient.v2 import options
 
@@ -43,6 +45,8 @@ class StatisticsManager(base.Manager):
 
     def list(self, meter_name, q=None, period=None, groupby=[], aggregates=[]):
         p = ['period=%s' % period] if period else []
+        if isinstance(groupby, six.string_types):
+            groupby = [groupby]
         p.extend(['groupby=%s' % g for g in groupby] if groupby else [])
         p.extend(self._build_aggregates(aggregates))
         return self._list(options.build_url(
