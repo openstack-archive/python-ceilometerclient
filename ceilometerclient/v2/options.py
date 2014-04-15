@@ -19,11 +19,14 @@ from six.moves.urllib import parse
 def build_url(path, q, params=None):
     '''This converts from a list of dicts and a list of params to
        what the rest api needs, so from:
-    "[{field=this,op=le,value=34},{field=that,op=eq,value=foo}],
+    "[{field=this,op=le,value=34},
+      {field=that,op=eq,value=foo, type=string}],
      ['foo=bar','sna=fu']"
     to:
-    "?q.field=this&q.op=le&q.value=34&
-      q.field=that&q.op=eq&q.value=foo&
+    "?q.field=this&q.field=that&
+      q.op=le&q.op=eq&
+      q.type=&q.type=string&
+      q.value=34&q.value=foo&
       foo=bar&sna=fu"
     '''
     if q:
@@ -55,9 +58,10 @@ def cli_to_array(cli_query):
     """This converts from the cli list of queries to what is required
     by the python api.
     so from:
-    "this<=34;that=foo"
+    "this<=34;that=string::foo"
     to
-    "[{field=this,op=le,value=34},{field=that,op=eq,value=foo}]"
+    "[{field=this,op=le,value=34,type=''},
+      {field=that,op=eq,value=foo,type=string}]"
 
     """
 
