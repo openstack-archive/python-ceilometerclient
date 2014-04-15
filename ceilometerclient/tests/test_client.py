@@ -42,14 +42,19 @@ class ClientTest(utils.BaseTestCase):
         self.assertIsInstance(c2, v2client.Client)
 
     def test_client_auth_lambda(self):
-        FAKE_ENV['os_auth_token'] = lambda: FAKE_ENV['os_auth_token']
+        FAKE_ENV['os_auth_token'] = lambda: '1234'
         self.assertIsInstance(FAKE_ENV['os_auth_token'],
                               types.FunctionType)
         c2 = self.create_client()
         self.assertIsInstance(c2, v2client.Client)
+        self.assertIsInstance(c2.http_client.auth_token,
+                              types.FunctionType)
+        self.assertEqual('1234', c2.http_client.auth_token())
 
     def test_client_auth_non_lambda(self):
         FAKE_ENV['os_auth_token'] = "1234"
-        self.assertIsInstance(FAKE_ENV['os_auth_token'], str)
         c2 = self.create_client()
         self.assertIsInstance(c2, v2client.Client)
+        self.assertIsInstance(c2.http_client.auth_token,
+                              types.FunctionType)
+        self.assertEqual('1234', c2.http_client.auth_token())
