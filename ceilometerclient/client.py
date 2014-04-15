@@ -61,8 +61,8 @@ def get_client(api_version, **kwargs):
             * os_tenant_{name|id}: name or ID of tenant
     """
     token = kwargs.get('os_auth_token')
-    if token:
-        token = (token if six.callable(token) else lambda: token)
+    if token and not six.callable(token):
+        token = lambda: kwargs.get('os_auth_token')
 
     if token and kwargs.get('ceilometer_url'):
         endpoint = kwargs.get('ceilometer_url')
