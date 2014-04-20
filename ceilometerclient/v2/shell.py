@@ -29,7 +29,7 @@ from ceilometerclient.openstack.common import strutils
 from ceilometerclient.v2 import options
 
 
-ALARM_STATES = ['ok', 'alarm', 'insufficient_data']
+ALARM_STATES = ['ok', 'alarm', 'insufficient data']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
@@ -358,7 +358,7 @@ def common_alarm_arguments(create=False):
                    dest='insufficient_data_actions',
                    metavar='<Webhook URL>', action='append', default=None,
                    help=('URL to invoke when state transitions to '
-                         'insufficient_data. May be used multiple times.'))
+                         'insufficient data. May be used multiple times.'))
         @utils.arg('--time-constraint', dest='time_constraints',
                    metavar='<Time Constraint>', action='append',
                    default=None,
