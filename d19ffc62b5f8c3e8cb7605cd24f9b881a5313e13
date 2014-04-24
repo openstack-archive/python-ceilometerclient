@@ -1,0 +1,11 @@
+Change-Id: Id19ffc62b5f8c3e8cb7605cd24f9b881a5313e13
+Verified+2: Jenkins
+Approved+1: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+2: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+1: Dina Belova <dbelova@mirantis.com>
+Code-Review+2: gordon chung <chungg@ca.ibm.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 24 Apr 2014 06:52:05 +0000
+Reviewed-on: https://review.openstack.org/88557
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
