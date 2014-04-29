@@ -183,6 +183,20 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
              "type": "threshold",
              "name": "cpu_high"}
 
+    THRESHOLD_ALARM_CLI_ARGS = [
+        '--name', 'cpu_high',
+        '--description', 'instance running hot',
+        '--meter-name', 'cpu_util',
+        '--threshold', '70.0',
+        '--comparison-operator', 'gt',
+        '--statistic', 'avg',
+        '--period', '600',
+        '--evaluation-periods', '3',
+        '--alarm-action', 'log://',
+        '--alarm-action', 'http://example.com/alarm/state',
+        '--query', 'resource_id=INSTANCE_ID'
+    ]
+
     def setUp(self):
         super(ShellAlarmCommandTest, self).setUp()
         self.cc = mock.Mock()
@@ -250,47 +264,43 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self._do_test_alarm_update_repeat_actions(method, False)
 
     def test_alarm_threshold_create_args(self):
+        argv = ['alarm-threshold-create'] + self.THRESHOLD_ALARM_CLI_ARGS
+        self._test_alarm_threshold_action_args('create', argv)
+
+    def test_alarm_threshold_update_args(self):
+        argv = ['alarm-threshold-update',
+                '--alarm_id', 'x'] + self.THRESHOLD_ALARM_CLI_ARGS
+        self._test_alarm_threshold_action_args('update', argv)
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def _test_alarm_threshold_action_args(self, action, argv):
         shell = base_shell.CeilometerShell()
-        argv = ['alarm-threshold-create',
-                '--name', 'cpu_high',
-                '--description', 'instance running hot',
-                '--meter-name', 'cpu_util',
-                '--threshold', '70.0',
-                '--comparison-operator', 'gt',
-                '--statistic', 'avg',
-                '--period', '600',
-                '--evaluation-periods', '3',
-                '--alarm-action', 'log://',
-                '--alarm-action', 'http://example.com/alarm/state',
-                '--query', 'resource_id=INSTANCE_ID']
         _, args = shell.parse_args(argv)
 
-        orig = sys.stdout
-        sys.stdout = six.StringIO()
         alarm = alarms.Alarm(mock.Mock(), self.ALARM)
-        self.cc.alarms.create.return_value = alarm
+        getattr(self.cc.alarms, action).return_value = alarm
 
-        try:
-            ceilometer_shell.do_alarm_threshold_create(self.cc, args)
-            _, kwargs = self.cc.alarms.create.call_args
-            self.assertEqual('cpu_high', kwargs.get('name'))
-            self.assertEqual('instance running hot', kwargs.get('description'))
-            actions = ['log://', 'http://example.com/alarm/state']
-            self.assertEqual(actions, kwargs.get('alarm_actions'))
-            self.assertTrue('threshold_rule' in kwargs)
-            rule = kwargs['threshold_rule']
-            self.assertEqual('cpu_util', rule.get('meter_name'))
-            self.assertEqual(70.0, rule.get('threshold'))
-            self.assertEqual('gt', rule.get('comparison_operator'))
-            self.assertEqual('avg', rule.get('statistic'))
-            self.assertEqual(600, rule.get('period'))
-            self.assertEqual(3, rule.get('evaluation_periods'))
-            query = dict(field='resource_id', type='',
-                         value='INSTANCE_ID', op='eq')
-            self.assertEqual([query], rule['query'])
-        finally:
-            sys.stdout.close()
-            sys.stdout = orig
+        func = getattr(ceilometer_shell, 'do_alarm_threshold_' + action)
+        func(self.cc, args)
+        _, kwargs = getattr(self.cc.alarms, action).call_args
+        self._check_alarm_threshold_args(kwargs)
+
+    def _check_alarm_threshold_args(self, kwargs):
+        self.assertEqual('cpu_high', kwargs.get('name'))
+        self.assertEqual('instance running hot', kwargs.get('description'))
+        actions = ['log://', 'http://example.com/alarm/state']
+        self.assertEqual(actions, kwargs.get('alarm_actions'))
+        self.assertTrue('threshold_rule' in kwargs)
+        rule = kwargs['threshold_rule']
+        self.assertEqual('cpu_util', rule.get('meter_name'))
+        self.assertEqual(70.0, rule.get('threshold'))
+        self.assertEqual('gt', rule.get('comparison_operator'))
+        self.assertEqual('avg', rule.get('statistic'))
+        self.assertEqual(600, rule.get('period'))
+        self.assertEqual(3, rule.get('evaluation_periods'))
+        query = dict(field='resource_id', type='',
+                     value='INSTANCE_ID', op='eq')
+        self.assertEqual([query], rule['query'])
 
     def test_alarm_create_time_constraints(self):
         shell = base_shell.CeilometerShell()
