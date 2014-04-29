@@ -455,7 +455,7 @@ def do_alarm_threshold_create(cc, args={}):
 @common_alarm_arguments(create=True)
 @utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
            required=True, dest='combination_rule/alarm_ids',
-           help='List of alarm ids.')
+           help='List of alarm IDs.')
 @utils.arg('--operator', metavar='<OPERATOR>',
            dest='combination_rule/operator',
            help='Operator to compare with, one of: ' + str(
@@ -576,7 +576,7 @@ def do_alarm_threshold_update(cc, args={}):
            help='Name or list of names of the time constraints to remove.')
 @utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
            dest='combination_rule/alarm_ids',
-           help='List of alarm id.')
+           help='List of alarm IDs.')
 @utils.arg('--operator', metavar='<OPERATOR>',
            dest='combination_rule/operator',
            help='Operator to compare with, one of: ' + str(
@@ -700,7 +700,7 @@ def do_event_list(cc, args={}):
 
 
 @utils.arg('-m', '--message_id', metavar='<message_id>',
-           help='The id of the event. Should be a UUID',
+           help='The ID of the event. Should be a UUID.',
            required=True)
 def do_event_show(cc, args={}):
     '''Show a particular event.'''
