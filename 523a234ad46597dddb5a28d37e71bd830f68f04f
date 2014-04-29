@@ -1,0 +1,12 @@
+Verified+2: Jenkins
+Code-Review+1: Dina Belova <dbelova@mirantis.com>
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Code-Review+2: gordon chung <chungg@ca.ibm.com>
+Workflow+1: gordon chung <chungg@ca.ibm.com>
+Code-Review+1: Summer Long <slong@redhat.com>
+Code-Review+1: Lukasz Jernas <deejay1@srem.org>
+Submitted-by: Jenkins
+Submitted-at: Tue, 29 Apr 2014 21:23:00 +0000
+Reviewed-on: https://review.openstack.org/75646
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
