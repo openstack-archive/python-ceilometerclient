@@ -19,6 +19,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
 import functools
 import json
 import six
@@ -48,11 +49,18 @@ COMPLEX_OPERATORS = ['and', 'or']
 SIMPLE_OPERATORS = ["=", "!=", "<", "<=", '>', '>=']
 
 
+class NotEmptyAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not values or values.isspace():
+            raise exc.CommandError('%s should not be empty' % self.dest)
+        setattr(namespace, self.dest, values)
+
+
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 @utils.arg('-m', '--meter', metavar='<NAME>', required=True,
-           help='Name of meter to show samples for.')
+           action=NotEmptyAction, help='Name of meter to show samples for.')
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
 @utils.arg('-g', '--groupby', metavar='<FIELD>', action='append',
@@ -106,7 +114,7 @@ def do_statistics(cc, args):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 @utils.arg('-m', '--meter', metavar='<NAME>', required=True,
-           help='Name of meter to show samples for.')
+           action=NotEmptyAction, help='Name of meter to show samples for.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
            help='Maximum number of samples to return.')
 def do_sample_list(cc, args):
@@ -136,7 +144,7 @@ def do_sample_list(cc, args):
 @utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>', required=True,
            help='ID of the resource.')
 @utils.arg('-m', '--meter-name', metavar='<METER_NAME>', required=True,
-           help='The meter name.')
+           action=NotEmptyAction, help='The meter name.')
 @utils.arg('--meter-type', metavar='<METER_TYPE>', required=True,
            help='The meter type.')
 @utils.arg('--meter-unit', metavar='<METER_UNIT>', required=True,
@@ -318,7 +326,7 @@ def _display_alarm(alarm):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           help='ID of the alarm to show.')
+           action=NotEmptyAction, help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
     '''Show an alarm.'''
     try:
@@ -476,7 +484,7 @@ def do_alarm_combination_create(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           help='ID of the alarm to update.')
+           action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
 @utils.arg('--remove-time-constraint', action='append',
            metavar='<Constraint names>',
@@ -517,7 +525,7 @@ def do_alarm_update(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           help='ID of the alarm to update.')
+           action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
 @utils.arg('--remove-time-constraint', action='append',
            metavar='<Constraint names>',
@@ -568,7 +576,7 @@ def do_alarm_threshold_update(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           help='ID of the alarm to update.')
+           action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
 @utils.arg('--remove-time-constraint', action='append',
            metavar='<Constraint names>',
@@ -600,7 +608,7 @@ def do_alarm_combination_update(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           help='ID of the alarm to delete.')
+           action=NotEmptyAction, help='ID of the alarm to delete.')
 def do_alarm_delete(cc, args={}):
     '''Delete an alarm.'''
     try:
@@ -610,7 +618,7 @@ def do_alarm_delete(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           help='ID of the alarm state to set.')
+           action=NotEmptyAction, help='ID of the alarm state to set.')
 @utils.arg('--state', metavar='<STATE>', required=True,
            help='State of the alarm, one of: ' + str(ALARM_STATES) +
            '.')
@@ -624,7 +632,7 @@ def do_alarm_state_set(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
-           help='ID of the alarm state to show.')
+           action=NotEmptyAction, help='ID of the alarm state to show.')
 def do_alarm_state_get(cc, args={}):
     '''Get the state of an alarm.'''
     try:
@@ -635,6 +643,7 @@ def do_alarm_state_get(cc, args={}):
 
 
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
+           action=NotEmptyAction,
            help='ID of the alarm for which history is shown.')
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
@@ -668,7 +677,7 @@ def do_resource_list(cc, args={}):
 
 
 @utils.arg('-r', '--resource_id', metavar='<RESOURCE_ID>', required=True,
-           help='ID of the resource to show.')
+           action=NotEmptyAction, help='ID of the resource to show.')
 def do_resource_show(cc, args={}):
     '''Show the resource.'''
     try:
@@ -701,7 +710,7 @@ def do_event_list(cc, args={}):
 
 @utils.arg('-m', '--message_id', metavar='<message_id>',
            help='The ID of the event. Should be a UUID.',
-           required=True)
+           required=True, action=NotEmptyAction)
 def do_event_show(cc, args={}):
     '''Show a particular event.'''
     event = cc.events.get(args.message_id)
@@ -718,7 +727,7 @@ def do_event_type_list(cc, args={}):
 
 @utils.arg('-e', '--event_type', metavar='<EVENT_TYPE>',
            help='Type of the event for which traits will be shown.',
-           required=True)
+           required=True, action=NotEmptyAction)
 def do_trait_description_list(cc, args={}):
     '''List trait info for an event type.'''
     trait_descriptions = cc.trait_descriptions.list(args.event_type)
@@ -729,10 +738,10 @@ def do_trait_description_list(cc, args={}):
 
 @utils.arg('-e', '--event_type', metavar='<EVENT_TYPE>',
            help='Type of the event for which traits will listed.',
-           required=True)
+           required=True, action=NotEmptyAction)
 @utils.arg('-t', '--trait_name', metavar='<TRAIT_NAME>',
            help='The name of the trait to list.',
-           required=True)
+           required=True, action=NotEmptyAction)
 def do_trait_list(cc, args={}):
     '''List trait all traits with name <trait_name> for Event Type
     <event_type>.
