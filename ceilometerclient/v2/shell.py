@@ -475,6 +475,11 @@ def do_alarm_combination_create(cc, args={}):
     _display_alarm(alarm)
 
 
+def _assert_alarm_id_is_not_empty(alarm_id):
+    if not alarm_id or alarm_id.isspace():
+        raise exc.CommandError('Alarm id should not be empty')
+
+
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>', required=True,
            help='ID of the alarm to update.')
 @common_alarm_arguments()
@@ -508,7 +513,7 @@ def do_alarm_update(cc, args={}):
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.args_array_to_dict(fields, "matching_metadata")
-    fields.pop('alarm_id')
+    _assert_alarm_id_is_not_empty(fields.pop('alarm_id'))
     try:
         alarm = cc.alarms.update(args.alarm_id, **fields)
     except exc.HTTPNotFound:
@@ -555,7 +560,7 @@ def do_alarm_threshold_update(cc, args={}):
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
-    fields.pop('alarm_id')
+    _assert_alarm_id_is_not_empty(fields.pop('alarm_id'))
     fields['type'] = 'threshold'
     if 'threshold_rule' in fields and 'query' in fields['threshold_rule']:
         fields['threshold_rule']['query'] = options.cli_to_array(
@@ -590,7 +595,7 @@ def do_alarm_combination_update(cc, args={}):
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
-    fields.pop('alarm_id')
+    _assert_alarm_id_is_not_empty(fields.pop('alarm_id'))
     fields['type'] = 'combination'
     try:
         alarm = cc.alarms.update(args.alarm_id, **fields)

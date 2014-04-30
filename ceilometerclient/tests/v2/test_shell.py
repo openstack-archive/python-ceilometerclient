@@ -249,6 +249,38 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         method = ceilometer_shell.do_alarm_threshold_update
         self._do_test_alarm_update_repeat_actions(method, False)
 
+    def _test_alarm_update_with_empty_id(self, method, id):
+        shell = base_shell.CeilometerShell()
+        argv = [method, '--alarm_id', id]
+        _, args = shell.parse_args(argv)
+
+        method = method.replace('-', '_')
+        func = getattr(ceilometer_shell, 'do_%s' % method)
+
+        class MyException(Exception):
+            pass
+
+        with mock.patch('ceilometerclient.exc.CommandError') as e:
+            e.return_value = MyException()
+            self.assertRaises(MyException, func, *(self.cc, args))
+            e.assert_called_with('Alarm id should not be empty')
+
+    def _test_alarm_update_with_empty_ids(self, method):
+        for id in ('', ' ', '   ', '\t'):
+            self._test_alarm_update_with_empty_id(method, id)
+
+    def test_alarm_update_with_empty_id(self):
+        """Avoid empty id which will cause calling incorrect rest uri."""
+        self._test_alarm_update_with_empty_ids('alarm-update')
+
+    def test_alarm_threshold_update_with_empty_id(self):
+        """Avoid empty id which will cause calling incorrect rest uri."""
+        self._test_alarm_update_with_empty_ids('alarm-threshold-update')
+
+    def test_alarm_combination_update_with_empty_id(self):
+        """Avoid empty id which will cause calling incorrect rest uri."""
+        self._test_alarm_update_with_empty_ids('alarm-combination-update')
+
     def test_alarm_threshold_create_args(self):
         shell = base_shell.CeilometerShell()
         argv = ['alarm-threshold-create',
