@@ -22,6 +22,7 @@ import sys
 
 from testtools import matchers
 
+from ceilometerclient import exc
 from ceilometerclient import shell as base_shell
 from ceilometerclient.tests import utils
 from ceilometerclient.v2 import alarms
@@ -788,3 +789,83 @@ class ShellStatisticsTest(utils.BaseTestCase):
                 fields,
                 [self.displays.get(f, f) for f in fields],
             )
+
+
+class ShellEmptyIdTest(utils.BaseTestCase):
+    """Test empty field which will cause calling incorrect rest uri."""
+
+    def _test_entity_action_with_empty_values(self, entity, *args):
+        for value in ('', ' ', '   ', '\t'):
+            self._test_entity_action_with_empty_value(entity, value, *args)
+
+    def _test_entity_action_with_empty_value(self, entity, value, *args):
+        shell = base_shell.CeilometerShell()
+        argv = list(args) + ['--%s' % entity, value]
+
+        with mock.patch('ceilometerclient.exc.CommandError') as e:
+            e.return_value = Exception()
+            self.assertRaises(Exception, shell.parse_args, argv)
+            entity = entity.replace('-', '_')
+            e.assert_called_with('%s should not be empty' % entity)
+
+    def _test_alarm_action_with_empty_ids(self, method, *args):
+        args = [method] + list(args)
+        self._test_entity_action_with_empty_values('alarm_id', *args)
+
+    def test_alarm_show_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids('alarm-show')
+
+    def test_alarm_update_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids('alarm-update')
+
+    def test_alarm_threshold_update_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids('alarm-threshold-update')
+
+    def test_alarm_combination_update_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids('alarm-combination-update')
+
+    def test_alarm_delete_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids('alarm-delete')
+
+    def test_alarm_state_get_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids('alarm-state-get')
+
+    def test_alarm_state_set_with_empty_id(self):
+        args = ['alarm-state-set', '--state', 'ok']
+        self._test_alarm_action_with_empty_ids(*args)
+
+    def test_alarm_history_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids('alarm-history')
+
+    def test_event_show_with_empty_message_id(self):
+        args = ['event-show']
+        self._test_entity_action_with_empty_values('message_id', *args)
+
+    def test_resource_show_with_empty_id(self):
+        args = ['resource-show']
+        self._test_entity_action_with_empty_values('resource_id', *args)
+
+    def test_sample_list_with_empty_meter(self):
+        args = ['sample-list']
+        self._test_entity_action_with_empty_values('meter', *args)
+
+    def test_sample_create_with_empty_meter(self):
+        args = ['sample-create', '-r', 'x', '--meter-type', 'gauge',
+                '--meter-unit', 'B', '--sample-volume', '1']
+        self._test_entity_action_with_empty_values('meter-name', *args)
+
+    def test_statistics_with_empty_meter(self):
+        args = ['statistics']
+        self._test_entity_action_with_empty_values('meter', *args)
+
+    def test_trait_description_list_with_empty_event_type(self):
+        args = ['trait-description-list']
+        self._test_entity_action_with_empty_values('event_type', *args)
+
+    def test_trait_list_with_empty_event_type(self):
+        args = ['trait-list', '--trait_name', 'x']
+        self._test_entity_action_with_empty_values('event_type', *args)
+
+    def test_trait_list_with_empty_trait_name(self):
+        args = ['trait-list', '--event_type', 'x']
+        self._test_entity_action_with_empty_values('trait_name', *args)
