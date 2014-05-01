@@ -51,6 +51,15 @@ class Alarm(base.Resource):
             k = '%s_rule' % self.type
         return super(Alarm, self).__getattr__(k)
 
+    def delete(self):
+        return self.manager.delete(self)
+
+    def get(self):
+        return self.manager.get(self)
+
+    def get_state(self):
+        return self.manager.get_state(self)
+
 
 class AlarmChange(base.Resource):
     def __repr__(self):

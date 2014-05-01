@@ -22,6 +22,9 @@ class Resource(base.Resource):
     def __repr__(self):
         return "<Resource %s>" % self._info
 
+    def get(self):
+        return self.manager.get(self)
+
 
 class ResourceManager(base.Manager):
     resource_class = Resource
