@@ -200,6 +200,10 @@ fixtures = {
             {},
             UPDATED_ALARM,
         ),
+        'DELETE': (
+            {},
+            None,
+        ),
     },
     '/v2/alarms/alarm-id/state':
     {
@@ -338,6 +342,41 @@ class AlarmManagerTest(testtools.TestCase):
         deleted = self.mgr.delete(alarm_id='victim-id')
         expect = [
             ('DELETE', '/v2/alarms/victim-id', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(deleted is None)
+
+    def test_get_from_resource_class(self):
+        resource_class = self.mgr.get(alarm_id='alarm-id')
+        self.assertTrue(resource_class)
+        alarm = resource_class.get()
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('GET', '/v2/alarms/alarm-id', {}, None)
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(alarm)
+        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual(alarm.rule, alarm.threshold_rule)
+
+    def test_get_state_from_resource_class(self):
+        resource_class = self.mgr.get(alarm_id='alarm-id')
+        self.assertTrue(resource_class)
+        state = resource_class.get_state()
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('GET', '/v2/alarms/alarm-id/state', {}, None)
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertEqual(state, 'alarm')
+
+    def test_delete_from_resource_class(self):
+        resource_class = self.mgr.get(alarm_id='alarm-id')
+        self.assertTrue(resource_class)
+        deleted = resource_class.delete()
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('DELETE', '/v2/alarms/alarm-id', {}, None)
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertTrue(deleted is None)
