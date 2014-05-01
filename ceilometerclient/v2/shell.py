@@ -321,9 +321,8 @@ def _display_alarm(alarm):
            help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
     '''Show an alarm.'''
-    try:
-        alarm = cc.alarms.get(args.alarm_id)
-    except exc.HTTPNotFound:
+    alarm = cc.alarms.get(args.alarm_id)
+    if alarm is None:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
     else:
         _display_alarm(alarm)
