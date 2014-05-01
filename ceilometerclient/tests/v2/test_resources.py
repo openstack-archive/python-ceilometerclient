@@ -104,3 +104,15 @@ class ResourceManagerTest(utils.BaseTestCase):
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(resources), 1)
         self.assertEqual(resources[0].resource_id, 'a')
+
+    def test_get_from_resource_class(self):
+        resource = self.mgr.get(resource_id='a')
+        self.assertTrue(resource)
+        resource = resource.get()
+        self.assertTrue(resource)
+        expect = [
+            ('GET', '/v2/resources/a', {}, None),
+            ('GET', '/v2/resources/a', {}, None),
+        ]
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual('a', resource.resource_id)

@@ -202,6 +202,10 @@ fixtures = {
             {},
             UPDATED_ALARM,
         ),
+        'DELETE': (
+            {},
+            None,
+        ),
     },
     '/v2/alarms/alarm-id/state':
     {
@@ -342,6 +346,42 @@ class AlarmManagerTest(testtools.TestCase):
             ('DELETE', '/v2/alarms/victim-id', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
+        self.assertTrue(deleted is None)
+
+    def test_get_from_alarm_class(self):
+        alarm = self.mgr.get(alarm_id='alarm-id')
+        self.assertTrue(alarm)
+        alarm = alarm.get()
+        self.assertTrue(alarm)
+
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('GET', '/v2/alarms/alarm-id', {}, None)
+        ]
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual('alarm-id', alarm.alarm_id)
+        self.assertEqual(alarm.threshold_rule, alarm.rule)
+
+    def test_get_state_from_alarm_class(self):
+        alarm = self.mgr.get(alarm_id='alarm-id')
+        self.assertTrue(alarm)
+        state = alarm.get_state()
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('GET', '/v2/alarms/alarm-id/state', {}, None)
+        ]
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual('alarm', state)
+
+    def test_delete_from_alarm_class(self):
+        alarm = self.mgr.get(alarm_id='alarm-id')
+        self.assertTrue(alarm)
+        deleted = alarm.delete()
+        expect = [
+            ('GET', '/v2/alarms/alarm-id', {}, None),
+            ('DELETE', '/v2/alarms/alarm-id', {}, None)
+        ]
+        self.assertEqual(expect, self.api.calls)
         self.assertTrue(deleted is None)
 
     def _do_test_get_history(self, q, url):
