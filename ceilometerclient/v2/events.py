@@ -21,6 +21,11 @@ class Event(base.Resource):
     def __repr__(self):
         return "<Event %s>" % self._info
 
+    def __getattr__(self, k):
+        if k == 'id':
+            return self.traits['message_id']
+        return super(Event, self).__getattr__(k)
+
 
 class EventManager(base.Manager):
     resource_class = Event

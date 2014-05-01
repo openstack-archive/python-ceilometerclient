@@ -22,6 +22,11 @@ class Resource(base.Resource):
     def __repr__(self):
         return "<Resource %s>" % self._info
 
+    def __getattr__(self, k):
+        if k == 'id':
+            return self.resource_id
+        return super(Resource, self).__getattr__(k)
+
 
 class ResourceManager(base.Manager):
     resource_class = Resource
