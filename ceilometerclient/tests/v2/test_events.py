@@ -187,3 +187,15 @@ class EventManagerTest(utils.BaseTestCase):
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(events), 1)
+
+    def test_get_from_resource_class(self):
+        resource_class = self.mgr.get(2)
+        self.assertTrue(resource_class)
+        event = resource_class.get()
+        expect = [
+            ('GET', '/v2/events/2', {}, None),
+            ('GET', '/v2/events/2', {}, None),
+        ]
+        self.assertEqual(self.api.calls, expect)
+        self.assertTrue(event)
+        self.assertEqual(event.event_type, 'Foo')
