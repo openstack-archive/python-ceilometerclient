@@ -21,6 +21,9 @@ class Event(base.Resource):
     def __repr__(self):
         return "<Event %s>" % self._info
 
+    def get(self):
+        return self.manager.get(self)
+
 
 class EventManager(base.Manager):
     resource_class = Event
