@@ -20,6 +20,7 @@ import warnings
 
 from ceilometerclient.common import base
 from ceilometerclient.common import utils
+from ceilometerclient.exc import HTTPNotFound
 from ceilometerclient.v2 import options
 
 
@@ -51,6 +52,15 @@ class Alarm(base.Resource):
             k = '%s_rule' % self.type
         return super(Alarm, self).__getattr__(k)
 
+    def delete(self):
+        return self.manager.delete(self.alarm_id)
+
+    def get(self):
+        return self.manager.get(self.alarm_id)
+
+    def get_state(self):
+        return self.manager.get_state(self.alarm_id)
+
 
 class AlarmChange(base.Resource):
     def __repr__(self):
@@ -74,6 +84,9 @@ class AlarmManager(base.Manager):
         try:
             return self._list(self._path(alarm_id), expect_single=True)[0]
         except IndexError:
+            return None
+        except HTTPNotFound:
+            ### When we try to get deleted alarm HTTPNotFound occurs
             return None
 
     @classmethod
