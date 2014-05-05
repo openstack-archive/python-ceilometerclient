@@ -83,9 +83,21 @@ class CliTest(utils.BaseTestCase):
                                'op': 'le', 'value': '283.347',
                                'type': ''}])
 
-    def test_invalid_seperator(self):
-        self.assertRaises(ValueError, options.cli_to_array,
-                          'this=2.4,fooo=doof')
+    def test_comma(self):
+        ar = options.cli_to_array('this=2.4,fooo=doof')
+        self.assertEqual([{'field': 'this',
+                           'op': 'eq',
+                           'value': '2.4,fooo=doof',
+                           'type': ''}],
+                         ar)
+
+    def test_special_character(self):
+        ar = options.cli_to_array('key~123=value!123')
+        self.assertEqual([{'field': 'key~123',
+                           'op': 'eq',
+                           'value': 'value!123',
+                           'type': ''}],
+                         ar)
 
     def test_invalid_operator(self):
         self.assertRaises(ValueError, options.cli_to_array,

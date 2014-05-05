@@ -77,17 +77,17 @@ def cli_to_array(cli_query):
 
     def split_by_op(string):
         # two character split (<=,!=)
-        frags = re.findall(r'([[a-zA-Z0-9_.]+)([><!]=)([^ -,\t\n\r\f\v]+)',
+        frags = re.findall(r'(.+?)([><!]=)(.+)',
                            string)
         if len(frags) == 0:
             # single char split (<,=)
-            frags = re.findall(r'([a-zA-Z0-9_.]+)([><=])([^ -,\t\n\r\f\v]+)',
+            frags = re.findall(r'(.+?)([><=])(.+)',
                                string)
         return frags
 
     def split_by_data_type(string):
         frags = re.findall(r'^(string|integer|float|datetime|boolean)(::)'
-                           r'([^ -,\t\n\r\f\v]+)$', string)
+                           r'(.+)$', string)
 
         # frags[1] is the separator. Return a list without it if the type
         # identifier was found.
