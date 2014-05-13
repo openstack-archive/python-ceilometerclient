@@ -21,7 +21,7 @@ import socket
 try:
     import ssl
 except ImportError:
-    #TODO(bcwaldon): Handle this failure more gracefully
+    # TODO(bcwaldon): Handle this failure more gracefully
     pass
 
 try:

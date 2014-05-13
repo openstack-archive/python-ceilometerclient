@@ -80,7 +80,7 @@ def cli_to_array(cli_query):
         frags = re.findall(r'([[a-zA-Z0-9_.]+)([><!]=)([^ -,\t\n\r\f\v]+)',
                            string)
         if len(frags) == 0:
-            #single char split (<,=)
+            # single char split (<,=)
             frags = re.findall(r'([a-zA-Z0-9_.]+)([><=])([^ -,\t\n\r\f\v]+)',
                                string)
         return frags
