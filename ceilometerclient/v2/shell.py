@@ -59,8 +59,8 @@ SIMPLE_OPERATORS = ["=", "!=", "<", "<=", '>', '>=']
            help='Field for group by.')
 @utils.arg('-a', '--aggregate', metavar='<FUNC>[<-<PARAM>]', action='append',
            default=[], help=('Function for data aggregation. '
-                 'Available aggregates are: '
-                 '%s.' % ", ".join(AGGREGATES.keys())))
+                             'Available aggregates are: '
+                             '%s.' % ", ".join(AGGREGATES.keys())))
 def do_statistics(cc, args):
     '''List the statistics for a meter.'''
     aggregates = []
@@ -693,10 +693,9 @@ def do_event_list(cc, args={}):
     fields = ['message_id', 'event_type', 'generated', 'traits']
     utils.print_list(events, fields, field_labels,
                      formatters={
-                     'traits': utils.nested_list_of_dict_formatter('traits',
-                                                                   ['name',
-                                                                    'type',
-                                                                    'value'])})
+                         'traits': utils.nested_list_of_dict_formatter(
+                             'traits', ['name', 'type', 'value']
+                         )})
 
 
 @utils.arg('-m', '--message_id', metavar='<message_id>',

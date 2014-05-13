@@ -20,12 +20,12 @@ from ceilometerclient.common import base
 
 def _get_opt_path(simple_params=[], **kwargs):
     l = []
-    #get simple paramters
+    # get simple paramters
     for key in simple_params:
         val = kwargs.get(key)
         if val:
             l.append(key + '=' + val)
-    #get metadata query paramters
+    # get metadata query paramters
     metaquery = kwargs.get('metaquery')
     if metaquery:
         l.extend(metaquery.split(':'))
