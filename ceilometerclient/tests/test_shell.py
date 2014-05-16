@@ -97,10 +97,10 @@ class ShellTest(utils.BaseTestCase):
 
     @mock.patch.object(ksclient, 'Client')
     def test_debug_switch_raises_error(self, mock_ksclient):
-        mock_ksclient.side_effect = exc.Unauthorized
+        mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env()
         args = ['--debug', 'event-list']
-        self.assertRaises(exc.Unauthorized, ceilometer_shell.main, args)
+        self.assertRaises(exc.HTTPUnauthorized, ceilometer_shell.main, args)
 
     @mock.patch.object(ksclient, 'Client')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
@@ -111,7 +111,7 @@ class ShellTest(utils.BaseTestCase):
 
     @mock.patch.object(ksclient, 'Client')
     def test_no_debug_switch_no_raises_errors(self, mock_ksclient):
-        mock_ksclient.side_effect = exc.Unauthorized("FAIL")
+        mock_ksclient.side_effect = exc.HTTPUnauthorized("FAIL")
         self.make_env()
         args = ['event-list']
         self.assertRaises(SystemExit, ceilometer_shell.main, args)

@@ -35,11 +35,7 @@ class CommunicationError(BaseException):
     """Unable to communicate with server."""
 
 
-class ClientException(Exception):
-    """DEPRECATED."""
-
-
-class HTTPException(ClientException):
+class HTTPException(BaseException):
     """Base exception for all HTTP-derived exceptions."""
     code = 'N/A'
 
@@ -68,36 +64,16 @@ class HTTPMultipleChoices(HTTPException):
                                     self.details)
 
 
-class BadRequest(HTTPException):
-    """DEPRECATED."""
-    code = 400
-
-
 class HTTPBadRequest(HTTPException):
     code = 400
-
-
-class Unauthorized(HTTPException):
-    """DEPRECATED."""
-    code = 401
 
 
 class HTTPUnauthorized(HTTPException):
     code = 401
 
 
-class Forbidden(HTTPException):
-    """DEPRECATED."""
-    code = 403
-
-
 class HTTPForbidden(HTTPException):
     code = 403
-
-
-class NotFound(HTTPException):
-    """DEPRECATED."""
-    code = 404
 
 
 class HTTPNotFound(HTTPException):
@@ -108,18 +84,8 @@ class HTTPMethodNotAllowed(HTTPException):
     code = 405
 
 
-class Conflict(HTTPException):
-    """DEPRECATED."""
-    code = 409
-
-
 class HTTPConflict(HTTPException):
     code = 409
-
-
-class OverLimit(HTTPException):
-    """DEPRECATED."""
-    code = 413
 
 
 class HTTPOverLimit(HTTPException):
@@ -136,11 +102,6 @@ class HTTPNotImplemented(HTTPException):
 
 class HTTPBadGateway(HTTPException):
     code = 502
-
-
-class ServiceUnavailable(HTTPException):
-    """DEPRECATED."""
-    code = 503
 
 
 class HTTPServiceUnavailable(HTTPException):
@@ -160,13 +121,3 @@ def from_response(response, details=None):
     """Return an instance of an HTTPException based on httplib response."""
     cls = _code_map.get(response.status, HTTPException)
     return cls(details)
-
-
-class NoTokenLookupException(Exception):
-    """DEPRECATED."""
-    pass
-
-
-class EndpointNotFound(Exception):
-    """DEPRECATED."""
-    pass
