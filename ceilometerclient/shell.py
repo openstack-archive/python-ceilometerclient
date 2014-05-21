@@ -287,7 +287,7 @@ class CeilometerShell(object):
         # call whatever callback was selected
         try:
             args.func(client, args)
-        except exc.Unauthorized:
+        except exc.HTTPUnauthorized:
             raise exc.CommandError("Invalid OpenStack Identity credentials.")
 
     def do_bash_completion(self, args):
