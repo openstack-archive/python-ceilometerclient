@@ -48,6 +48,7 @@ class HTTPClient(object):
         self.auth_token = kwargs.get('token')
         self.connection_params = self.get_connection_params(endpoint, **kwargs)
         self.proxy_url = self.get_proxy_url()
+        self.no_proxy_hosts = self.get_no_proxy_hosts()
 
     @staticmethod
     def get_connection_params(endpoint, **kwargs):
@@ -74,7 +75,7 @@ class HTTPClient(object):
     def get_connection(self):
         _class = self.connection_params[0]
         try:
-            if self.proxy_url:
+            if self.use_proxy():
                 proxy_parts = parse.urlparse(self.proxy_url)
                 return _class(proxy_parts.hostname, proxy_parts.port,
                               **self.connection_params[2])
@@ -142,7 +143,7 @@ class HTTPClient(object):
         conn = self.get_connection()
 
         try:
-            if self.proxy_url:
+            if self.use_proxy():
                 conn_url = (self.endpoint.rstrip('/') +
                             self._make_connection_url(url))
             else:
@@ -219,6 +220,16 @@ class HTTPClient(object):
             return os.environ.get('http_proxy')
         msg = 'Unsupported scheme: %s' % scheme
         raise exc.InvalidEndpoint(msg)
+
+    def get_no_proxy_hosts(self):
+        no_proxy_hosts = os.environ.get('no_proxy')
+        if no_proxy_hosts is None:
+            return ''
+        return no_proxy_hosts
+
+    def use_proxy(self):
+        host = self.connection_params[1][0]
+        return self.proxy_url and not host in self.no_proxy_hosts
 
 
 class VerifiedHTTPSConnection(httplib.HTTPSConnection):
