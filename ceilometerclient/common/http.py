@@ -32,6 +32,7 @@ except ImportError:
 import six
 from six.moves import http_client as httplib  # noqa
 from six.moves.urllib import parse
+from six.moves.urllib import request
 
 from ceilometerclient import exc
 
@@ -48,6 +49,7 @@ class HTTPClient(object):
         self.auth_token = kwargs.get('token')
         self.connection_params = self.get_connection_params(endpoint, **kwargs)
         self.proxy_url = self.get_proxy_url()
+        self.use_proxy = self._use_proxy()
 
     @staticmethod
     def get_connection_params(endpoint, **kwargs):
@@ -74,7 +76,7 @@ class HTTPClient(object):
     def get_connection(self):
         _class = self.connection_params[0]
         try:
-            if self.proxy_url:
+            if self.use_proxy:
                 proxy_parts = parse.urlparse(self.proxy_url)
                 return _class(proxy_parts.hostname, proxy_parts.port,
                               **self.connection_params[2])
@@ -142,7 +144,7 @@ class HTTPClient(object):
         conn = self.get_connection()
 
         try:
-            if self.proxy_url:
+            if self.use_proxy:
                 conn_url = (self.endpoint.rstrip('/') +
                             self._make_connection_url(url))
             else:
@@ -219,6 +221,10 @@ class HTTPClient(object):
             return os.environ.get('http_proxy')
         msg = 'Unsupported scheme: %s' % scheme
         raise exc.InvalidEndpoint(msg)
+
+    def _use_proxy(self):
+        host = self.connection_params[1][0]
+        return self.proxy_url and not request.proxy_bypass(host)
 
 
 class VerifiedHTTPSConnection(httplib.HTTPSConnection):
