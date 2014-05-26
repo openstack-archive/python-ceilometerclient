@@ -18,6 +18,8 @@ import mock
 from ceilometerclient.common import http
 from ceilometerclient.tests import utils
 
+import urllib
+
 
 class HttpClientTest(utils.BaseTestCase):
     url = 'http://localhost'
@@ -46,19 +48,38 @@ class HttpClientTest(utils.BaseTestCase):
         client = http.HTTPClient(self.url)
         self.assertIsNotNone(client.get_connection())
 
+    @mock.patch.object(urllib, 'proxy_bypass')
     @mock.patch.object(http.HTTPClient, 'get_connection')
-    def test_url_generation_with_proxy(self, get_conn):
+    def test_url_generation_with_proxy(self, get_conn, proxy_bypass):
         client = http.HTTPClient(self.url, token=lambda: 'token')
         client.proxy_url = "http://localhost:3128/"
         conn = mock.MagicMock()
         conn.request.side_effect = Exception("stop")
         get_conn.return_value = conn
+        proxy_bypass.return_value = False
         try:
             client._http_request('/v1/resources', 'GET')
         except Exception:
             pass
         conn.request.assert_called_once_with('GET', (self.url.rstrip('/') +
                                                      '/v1/resources'),
+                                             headers=mock.ANY)
+
+    @mock.patch.object(urllib, 'proxy_bypass')
+    @mock.patch.object(http.HTTPClient, 'get_connection')
+    def test_url_generation_without_proxy_for_no_proxy_host(self, get_conn,
+                                                            proxy_bypass):
+        client = http.HTTPClient(self.url, token=lambda: 'token')
+        client.proxy_url = "http://proxy:3128/"
+        conn = mock.MagicMock()
+        conn.request.side_effect = Exception("stop")
+        get_conn.return_value = conn
+        proxy_bypass.return_value = True
+        try:
+            client._http_request('/v1/resources', 'GET')
+        except Exception:
+            pass
+        conn.request.assert_called_once_with('GET', '/v1/resources',
                                              headers=mock.ANY)
 
 

@@ -34,7 +34,7 @@ from six.moves import http_client as httplib  # noqa
 from six.moves.urllib import parse
 
 from ceilometerclient import exc
-
+import urllib
 
 LOG = logging.getLogger(__name__)
 USER_AGENT = 'python-ceilometerclient'
@@ -74,7 +74,7 @@ class HTTPClient(object):
     def get_connection(self):
         _class = self.connection_params[0]
         try:
-            if self.proxy_url:
+            if self.use_proxy():
                 proxy_parts = parse.urlparse(self.proxy_url)
                 return _class(proxy_parts.hostname, proxy_parts.port,
                               **self.connection_params[2])
@@ -142,7 +142,7 @@ class HTTPClient(object):
         conn = self.get_connection()
 
         try:
-            if self.proxy_url:
+            if self.use_proxy():
                 conn_url = (self.endpoint.rstrip('/') +
                             self._make_connection_url(url))
             else:
@@ -219,6 +219,10 @@ class HTTPClient(object):
             return os.environ.get('http_proxy')
         msg = 'Unsupported scheme: %s' % scheme
         raise exc.InvalidEndpoint(msg)
+
+    def use_proxy(self):
+        host = self.connection_params[1][0]
+        return self.proxy_url and not urllib.proxy_bypass(host)
 
 
 class VerifiedHTTPSConnection(httplib.HTTPSConnection):
