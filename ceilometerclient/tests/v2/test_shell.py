@@ -516,6 +516,8 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
               "state_timestamp": "2014-02-20T10:37:15.589860",
               "threshold_rule": None,
               "timestamp": "2014-02-20T10:37:15.589856",
+              "time_constraints": [{"name": "test", "start": "0 23 * * *",
+                                    "duration": 10800}],
               "type": "combination",
               "user_id": "c96c887c216949acbdfbd8b494863567"}]
 
@@ -543,19 +545,52 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
         self.assertEqual('''\
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
-----------------------------------------+
+----------------------------------------+--------------------------------+
 | Alarm ID                             | Name             | State | Enabled \
 | Continuous | Alarm condition                                              \
-                                        |
+                                        | Time constraints               |
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
-----------------------------------------+
+----------------------------------------+--------------------------------+
 | 768ff714-8cfb-4db9-9753-d484cb33a1cc | SwiftObjectAlarm | ok    | True    \
 | False      | combinated states (OR) of 739e99cb-c2ec-4718-b900-332502355f3\
-8, 153462d0-a9b8-4b5b-8175-9e4b05e9b856 |
+8, 153462d0-a9b8-4b5b-8175-9e4b05e9b856 | test at 0 23 * * *  for 10800s |
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
-----------------------------------------+
+----------------------------------------+--------------------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_time_constraints_compatibility(self):
+        # client should be backwards compatible
+        alarm_without_tc = dict(self.ALARM[0])
+        del alarm_without_tc['time_constraints']
+
+        # NOTE(nsaje): Since we're accessing a nonexisting key in the resource,
+        # the resource is looking it up with the manager (which is a mock).
+        manager_mock = mock.Mock()
+        del manager_mock.get
+        ret_alarm = [alarms.Alarm(manager_mock, alarm_without_tc)]
+        self.cc.query_alarms.query.return_value = ret_alarm
+
+        ceilometer_shell.do_query_alarms(self.cc, self.args)
+
+        self.assertEqual('''\
++--------------------------------------+------------------+-------+---------\
++------------+--------------------------------------------------------------\
+----------------------------------------+------------------+
+| Alarm ID                             | Name             | State | Enabled \
+| Continuous | Alarm condition                                              \
+                                        | Time constraints |
++--------------------------------------+------------------+-------+---------\
++------------+--------------------------------------------------------------\
+----------------------------------------+------------------+
+| 768ff714-8cfb-4db9-9753-d484cb33a1cc | SwiftObjectAlarm | ok    | True    \
+| False      | combinated states (OR) of 739e99cb-c2ec-4718-b900-332502355f3\
+8, 153462d0-a9b8-4b5b-8175-9e4b05e9b856 | None             |
++--------------------------------------+------------------+-------+---------\
++------------+--------------------------------------------------------------\
+----------------------------------------+------------------+
 ''', sys.stdout.getvalue())
 
 
