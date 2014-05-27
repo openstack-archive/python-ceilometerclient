@@ -185,6 +185,20 @@ def do_meter_list(cc, args={}):
                      sortby=0)
 
 
+def _display_alarm_list(alarms):
+    # omit action initially to keep output width sane
+    # (can switch over to vertical formatting when available from CLIFF)
+    field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
+                    'Alarm condition', 'Time constraints']
+    fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
+              'rule', 'time_constraints']
+    utils.print_list(
+        alarms, fields, field_labels,
+        formatters={'rule': alarm_rule_formatter,
+                    'time_constraints': time_constraints_formatter_brief},
+        sortby=None)
+
+
 def _display_rule(type, rule):
     if type == 'threshold':
         return ('%(meter_name)s %(comparison_operator)s '
@@ -211,7 +225,7 @@ def alarm_rule_formatter(alarm):
     return _display_rule(alarm.type, alarm.rule)
 
 
-def _display_time_constraints(time_constraints):
+def _display_time_constraints_brief(time_constraints):
     if time_constraints:
         return ', '.join('%(name)s at %(start)s %(timezone)s for %(duration)ss'
                          % {
@@ -225,8 +239,10 @@ def _display_time_constraints(time_constraints):
         return 'None'
 
 
-def time_constraints_formatter(alarm):
-    return _display_time_constraints(alarm.time_constraints)
+def time_constraints_formatter_brief(alarm):
+    return _display_time_constraints_brief(getattr(alarm,
+                                                   'time_constraints',
+                                                   None))
 
 
 def _infer_type(detail):
@@ -254,7 +270,7 @@ def alarm_change_detail_formatter(change):
                 fields.append('%s: %s' % (k, detail[k]))
         if 'time_constraints' in detail:
             fields.append('time_constraints: %s' %
-                          _display_time_constraints(
+                          _display_time_constraints_brief(
                               detail['time_constraints']))
     elif change.type == 'rule change':
         for k, v in six.iteritems(detail):
@@ -272,16 +288,7 @@ def alarm_change_detail_formatter(change):
 def do_alarm_list(cc, args={}):
     '''List the user's alarms.'''
     alarms = cc.alarms.list(q=options.cli_to_array(args.query))
-    # omit action initially to keep output width sane
-    # (can switch over to vertical formatting when available from CLIFF)
-    field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
-                    'Alarm condition', 'Time constraints']
-    fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
-              'rule', 'time_constraints']
-    utils.print_list(
-        alarms, fields, field_labels,
-        formatters={'rule': alarm_rule_formatter,
-                    'time_constraints': time_constraints_formatter}, sortby=0)
+    _display_alarm_list(alarms)
 
 
 def alarm_query_formater(alarm):
@@ -292,7 +299,7 @@ def alarm_query_formater(alarm):
     return r' AND\n'.join(qs)
 
 
-def alarm_time_constraints_formatter(alarm):
+def time_constraints_formatter_full(alarm):
     time_constraints = []
     for tc in alarm.time_constraints:
         lines = []
@@ -313,7 +320,7 @@ def _display_alarm(alarm):
     if alarm.type == 'threshold':
         data['query'] = alarm_query_formater(alarm)
     if alarm.time_constraints:
-        data['time_constraints'] = alarm_time_constraints_formatter(alarm)
+        data['time_constraints'] = time_constraints_formatter_full(alarm)
     utils.print_dict(data, wrap=72)
 
 
@@ -789,13 +796,7 @@ def do_query_alarms(cc, args):
     except exc.HTTPNotFound:
         raise exc.CommandError('Alarms not found')
     else:
-        field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
-                        'Alarm condition']
-        fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
-                  'rule']
-        utils.print_list(alarms, fields, field_labels,
-                         formatters={'rule': alarm_rule_formatter},
-                         sortby=None)
+        _display_alarm_list(alarms)
 
 
 @utils.arg('-f', '--filter', metavar='<FILTER>',
