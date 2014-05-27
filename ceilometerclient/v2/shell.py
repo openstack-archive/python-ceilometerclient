@@ -1,6 +1,5 @@
-# -*- encoding: utf-8 -*-
 #
-# Copyright © 2013 Red Hat, Inc
+# Copyright 2013 Red Hat, Inc
 # Copyright Ericsson AB 2014. All rights reserved
 #
 # Authors: Angus Salkeld <asalkeld@redhat.com>
