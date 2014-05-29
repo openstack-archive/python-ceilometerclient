@@ -156,7 +156,7 @@ class CeilometerShell(object):
 
         parser.add_argument('--ceilometer-api-version',
                             default=cliutils.env(
-                            'CEILOMETER_API_VERSION', default='2'),
+                                'CEILOMETER_API_VERSION', default='2'),
                             help='Defaults to env[CEILOMETER_API_VERSION] '
                             'or 2.')
 
