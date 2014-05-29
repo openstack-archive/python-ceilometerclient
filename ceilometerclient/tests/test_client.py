@@ -22,7 +22,7 @@ FAKE_ENV = {'os_username': 'username',
             'os_tenant_name': 'tenant_name',
             'os_auth_url': 'http://no.where',
             'os_auth_token': '1234',
-            'ceilometer_url': 'http://no.where'}
+            'ceilometer_url': 'http://localhost:5000/v2.0/auth'}
 
 
 class ClientTest(utils.BaseTestCase):
