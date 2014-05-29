@@ -75,15 +75,26 @@ def cli_to_array(cli_query):
                  '<': 'lt',
                  '=': 'eq'}
 
-    def split_by_op(string):
-        # two character split (<=,!=)
-        frags = re.findall(r'(.+?)([><!]=)(.+)',
-                           string)
+    op_lookup_keys = '|'.join(sorted(op_lookup.keys(), key=len, reverse=True))
+    op_split_re = re.compile('(.*?)(' + op_lookup_keys + ')(.*$)')
+
+    def split_by_op(query):
+        """Split a single query string to field, operator, value.
+        """
+        frags = op_split_re.findall(query)
+
+        if len(frags) > 1:
+            raise ValueError(
+                'invalid operators in query "%(query)s", '
+                'only one %(lookup_keys)s in each query' %
+                {'query': query, 'lookup_keys': op_lookup_keys}
+            )
+
         if len(frags) == 0:
-            #single char split (<,=)
-            frags = re.findall(r'(.+?)([><=])(.+)',
-                               string)
-        return frags
+            raise ValueError('invalid query %(query)s' %
+                             {'query': query})
+
+        return frags[0]
 
     def split_by_data_type(string):
         frags = re.findall(r'^(string|integer|float|datetime|boolean)(::)'
@@ -96,13 +107,7 @@ def cli_to_array(cli_query):
     opts = []
     queries = cli_query.split(';')
     for q in queries:
-        frag = split_by_op(q)
-        if len(frag) > 1:
-            raise ValueError('incorrect separator %s in query "%s"' %
-                             ('(should be ";")', q))
-        if len(frag) == 0:
-            raise ValueError('invalid query %s' % q)
-        query = frag[0]
+        query = split_by_op(q)
         opt = {}
         opt['field'] = query[0]
         opt['op'] = op_lookup[query[1]]
