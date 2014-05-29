@@ -10,38 +10,112 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystoneclient.v2_0 import client as ksclient
+from keystoneclient.auth.identity import v2 as v2_auth
+from keystoneclient.auth.identity import v3 as v3_auth
+from keystoneclient import discover
+from keystoneclient import session
 import six
 
 from ceilometerclient.common import utils
+from ceilometerclient import exc
+from ceilometerclient.openstack.common import cliutils
 
 
-def _get_ksclient(**kwargs):
-    """Get an endpoint and auth token from Keystone.
+def _get_keystone_session(**kwargs):
+    # first create a Keystone session 
+    cacert = kwargs.pop('cacert', None)
+    cert = kwargs.pop('cert', None)
+    key = kwargs.pop('key', None)
+    insecure = kwargs.pop('insecure', False)
+    auth_url = kwargs.pop('auth_url', None)
+    
+    if insecure:
+        verify = False
+    else:
+        verify = cacert or True
 
-    :param kwargs: keyword args containing credentials:
-            * username: name of user
-            * password: user's password
-            * auth_url: endpoint to authenticate against
-            * cacert: path of CA TLS certificate
-            * insecure: allow insecure SSL (no cert verification)
-            * tenant_{name|id}: name or ID of tenant
-    """
-    return ksclient.Client(username=kwargs.get('username'),
-                           password=kwargs.get('password'),
-                           tenant_id=kwargs.get('tenant_id'),
-                           tenant_name=kwargs.get('tenant_name'),
-                           auth_url=kwargs.get('auth_url'),
-                           region_name=kwargs.get('region_name'),
-                           cacert=kwargs.get('cacert'),
-                           insecure=kwargs.get('insecure'))
+    # create the keystone client session
+    ks_session = session.Session(verify=verify, cert=cert)
+    
+    try:
+        # discover the supported keystone versions using the auth endpoint url
+        ks_discover = discover.Discover(session=ks_session, auth_url=auth_url)
+        # Determine which authentication plugin to use.
+        v2_auth_url = ks_discover.url_for('2.0')
+        v3_auth_url = ks_discover.url_for('3.0')
+    except Exception:
+        raise exc.CommandError(
+                'Unable to determine the Keystone version '
+                'to authenticate with using the given '
+                'auth_url: %s' % auth_url)
+    
+    username = kwargs.pop('username', None)
+    user_id = kwargs.pop('user_id', None)
+    user_domain_name = kwargs.pop('user_domain_name', None)
+    user_domain_id = kwargs.pop('user_domain_id', None)
+    auth = None
+            
+    if v3_auth_url and v2_auth_url:
+        #support both v2 and v3 auth. Use v3 if possible.
+        if username:
+            if user_domain_name or user_domain_id:
+                # use v3 auth
+                auth = v3_auth.Password(
+                    v3_auth_url,
+                    username=username,
+                    user_id=user_id,
+                    user_domain_name=user_domain_name,
+                    user_domain_id=user_domain_id,
+                    **kwargs)
+            else:
+                # use v2 auth
+                auth = v2_auth.Password(
+                    v2_auth_url,
+                    username,
+                    kwargs.pop('password', None),
+                    tenant_id=kwargs.pop('tenant_id', None),
+                    tenant_name=kwargs.pop('tenant_name', None))
+        elif v3_auth_url and not v2_auth_url:
+            # support only v3
+            auth = v3_auth.Password(
+                v3_auth_url,
+                username=username,
+                user_id=user_id,
+                user_domain_name=user_domain_name,
+                user_domain_id=user_domain_id,
+                **kwargs)
+        elif v2_auth_url and not v3_auth_url:
+            # support only v2
+            auth = v2_auth.Password(
+                v2_auth_url,
+                username,
+                kwargs.pop('password', None),
+                tenant_id=kwargs.pop('tenant_id', None),
+                tenant_name=kwargs.pop('tenant_name', None))
+        else:
+            raise exc.CommandError(
+                'Unable to determine the Keystone version '
+                'to authenticate with using the given '
+                'auth_url.')
+
+    ks_session.auth = auth
+    return ks_session
 
 
-def _get_endpoint(client, **kwargs):
-    """Get an endpoint using the provided keystone client."""
-    return client.service_catalog.url_for(
-        service_type=kwargs.get('service_type') or 'metering',
-        endpoint_type=kwargs.get('endpoint_type') or 'publicURL')
+def _get_endpoint(ks_session, **kwargs):
+    """Get an endpoint using the provided keystone session."""
+
+    #set service specific endpoint types
+    endpoint_type=kwargs.get('endpoint_type') or 'publicURL'
+    service_type=kwargs.get('service_type') or 'metering'
+
+    
+    endpoint = ks_session.get_endpoint(
+            service_type=service_type,
+            endpoint_type=endpoint_type,
+            region_name=kwargs.get('region_name'))
+    
+    return endpoint
 
 
 def get_client(api_version, **kwargs):
@@ -66,28 +140,35 @@ def get_client(api_version, **kwargs):
 
     if token and kwargs.get('ceilometer_url'):
         endpoint = kwargs.get('ceilometer_url')
-    elif (kwargs.get('os_username') and
-          kwargs.get('os_password') and
-          kwargs.get('os_auth_url') and
-          (kwargs.get('os_tenant_id') or kwargs.get('os_tenant_name'))):
-
+    else:
         ks_kwargs = {
             'username': kwargs.get('os_username'),
             'password': kwargs.get('os_password'),
+            'user_id': kwargs.get('os_user_id'),
+            'user_domain_id': kwargs.get('os_user_domain_id'),
+            'user_domain_name': kwargs.get('os_user_domain_name'),
             'tenant_id': kwargs.get('os_tenant_id'),
             'tenant_name': kwargs.get('os_tenant_name'),
+            'project_id': kwargs.get('os_project_id'),
+            'project_name': kwargs.get('os_project_name'),
+            'project_domain_name': kwargs.get('os_project_domain_name'),
+            'project_domain_id': kwargs.get('os_project_domain_id'),
             'auth_url': kwargs.get('os_auth_url'),
             'region_name': kwargs.get('os_region_name'),
             'service_type': kwargs.get('os_service_type'),
             'endpoint_type': kwargs.get('os_endpoint_type'),
             'cacert': kwargs.get('os_cacert'),
+            'cert': kwargs.get('os_cert'),
             'insecure': kwargs.get('insecure'),
+            'key': kwargs.get('os_key')
         }
-        _ksclient = _get_ksclient(**ks_kwargs)
-        token = token or (lambda: _ksclient.auth_token)
+
+        #retrieve session
+        ks_session = _get_keystone_session(**ks_kwargs)
+        token = token or (lambda: ks_session.get_token())
 
         endpoint = kwargs.get('ceilometer_url') or \
-            _get_endpoint(_ksclient, **ks_kwargs)
+            _get_endpoint(ks_session, **ks_kwargs)
 
     cli_kwargs = {
         'token': token,
