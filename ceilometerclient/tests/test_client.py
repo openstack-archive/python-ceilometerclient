@@ -20,7 +20,7 @@ from ceilometerclient.v2 import client as v2client
 FAKE_ENV = {'os_username': 'username',
             'os_password': 'password',
             'os_tenant_name': 'tenant_name',
-            'os_auth_url': 'http://no.where',
+            'os_auth_url': 'http://no.where:5000/',
             'os_auth_token': '1234',
             'ceilometer_url': 'http://no.where'}
 
