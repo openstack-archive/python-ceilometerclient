@@ -28,7 +28,7 @@ from ceilometerclient.v1 import client as v1client
 FAKE_ENV = {'OS_USERNAME': 'username',
             'OS_PASSWORD': 'password',
             'OS_TENANT_NAME': 'tenant_name',
-            'OS_AUTH_URL': 'http://no.where'}
+            'OS_AUTH_URL': 'http://localhost:5000/v2.0'}
 
 
 class ShellTest(utils.BaseTestCase):
