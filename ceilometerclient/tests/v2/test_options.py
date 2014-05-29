@@ -99,6 +99,40 @@ class CliTest(utils.BaseTestCase):
                            'type': ''}],
                          ar)
 
+    def test_typed_float_op1(self):
+        ar = options.cli_to_array('that=float::283.347')
+        self.assertEqual(ar, [{'field': 'that',
+                               'type': 'float',
+                               'value': '283.347',
+                               'op': 'eq'}])
+
+    def test_typed_float_op2(self):
+        ar = options.cli_to_array('that<=float::283.347')
+        self.assertEqual(ar, [{'field': 'that',
+                               'type': 'float',
+                               'value': '283.347',
+                               'op': 'le'}])
+
+    def test_typed_string_whitespace(self):
+        ar = options.cli_to_array('state=string::insufficient data')
+        self.assertEqual(ar, [{'field': 'state',
+                               'op': 'eq',
+                               'type': 'string',
+                               'value': 'insufficient data'}])
+
+    def test_typed_string_whitespace_complex(self):
+        ar = options.cli_to_array(
+            'that>=float::99.9999;state=string::insufficient data'
+        )
+        self.assertEqual(ar, [{'field': 'that',
+                               'op': 'ge',
+                               'type': 'float',
+                               'value': '99.9999'},
+                              {'field': 'state',
+                               'op': 'eq',
+                               'type': 'string',
+                               'value': 'insufficient data'}])
+
     def test_invalid_operator(self):
         self.assertRaises(ValueError, options.cli_to_array,
                           'this=2.4;fooo-doof')
