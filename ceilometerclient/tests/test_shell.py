@@ -14,7 +14,7 @@ import re
 import sys
 
 import fixtures
-from keystoneclient.v2_0 import client as ksclient
+from keystoneclient import session as ks_session
 import mock
 import six
 from testtools import matchers
@@ -24,25 +24,31 @@ from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.tests import utils
 from ceilometerclient.v1 import client as v1client
 
-FAKE_ENV = {'OS_USERNAME': 'username',
-            'OS_PASSWORD': 'password',
-            'OS_TENANT_NAME': 'tenant_name',
-            'OS_AUTH_URL': 'http://no.where'}
+FAKE_V2_ENV = {'OS_USERNAME': 'username',
+               'OS_PASSWORD': 'password',
+               'OS_TENANT_NAME': 'tenant_name',
+               'OS_AUTH_URL': 'http://localhost:5000/v2.0'}
+
+FAKE_V3_ENV = {'OS_USERNAME': 'username',
+               'OS_PASSWORD': 'password',
+               'OS_USER_DOMAIN_NAME': 'tenant_name',
+               'OS_PROJECT_ID': '1234567890',
+               'OS_AUTH_URL': 'http://localhost:5000/v3'}
 
 
 class ShellTest(utils.BaseTestCase):
     re_options = re.DOTALL | re.MULTILINE
 
     # Patch os.environ to avoid required auth info.
-    def make_env(self, exclude=None):
-        env = dict((k, v) for k, v in FAKE_ENV.items() if k != exclude)
+    def make_env(self, env_version, exclude=None):
+        env = dict((k, v) for k, v in env_version.items() if k != exclude)
         self.useFixture(fixtures.MonkeyPatch('os.environ', env))
 
     def setUp(self):
         super(ShellTest, self).setUp()
 
     @mock.patch('sys.stdout', new=six.StringIO())
-    @mock.patch.object(ksclient, 'Client')
+    @mock.patch.object(ks_session, 'Session')
     @mock.patch.object(v1client.http.HTTPClient, 'json_request')
     @mock.patch.object(v1client.http.HTTPClient, 'raw_request')
     def shell(self, argstr, mock_ksclient, mock_json, mock_raw):
@@ -86,27 +92,33 @@ class ShellTest(utils.BaseTestCase):
                                 matchers.MatchesRegex(r, self.re_options))
 
     def test_auth_param(self):
-        self.make_env(exclude='OS_USERNAME')
+        self.make_env(FAKE_V2_ENV, exclude='OS_USERNAME')
         self.test_help()
 
-    @mock.patch.object(ksclient, 'Client')
+    @mock.patch.object(ks_session, 'Session')
     def test_debug_switch_raises_error(self, mock_ksclient):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
-        self.make_env()
+        self.make_env(FAKE_V2_ENV)
         args = ['--debug', 'event-list']
         self.assertRaises(exc.HTTPUnauthorized, ceilometer_shell.main, args)
+        self.make_env(FAKE_V3_ENV)
+        self.assertRaises(exc.HTTPUnauthorized, ceilometer_shell.main, args)
 
-    @mock.patch.object(ksclient, 'Client')
+    @mock.patch.object(ks_session, 'Session')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
         mock_ksclient.side_effect = exc.CommandError("FAIL")
-        self.make_env()
+        self.make_env(FAKE_V2_ENV)
         args = ['-d', 'event-list']
+        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.make_env(FAKE_V3_ENV)
         self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
 
     @mock.patch('sys.stderr')
-    @mock.patch.object(ksclient, 'Client')
+    @mock.patch.object(ks_session, 'Session')
     def test_no_debug_switch_no_raises_errors(self, mock_ksclient, __):
         mock_ksclient.side_effect = exc.HTTPUnauthorized("FAIL")
-        self.make_env()
+        self.make_env(FAKE_V2_ENV)
         args = ['event-list']
+        self.assertRaises(SystemExit, ceilometer_shell.main, args)
+        self.make_env(FAKE_V3_ENV)
         self.assertRaises(SystemExit, ceilometer_shell.main, args)
