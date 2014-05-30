@@ -17,7 +17,6 @@
 import itertools
 import mock
 import six
-import sys
 
 from ceilometerclient.common import utils
 from ceilometerclient.tests import utils as test_utils
@@ -31,22 +30,16 @@ class UtilsTest(test_utils.BaseTestCase):
                 self.__dict__.update(entries)
 
         # test that the prettytable output is wellformatted (left-aligned)
-        saved_stdout = sys.stdout
-        try:
-            sys.stdout = output_dict = six.StringIO()
+        with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
             utils.print_dict({'K': 'k', 'Key': 'Value'})
-
-        finally:
-            sys.stdout = saved_stdout
-
-        self.assertEqual(output_dict.getvalue(), '''\
+            self.assertEqual('''\
 +----------+-------+
 | Property | Value |
 +----------+-------+
 | K        | k     |
 | Key      | Value |
 +----------+-------+
-''')
+''', stdout.getvalue())
 
     def test_print_list(self):
         class Foo:
@@ -61,17 +54,13 @@ class UtilsTest(test_utils.BaseTestCase):
             Foo(12, '0', 'Z')]
 
         def do_print_list(sortby):
-            saved_stdout = sys.stdout
-            try:
-                sys.stdout = output = six.StringIO()
+            with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
                 utils.print_list(foo_list,
                                  ['one', 'two', 'three'],
                                  ['1st', '2nd', '3rd'],
                                  {'one': lambda o: o.one * 10},
                                  sortby)
-            finally:
-                sys.stdout = saved_stdout
-            return output.getvalue()
+                return stdout.getvalue()
 
         printed = do_print_list(None)
         self.assertEqual(printed, '''\
