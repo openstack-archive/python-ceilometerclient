@@ -15,6 +15,18 @@ import re
 
 from six.moves.urllib import parse
 
+OP_LOOKUP = {'!=': 'ne',
+             '>=': 'ge',
+             '<=': 'le',
+             '>': 'gt',
+             '<': 'lt',
+             '=': 'eq'}
+
+OP_LOOKUP_KEYS = '|'.join(sorted(OP_LOOKUP.keys(), key=len, reverse=True))
+OP_SPLIT_RE = re.compile(r'(%s)' % OP_LOOKUP_KEYS)
+
+DATA_TYPE_RE = re.compile(r'^(string|integer|float|datetime|boolean)(::)(.+)$')
+
 
 def build_url(path, q, params=None):
     '''This converts from a list of dicts and a list of params to
@@ -68,44 +80,41 @@ def cli_to_array(cli_query):
     if cli_query is None:
         return None
 
-    op_lookup = {'!=': 'ne',
-                 '>=': 'ge',
-                 '<=': 'le',
-                 '>': 'gt',
-                 '<': 'lt',
-                 '=': 'eq'}
+    def split_by_op(query):
+        """Split a single query string to field, operator, value.
+        """
 
-    def split_by_op(string):
-        # two character split (<=,!=)
-        frags = re.findall(r'(.+?)([><!]=)(.+)',
-                           string)
-        if len(frags) == 0:
-            # single char split (<,=)
-            frags = re.findall(r'(.+?)([><=])(.+)',
-                               string)
-        return frags
+        def _value_error(message):
+            raise ValueError('invalid query %(query)s: missing %(message)s' %
+                             {'query': query, 'message': message})
 
-    def split_by_data_type(string):
-        frags = re.findall(r'^(string|integer|float|datetime|boolean)(::)'
-                           r'(.+)$', string)
+        try:
+            field, operator, value = OP_SPLIT_RE.split(query, maxsplit=1)
+        except ValueError:
+            _value_error('operator')
 
-        # frags[1] is the separator. Return a list without it if the type
-        # identifier was found.
-        return [frags[0][0], frags[0][2]] if frags else None
+        if not len(field):
+            _value_error('field')
+
+        if not len(value):
+            _value_error('value')
+
+        return (field, operator, value)
+
+    def split_by_data_type(query_value):
+        frags = DATA_TYPE_RE.match(query_value)
+
+        # The second match is the separator. Return a list without it if
+        # a type identifier was found.
+        return frags.group(1, 3) if frags else None
 
     opts = []
     queries = cli_query.split(';')
     for q in queries:
-        frag = split_by_op(q)
-        if len(frag) > 1:
-            raise ValueError('incorrect separator %s in query "%s"' %
-                             ('(should be ";")', q))
-        if len(frag) == 0:
-            raise ValueError('invalid query %s' % q)
-        query = frag[0]
+        query = split_by_op(q)
         opt = {}
         opt['field'] = query[0]
-        opt['op'] = op_lookup[query[1]]
+        opt['op'] = OP_LOOKUP[query[1]]
 
         # Allow the data type of the value to be specified via <type>::<value>,
         # where type can be one of integer, string, float, datetime, boolean
