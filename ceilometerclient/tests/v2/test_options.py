@@ -83,9 +83,54 @@ class CliTest(utils.BaseTestCase):
                                'op': 'le', 'value': '283.347',
                                'type': ''}])
 
-    def test_invalid_seperator(self):
-        self.assertRaises(ValueError, options.cli_to_array,
-                          'this=2.4,fooo=doof')
+    def test_comma(self):
+        ar = options.cli_to_array('this=2.4,fooo=doof')
+        self.assertEqual([{'field': 'this',
+                           'op': 'eq',
+                           'value': '2.4,fooo=doof',
+                           'type': ''}],
+                         ar)
+
+    def test_special_character(self):
+        ar = options.cli_to_array('key~123=value!123')
+        self.assertEqual([{'field': 'key~123',
+                           'op': 'eq',
+                           'value': 'value!123',
+                           'type': ''}],
+                         ar)
+
+    def _do_test_typed_float_op(self, op, op_str):
+        ar = options.cli_to_array('that%sfloat::283.347' % op)
+        self.assertEqual(ar, [{'field': 'that',
+                               'type': 'float',
+                               'value': '283.347',
+                               'op': op_str}])
+
+    def test_typed_float_eq(self):
+        self._do_test_typed_float_op('=', 'eq')
+
+    def test_typed_float_le(self):
+        self._do_test_typed_float_op('<=', 'le')
+
+    def test_typed_string_whitespace(self):
+        ar = options.cli_to_array('state=string::insufficient data')
+        self.assertEqual(ar, [{'field': 'state',
+                               'op': 'eq',
+                               'type': 'string',
+                               'value': 'insufficient data'}])
+
+    def test_typed_string_whitespace_complex(self):
+        ar = options.cli_to_array(
+            'that>=float::99.9999;state=string::insufficient data'
+        )
+        self.assertEqual(ar, [{'field': 'that',
+                               'op': 'ge',
+                               'type': 'float',
+                               'value': '99.9999'},
+                              {'field': 'state',
+                               'op': 'eq',
+                               'type': 'string',
+                               'value': 'insufficient data'}])
 
     def test_invalid_operator(self):
         self.assertRaises(ValueError, options.cli_to_array,
@@ -95,6 +140,21 @@ class CliTest(utils.BaseTestCase):
         ar = options.cli_to_array('metadata.this<=34')
         self.assertEqual(ar, [{'field': 'metadata.this',
                                'op': 'le', 'value': '34',
+                               'type': ''}])
+
+    def test_single_char_field_or_value(self):
+        ar = options.cli_to_array('m<=34;large.thing>s;x!=y')
+        self.assertEqual(ar, [{'field': 'm',
+                               'op': 'le',
+                               'value': '34',
+                               'type': ''},
+                              {'field': 'large.thing',
+                               'op': 'gt',
+                               'value': 's',
+                               'type': ''},
+                              {'field': 'x',
+                               'op': 'ne',
+                               'value': 'y',
                                'type': ''}])
 
     def test_without_data_type(self):
@@ -152,3 +212,24 @@ class CliTest(utils.BaseTestCase):
                                'op': 'eq',
                                'type': '',
                                'value': 'datetime:sometimestamp'}])
+
+    def test_missing_key(self):
+        self.assertRaises(ValueError, options.cli_to_array,
+                          'average=float::1234.0;>=string::hello')
+
+    def test_missing_value(self):
+        self.assertRaises(ValueError, options.cli_to_array,
+                          'average=float::1234.0;house>=')
+
+    def test_timestamp_value(self):
+        ar = options.cli_to_array(
+            'project=cow;timestamp>=datetime::2014-03-11T16:02:58'
+        )
+        self.assertEqual(ar, [{'field': 'project',
+                               'op': 'eq',
+                               'type': '',
+                               'value': 'cow'},
+                              {'field': 'timestamp',
+                               'op': 'ge',
+                               'type': 'datetime',
+                               'value': '2014-03-11T16:02:58'}])
