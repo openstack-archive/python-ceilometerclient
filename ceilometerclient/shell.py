@@ -396,6 +396,14 @@ class CeilometerShell(object):
 
 
 class HelpFormatter(argparse.HelpFormatter):
+    def add_arguments(self, actions):
+        for action in filter(lambda x: not x.option_strings, actions):
+            for choice in action.choices:
+                length = len(choice) + 6
+                if(length > self._max_help_position and length <= 32):
+                    self._max_help_position = length
+        super(HelpFormatter, self).add_arguments(actions)
+
     def start_section(self, heading):
         # Title-case the headings
         heading = '%s%s' % (heading[0].upper(), heading[1:])
