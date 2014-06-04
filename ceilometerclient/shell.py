@@ -321,6 +321,11 @@ class CeilometerShell(object):
 
 
 class HelpFormatter(argparse.HelpFormatter):
+    def __init__(self, prog, indent_increment=2, max_help_position=30,
+                 width=None):
+        super(HelpFormatter, self).__init__(prog, indent_increment,
+                                            max_help_position, width)
+
     def start_section(self, heading):
         # Title-case the headings
         heading = '%s%s' % (heading[0].upper(), heading[1:])
