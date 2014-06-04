@@ -144,7 +144,7 @@ def do_sample_list(cc, args):
 @utils.arg('--sample-volume', metavar='<SAMPLE_VOLUME>', required=True,
            help='The sample volume.')
 @utils.arg('--resource-metadata', metavar='<RESOURCE_METADATA>',
-           help='Resource metadata.')
+           help='Resource metadata, json format, like {"key":"value"}.')
 @utils.arg('--timestamp', metavar='<TIMESTAMP>',
            help='The sample timestamp.')
 def do_sample_create(cc, args={}):
