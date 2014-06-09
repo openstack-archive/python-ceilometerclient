@@ -109,8 +109,9 @@ class ShellTest(utils.BaseTestCase):
         args = ['-d', 'event-list']
         self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
 
+    @mock.patch('sys.stderr')
     @mock.patch.object(ksclient, 'Client')
-    def test_no_debug_switch_no_raises_errors(self, mock_ksclient):
+    def test_no_debug_switch_no_raises_errors(self, mock_ksclient, __):
         mock_ksclient.side_effect = exc.HTTPUnauthorized("FAIL")
         self.make_env()
         args = ['event-list']
