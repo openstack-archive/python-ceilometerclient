@@ -204,7 +204,7 @@ def _display_rule(type, rule):
     else:
         # just dump all
         return "\n".join(["%s: %s" % (f, v)
-                          for f, v in rule.iteritems()])
+                          for f, v in six.iteritems(rule)])
 
 
 def alarm_rule_formatter(alarm):
