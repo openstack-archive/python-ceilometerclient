@@ -42,24 +42,19 @@ class ShellTest(utils.BaseTestCase):
     def setUp(self):
         super(ShellTest, self).setUp()
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     @mock.patch.object(ksclient, 'Client')
     @mock.patch.object(v1client.http.HTTPClient, 'json_request')
     @mock.patch.object(v1client.http.HTTPClient, 'raw_request')
     def shell(self, argstr, mock_ksclient, mock_json, mock_raw):
-        orig = sys.stdout
         try:
-            sys.stdout = six.StringIO()
             _shell = ceilometer_shell.CeilometerShell()
             _shell.main(argstr.split())
         except SystemExit:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             self.assertEqual(exc_value.code, 0)
-        finally:
-            out = sys.stdout.getvalue()
-            sys.stdout.close()
-            sys.stdout = orig
 
-        return out
+        return sys.stdout.getvalue()
 
     def test_help_unknown_command(self):
         self.assertRaises(exc.CommandError, self.shell, 'help foofoo')

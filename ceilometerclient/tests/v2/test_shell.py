@@ -107,32 +107,27 @@ class ShellAlarmHistoryCommandTest(utils.BaseTestCase):
         self.args = mock.Mock()
         self.args.alarm_id = self.ALARM_ID
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def _do_test_alarm_history(self, raw_query=None, parsed_query=None):
         self.args.query = raw_query
-        orig = sys.stdout
-        sys.stdout = six.StringIO()
         history = [alarms.AlarmChange(mock.Mock(), change)
                    for change in self.ALARM_HISTORY]
         self.cc.alarms.get_history.return_value = history
 
-        try:
-            ceilometer_shell.do_alarm_history(self.cc, self.args)
-            self.cc.alarms.get_history.assert_called_once_with(
-                q=parsed_query,
-                alarm_id=self.ALARM_ID
-            )
-            out = sys.stdout.getvalue()
-            required = [
-                '.*creation%sname: scombo.*' % self.TIMESTAMP_RE,
-                '.*rule change%sdescription: combination of one.*' %
-                self.TIMESTAMP_RE,
-                '.*state transition%sstate: alarm.*' % self.TIMESTAMP_RE,
-            ]
-            for r in required:
-                self.assertThat(out, matchers.MatchesRegex(r, re.DOTALL))
-        finally:
-            sys.stdout.close()
-            sys.stdout = orig
+        ceilometer_shell.do_alarm_history(self.cc, self.args)
+        self.cc.alarms.get_history.assert_called_once_with(
+            q=parsed_query,
+            alarm_id=self.ALARM_ID
+        )
+        out = sys.stdout.getvalue()
+        required = [
+            '.*creation%sname: scombo.*' % self.TIMESTAMP_RE,
+            '.*rule change%sdescription: combination of one.*' %
+            self.TIMESTAMP_RE,
+            '.*state transition%sstate: alarm.*' % self.TIMESTAMP_RE,
+        ]
+        for r in required:
+            self.assertThat(out, matchers.MatchesRegex(r, re.DOTALL))
 
     def test_alarm_all_history(self):
         self._do_test_alarm_history()
@@ -190,28 +185,23 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self.args = mock.Mock()
         self.args.alarm_id = self.ALARM_ID
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def _do_test_alarm_update_repeat_actions(self, method, repeat_actions):
         self.args.threshold = 42.0
         if repeat_actions is not None:
             self.args.repeat_actions = repeat_actions
-        orig = sys.stdout
-        sys.stdout = six.StringIO()
         alarm = [alarms.Alarm(mock.Mock(), self.ALARM)]
         self.cc.alarms.get.return_value = alarm
         self.cc.alarms.update.return_value = alarm[0]
 
-        try:
-            method(self.cc, self.args)
-            args, kwargs = self.cc.alarms.update.call_args
-            self.assertEqual(self.ALARM_ID, args[0])
-            self.assertEqual(42.0, kwargs.get('threshold'))
-            if repeat_actions is not None:
-                self.assertEqual(repeat_actions, kwargs.get('repeat_actions'))
-            else:
-                self.assertFalse('repeat_actions' in kwargs)
-        finally:
-            sys.stdout.close()
-            sys.stdout = orig
+        method(self.cc, self.args)
+        args, kwargs = self.cc.alarms.update.call_args
+        self.assertEqual(self.ALARM_ID, args[0])
+        self.assertEqual(42.0, kwargs.get('threshold'))
+        if repeat_actions is not None:
+            self.assertEqual(repeat_actions, kwargs.get('repeat_actions'))
+        else:
+            self.assertFalse('repeat_actions' in kwargs)
 
     def test_alarm_update_repeat_actions_untouched(self):
         method = ceilometer_shell.do_alarm_update
@@ -249,6 +239,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         method = ceilometer_shell.do_alarm_threshold_update
         self._do_test_alarm_update_repeat_actions(method, False)
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def test_alarm_threshold_create_args(self):
         shell = base_shell.CeilometerShell()
         argv = ['alarm-threshold-create',
@@ -265,33 +256,28 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
                 '--query', 'resource_id=INSTANCE_ID']
         _, args = shell.parse_args(argv)
 
-        orig = sys.stdout
-        sys.stdout = six.StringIO()
         alarm = alarms.Alarm(mock.Mock(), self.ALARM)
         self.cc.alarms.create.return_value = alarm
 
-        try:
-            ceilometer_shell.do_alarm_threshold_create(self.cc, args)
-            _, kwargs = self.cc.alarms.create.call_args
-            self.assertEqual('cpu_high', kwargs.get('name'))
-            self.assertEqual('instance running hot', kwargs.get('description'))
-            actions = ['log://', 'http://example.com/alarm/state']
-            self.assertEqual(actions, kwargs.get('alarm_actions'))
-            self.assertTrue('threshold_rule' in kwargs)
-            rule = kwargs['threshold_rule']
-            self.assertEqual('cpu_util', rule.get('meter_name'))
-            self.assertEqual(70.0, rule.get('threshold'))
-            self.assertEqual('gt', rule.get('comparison_operator'))
-            self.assertEqual('avg', rule.get('statistic'))
-            self.assertEqual(600, rule.get('period'))
-            self.assertEqual(3, rule.get('evaluation_periods'))
-            query = dict(field='resource_id', type='',
-                         value='INSTANCE_ID', op='eq')
-            self.assertEqual([query], rule['query'])
-        finally:
-            sys.stdout.close()
-            sys.stdout = orig
+        ceilometer_shell.do_alarm_threshold_create(self.cc, args)
+        _, kwargs = self.cc.alarms.create.call_args
+        self.assertEqual('cpu_high', kwargs.get('name'))
+        self.assertEqual('instance running hot', kwargs.get('description'))
+        actions = ['log://', 'http://example.com/alarm/state']
+        self.assertEqual(actions, kwargs.get('alarm_actions'))
+        self.assertTrue('threshold_rule' in kwargs)
+        rule = kwargs['threshold_rule']
+        self.assertEqual('cpu_util', rule.get('meter_name'))
+        self.assertEqual(70.0, rule.get('threshold'))
+        self.assertEqual('gt', rule.get('comparison_operator'))
+        self.assertEqual('avg', rule.get('statistic'))
+        self.assertEqual(600, rule.get('period'))
+        self.assertEqual(3, rule.get('evaluation_periods'))
+        query = dict(field='resource_id', type='',
+                     value='INSTANCE_ID', op='eq')
+        self.assertEqual([query], rule['query'])
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def test_alarm_create_time_constraints(self):
         shell = base_shell.CeilometerShell()
         argv = ['alarm-threshold-create',
@@ -305,22 +291,16 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
                 ]
         _, args = shell.parse_args(argv)
 
-        orig = sys.stdout
-        sys.stdout = six.StringIO()
         alarm = alarms.Alarm(mock.Mock(), self.ALARM)
         self.cc.alarms.create.return_value = alarm
 
-        try:
-            ceilometer_shell.do_alarm_threshold_create(self.cc, args)
-            _, kwargs = self.cc.alarms.create.call_args
-            time_constraints = [dict(name='cons1', start='0 11 * * *',
-                                     duration='300'),
-                                dict(name='cons2', start='0 23 * * *',
-                                     duration='600')]
-            self.assertEqual(time_constraints, kwargs['time_constraints'])
-        finally:
-            sys.stdout.close()
-            sys.stdout = orig
+        ceilometer_shell.do_alarm_threshold_create(self.cc, args)
+        _, kwargs = self.cc.alarms.create.call_args
+        time_constraints = [dict(name='cons1', start='0 11 * * *',
+                                 duration='300'),
+                            dict(name='cons2', start='0 23 * * *',
+                                 duration='600')]
+        self.assertEqual(time_constraints, kwargs['time_constraints'])
 
 
 class ShellSampleListCommandTest(utils.BaseTestCase):
@@ -359,24 +339,19 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
         self.args.query = None
         self.args.limit = None
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def test_sample_list(self):
-
         sample_list = [samples.Sample(mock.Mock(), sample)
                        for sample in self.SAMPLES]
         self.cc.samples.list.return_value = sample_list
 
-        org_stdout = sys.stdout
-        try:
-            sys.stdout = output = six.StringIO()
-            ceilometer_shell.do_sample_list(self.cc, self.args)
-            self.cc.samples.list.assert_called_once_with(
-                meter_name=self.METER,
-                q=None,
-                limit=None)
-        finally:
-            sys.stdout = org_stdout
+        ceilometer_shell.do_sample_list(self.cc, self.args)
+        self.cc.samples.list.assert_called_once_with(
+            meter_name=self.METER,
+            q=None,
+            limit=None)
 
-        self.assertEqual(output.getvalue(), '''\
+        self.assertEqual('''\
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
 | Resource ID                          | Name     | Type  | Volume         \
@@ -393,7 +368,7 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
 | %    | 2013-10-15T05:40:29 |
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
-''')
+''', sys.stdout.getvalue())
 
 
 class ShellSampleCreateCommandTest(utils.BaseTestCase):
@@ -427,19 +402,15 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
         self.args.resource_id = self.RESOURCE_ID
         self.args.sample_volume = self.SAMPLE_VOLUME
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def test_sample_create(self):
-
         ret_sample = [samples.Sample(mock.Mock(), sample)
                       for sample in self.SAMPLE]
         self.cc.samples.create.return_value = ret_sample
-        org_stdout = sys.stdout
-        try:
-            sys.stdout = output = six.StringIO()
-            ceilometer_shell.do_sample_create(self.cc, self.args)
-        finally:
-            sys.stdout = org_stdout
 
-        self.assertEqual(output.getvalue(), '''\
+        ceilometer_shell.do_sample_create(self.cc, self.args)
+
+        self.assertEqual('''\
 +-------------------+---------------------------------------------+
 | Property          | Value                                       |
 +-------------------+---------------------------------------------+
@@ -455,7 +426,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 | user_id           | 21b442b8101d407d8242b6610e0ed0eb            |
 | volume            | 1.0                                         |
 +-------------------+---------------------------------------------+
-''')
+''', sys.stdout.getvalue())
 
 
 class ShellQuerySamplesCommandTest(utils.BaseTestCase):
@@ -487,17 +458,13 @@ class ShellQuerySamplesCommandTest(utils.BaseTestCase):
         self.args.orderby = self.QUERY["orderby"]
         self.args.limit = self.QUERY["limit"]
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def test_query(self):
-
         ret_sample = [samples.Sample(mock.Mock(), sample)
                       for sample in self.SAMPLE]
         self.cc.query_samples.query.return_value = ret_sample
-        org_stdout = sys.stdout
-        try:
-            sys.stdout = output = six.StringIO()
-            ceilometer_shell.do_query_samples(self.cc, self.args)
-        finally:
-            sys.stdout = org_stdout
+
+        ceilometer_shell.do_query_samples(self.cc, self.args)
 
         self.assertEqual('''\
 +--------------------------------------+----------+-------+--------+---------\
@@ -510,7 +477,7 @@ class ShellQuerySamplesCommandTest(utils.BaseTestCase):
  | 2014-02-19T05:50:16.673604 |
 +--------------------------------------+----------+-------+--------+---------\
 -+----------------------------+
-''', output.getvalue())
+''', sys.stdout.getvalue())
 
 
 class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
@@ -549,17 +516,13 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
         self.args.orderby = self.QUERY["orderby"]
         self.args.limit = self.QUERY["limit"]
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def test_query(self):
-
         ret_alarm = [alarms.Alarm(mock.Mock(), alarm)
                      for alarm in self.ALARM]
         self.cc.query_alarms.query.return_value = ret_alarm
-        org_stdout = sys.stdout
-        try:
-            sys.stdout = output = six.StringIO()
-            ceilometer_shell.do_query_alarms(self.cc, self.args)
-        finally:
-            sys.stdout = org_stdout
+
+        ceilometer_shell.do_query_alarms(self.cc, self.args)
 
         self.assertEqual('''\
 +--------------------------------------+------------------+-------+---------\
@@ -577,7 +540,7 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
 ----------------------------------------+
-''', output.getvalue())
+''', sys.stdout.getvalue())
 
 
 class ShellQueryAlarmHistoryCommandTest(utils.BaseTestCase):
@@ -606,17 +569,13 @@ class ShellQueryAlarmHistoryCommandTest(utils.BaseTestCase):
         self.args.orderby = self.QUERY["orderby"]
         self.args.limit = self.QUERY["limit"]
 
+    @mock.patch('sys.stdout', new=six.StringIO())
     def test_query(self):
-
         ret_alarm_history = [alarms.AlarmChange(mock.Mock(), alarm_history)
                              for alarm_history in self.ALARM_HISTORY]
         self.cc.query_alarm_history.query.return_value = ret_alarm_history
-        org_stdout = sys.stdout
-        try:
-            sys.stdout = output = six.StringIO()
-            ceilometer_shell.do_query_alarm_history(self.cc, self.args)
-        finally:
-            sys.stdout = org_stdout
+
+        ceilometer_shell.do_query_alarm_history(self.cc, self.args)
 
         self.assertEqual('''\
 +----------------------------------+--------------------------------------+-\
@@ -634,7 +593,7 @@ rule change | {"threshold": 42.0, "evaluation_periods": 4} | 2014-03-11T16:0\
 +----------------------------------+--------------------------------------+-\
 ------------+----------------------------------------------+----------------\
 ------------+
-''', output.getvalue())
+''', sys.stdout.getvalue())
 
 
 class ShellStatisticsTest(utils.BaseTestCase):
