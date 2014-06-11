@@ -15,11 +15,11 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import mock
 import re
-import six
 import sys
 
+import mock
+import six
 from testtools import matchers
 
 from ceilometerclient import shell as base_shell
