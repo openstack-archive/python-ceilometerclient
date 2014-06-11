@@ -68,7 +68,7 @@ def do_sample_list(cc, args):
 @utils.arg('-p', '--project_id', metavar='<PROJECT_ID>',
            help='ID of the project to show samples for.')
 def do_meter_list(cc, args={}):
-    '''List the user's meter'''
+    '''List the user's meter.'''
     fields = {'resource_id': args.resource_id,
               'user_id': args.user_id,
               'project_id': args.project_id,

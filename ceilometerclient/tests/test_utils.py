@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
 import itertools
+
 import mock
 import six
 
@@ -32,8 +32,7 @@ class UtilsTest(test_utils.BaseTestCase):
         # test that the prettytable output is wellformatted (left-aligned)
         with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
             utils.print_dict({'K': 'k', 'Key': 'Value'})
-            self.assertEqual('''\
-+----------+-------+
+            self.assertEqual('''+----------+-------+
 | Property | Value |
 +----------+-------+
 | K        | k     |
@@ -63,8 +62,7 @@ class UtilsTest(test_utils.BaseTestCase):
                 return stdout.getvalue()
 
         printed = do_print_list(None)
-        self.assertEqual(printed, '''\
-+-----+-----+-----+
+        self.assertEqual(printed, '''+-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
 | 100 | a   | B   |
@@ -74,8 +72,7 @@ class UtilsTest(test_utils.BaseTestCase):
 ''')
 
         printed = do_print_list(0)
-        self.assertEqual(printed, '''\
-+-----+-----+-----+
+        self.assertEqual(printed, '''+-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
 | 80  | c   | c   |
@@ -85,8 +82,7 @@ class UtilsTest(test_utils.BaseTestCase):
 ''')
 
         printed = do_print_list(1)
-        self.assertEqual(printed, '''\
-+-----+-----+-----+
+        self.assertEqual(printed, '''+-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
 | 120 | 0   | Z   |

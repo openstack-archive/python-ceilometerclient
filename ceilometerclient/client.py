@@ -86,8 +86,8 @@ def get_client(api_version, **kwargs):
         _ksclient = _get_ksclient(**ks_kwargs)
         token = token or (lambda: _ksclient.auth_token)
 
-        endpoint = kwargs.get('ceilometer_url') or \
-            _get_endpoint(_ksclient, **ks_kwargs)
+        endpoint = (kwargs.get('ceilometer_url') or
+                    _get_endpoint(_ksclient, **ks_kwargs))
 
     cli_kwargs = {
         'token': token,
