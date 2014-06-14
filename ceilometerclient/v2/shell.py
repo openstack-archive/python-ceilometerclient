@@ -20,6 +20,7 @@
 
 import functools
 import json
+
 import six
 
 from ceilometerclient.common import utils

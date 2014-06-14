@@ -13,7 +13,7 @@
 
 import re
 
-from six.moves.urllib import parse
+from six.moves import urllib
 
 OP_LOOKUP = {'!=': 'ne',
              '>=': 'ge',
@@ -54,7 +54,7 @@ def build_url(path, q, params=None):
         # Transform the dict to a sequence of two-element tuples in fixed
         # order, then the encoded string will be consistent in Python 2&3.
         new_qparams = sorted(query_params.items(), key=lambda x: x[0])
-        path += "?" + parse.urlencode(new_qparams, doseq=True)
+        path += "?" + urllib.parse.urlencode(new_qparams, doseq=True)
 
         if params:
             for p in params:

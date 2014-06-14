@@ -11,14 +11,13 @@
 #   under the License.
 
 import re
-import six
 import sys
 
 import fixtures
-import mock
-from testtools import matchers
-
 from keystoneclient.v2_0 import client as ksclient
+import mock
+import six
+from testtools import matchers
 
 from ceilometerclient import exc
 from ceilometerclient import shell as ceilometer_shell

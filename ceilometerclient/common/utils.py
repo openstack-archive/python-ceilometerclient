@@ -14,12 +14,13 @@
 #    under the License.
 
 from __future__ import print_function
-import six
+
 import sys
 import textwrap
 import uuid
 
 import prettytable
+import six
 
 from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils

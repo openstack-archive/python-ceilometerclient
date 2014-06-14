@@ -16,7 +16,6 @@
 import json
 
 from ceilometerclient import exc
-
 from ceilometerclient.tests import utils
 
 HTTPEXCEPTIONS = {'HTTPBadRequest': exc.HTTPBadRequest,

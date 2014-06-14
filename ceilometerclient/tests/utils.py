@@ -14,6 +14,7 @@
 #    under the License.
 
 import copy
+
 import fixtures
 import six
 import testtools
