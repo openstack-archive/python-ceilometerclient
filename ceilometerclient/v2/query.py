@@ -23,7 +23,7 @@ from ceilometerclient.v2 import samples
 class QueryManager(base.Manager):
     path_suffix = None
 
-    def query(self, filter, orderby, limit):
+    def query(self, filter=None, orderby=None, limit=None):
         query = {}
         if filter:
             query["filter"] = filter
