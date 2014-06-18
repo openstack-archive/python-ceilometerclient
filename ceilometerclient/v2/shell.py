@@ -649,9 +649,13 @@ def do_alarm_history(cc, args={}):
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
     field_labels = ['Type', 'Timestamp', 'Detail']
     fields = ['type', 'timestamp', 'detail']
+    # We're using sortby=None as the alarm history returned from the Ceilometer
+    # is already sorted in the "the newer state is the earlier one in the
+    # list". If we'll pass any field as a sortby param, it'll be sorted in the
+    # ASC way by the PrettyTable
     utils.print_list(history, fields, field_labels,
                      formatters={'detail': alarm_change_detail_formatter},
-                     sortby=1)
+                     sortby=None)
 
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
