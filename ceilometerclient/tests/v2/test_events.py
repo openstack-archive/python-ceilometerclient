@@ -22,22 +22,22 @@ fixtures = {
             {},
             [
                 {
+                    'message_id': '1',
                     'event_type': 'Foo',
                     'generated': '1970-01-01T00:00:00',
-                    'traits': {'trait_A': 'abc',
-                               'message_id': '1'},
+                    'traits': {'trait_A': 'abc'},
                 },
                 {
+                    'message_id': '2',
                     'event_type': 'Foo',
                     'generated': '1970-01-01T00:00:00',
-                    'traits': {'trait_A': 'def',
-                               'message_id': '2'},
+                    'traits': {'trait_A': 'def'},
                 },
                 {
+                    'message_id': '3',
                     'event_type': 'Bar',
                     'generated': '1970-01-01T00:00:00',
-                    'traits': {'trait_B': 'bartrait',
-                               'message_id': '3'},
+                    'traits': {'trait_B': 'bartrait'},
                 },
             ]
         ),
@@ -48,18 +48,18 @@ fixtures = {
             {},
             [
                 {
+                    'message_id': '1',
                     'event_type': 'Foo',
                     'generated': '1970-01-01T00:00:00',
                     'traits': {'trait_A': 'abc',
-                               'hostname': 'localhost',
-                               'message_id': '1'},
+                               'hostname': 'localhost'},
                 },
                 {
+                    'message_id': '2',
                     'event_type': 'Foo',
                     'generated': '1970-01-01T00:00:00',
                     'traits': {'trait_A': 'def',
-                               'hostname': 'localhost',
-                               'message_id': '2'},
+                               'hostname': 'localhost'},
                 }
             ]
         ),
@@ -70,18 +70,18 @@ fixtures = {
             {},
             [
                 {
+                    'message_id': '1',
                     'event_type': 'Foo',
                     'generated': '1970-01-01T00:00:00',
                     'traits': {'trait_A': 'abc',
-                               'hostname': 'foreignhost',
-                               'message_id': '1'},
+                               'hostname': 'foreignhost'},
                 },
                 {
+                    'message_id': '2',
                     'event_type': 'Foo',
                     'generated': '1970-01-01T00:00:00',
                     'traits': {'trait_A': 'def',
-                               'hostname': 'foreignhost',
-                               'message_id': '2'},
+                               'hostname': 'foreignhost'},
                 }
             ]
         ),
@@ -93,12 +93,12 @@ fixtures = {
             {},
             [
                 {
+                    'message_id': '1',
                     'event_type': 'Bar',
                     'generated': '1970-01-01T00:00:00',
                     'traits': {'trait_A': 'abc',
                                'hostname': 'localhost',
-                               'num_cpus': '5',
-                               'message_id': '1'},
+                               'num_cpus': '5'},
                 },
             ]
         ),
@@ -109,10 +109,10 @@ fixtures = {
         'GET': (
             {},
             {
+                'message_id': '2',
                 'event_type': 'Foo',
                 'generated': '1970-01-01T00:00:00',
                 'traits': {'trait_A': 'def',
-                           'message_id': '2',
                            'intTrait': '42'},
             }
         ),
@@ -186,3 +186,14 @@ class EventManagerTest(utils.BaseTestCase):
         ]
         self.assertEqual(self.api.calls, expect)
         self.assertEqual(len(events), 1)
+
+    def test_get_from_event_class(self):
+        event = self.mgr.get(2)
+        self.assertTrue(event)
+        event.get()
+        expect = [
+            ('GET', '/v2/events/2', {}, None),
+            ('GET', '/v2/events/2', {}, None),
+        ]
+        self.assertEqual(expect, self.api.calls)
+        self.assertEqual('Foo', event.event_type)

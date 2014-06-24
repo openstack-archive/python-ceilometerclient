@@ -19,6 +19,7 @@ import warnings
 
 from ceilometerclient.common import base
 from ceilometerclient.common import utils
+from ceilometerclient import exc
 from ceilometerclient.v2 import options
 
 
@@ -48,7 +49,15 @@ class Alarm(base.Resource):
         # that look like the Alarm storage object
         if k == 'rule':
             k = '%s_rule' % self.type
+        if k == 'id':
+            return self.alarm_id
         return super(Alarm, self).__getattr__(k)
+
+    def delete(self):
+        return self.manager.delete(self.alarm_id)
+
+    def get_state(self):
+        return self.manager.get_state(self.alarm_id)
 
 
 class AlarmChange(base.Resource):
@@ -73,6 +82,13 @@ class AlarmManager(base.Manager):
         try:
             return self._list(self._path(alarm_id), expect_single=True)[0]
         except IndexError:
+            return None
+        except exc.HTTPNotFound:
+            # When we try to get deleted alarm HTTPNotFound occurs
+            # or when alarm doesn't exists this exception don't must
+            # go deeper because cleanUp() (method which remove all
+            # created things like instance, alarm, etc.) at scenario
+            # tests doesn't know how to process it
             return None
 
     @classmethod
