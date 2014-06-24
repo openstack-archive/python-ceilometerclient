@@ -221,11 +221,13 @@ class CeilometerShell(object):
             subparser.set_defaults(func=callback)
 
     def _setup_logging(self, debug):
-        format = '%(levelname)s (%(module)s:%(lineno)d) %(message)s'
+        format = '%(levelname)s (%(module)s) %(message)s'
         if debug:
             logging.basicConfig(format=format, level=logging.DEBUG)
         else:
             logging.basicConfig(format=format, level=logging.WARN)
+        logging.getLogger('iso8601').setLevel(logging.WARNING)
+        logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
 
     def parse_args(self, argv):
         # Parse args once to find version
