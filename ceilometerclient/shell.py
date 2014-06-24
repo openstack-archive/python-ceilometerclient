@@ -226,6 +226,8 @@ class CeilometerShell(object):
             logging.basicConfig(format=format, level=logging.DEBUG)
         else:
             logging.basicConfig(format=format, level=logging.WARN)
+        logging.getLogger('iso8601').setLevel(logging.WARNING)
+        logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
 
     def parse_args(self, argv):
         # Parse args once to find version
