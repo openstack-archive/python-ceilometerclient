@@ -27,7 +27,8 @@ FAKE_ENV = {'os_username': 'username',
 
 class ClientTest(utils.BaseTestCase):
 
-    def create_client(self, api_version=2, exclude=[]):
+    def create_client(self, api_version=2, exclude=None):
+        exclude = exclude or []
         env = dict((k, v) for k, v in FAKE_ENV.items() if k not in exclude)
         return client.get_client(api_version, **env)
 
