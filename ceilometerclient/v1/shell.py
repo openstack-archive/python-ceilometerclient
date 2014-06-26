@@ -67,8 +67,9 @@ def do_sample_list(cc, args):
            help='ID of the user to show samples for.')
 @utils.arg('-p', '--project_id', metavar='<PROJECT_ID>',
            help='ID of the project to show samples for.')
-def do_meter_list(cc, args={}):
+def do_meter_list(cc, args=None):
     '''List the user's meter.'''
+    args = args or {}
     fields = {'resource_id': args.resource_id,
               'user_id': args.user_id,
               'project_id': args.project_id,
@@ -83,8 +84,9 @@ def do_meter_list(cc, args={}):
 
 @utils.arg('-s', '--source', metavar='<SOURCE>',
            help='ID of the resource to show projects for.')
-def do_user_list(cc, args={}):
+def do_user_list(cc, args=None):
     '''List the users.'''
+    args = args or {}
     kwargs = {'source': args.source}
     users = cc.users.list(**kwargs)
     field_labels = ['User ID']
@@ -107,8 +109,9 @@ def do_user_list(cc, args={}):
 @utils.arg('--end', metavar='<END_TIMESTAMP>',
            help='ISO date in UTC which limits resouces by '
            'last update time <= this value')
-def do_resource_list(cc, args={}):
+def do_resource_list(cc, args=None):
     '''List the resources.'''
+    args = args or {}
     kwargs = {'source': args.source,
               'user_id': args.user_id,
               'project_id': args.project_id,
@@ -125,8 +128,9 @@ def do_resource_list(cc, args={}):
 
 @utils.arg('-s', '--source', metavar='<SOURCE>',
            help='ID of the resource to show projects for.')
-def do_project_list(cc, args={}):
+def do_project_list(cc, args=None):
     '''List the projects.'''
+    args = args or {}
     kwargs = {'source': args.source}
     projects = cc.projects.list(**kwargs)
 

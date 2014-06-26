@@ -49,7 +49,8 @@ def pretty_choice_list(l):
     return ', '.join("'%s'" % i for i in l)
 
 
-def print_list(objs, fields, field_labels, formatters={}, sortby=0):
+def print_list(objs, fields, field_labels, formatters=None, sortby=0):
+    formatters = formatters or {}
 
     def _make_default_formatter(field):
         return lambda o: getattr(o, field, '')

@@ -43,7 +43,10 @@ class StatisticsManager(base.Manager):
                 )
         return url_aggregates
 
-    def list(self, meter_name, q=None, period=None, groupby=[], aggregates=[]):
+    def list(self, meter_name, q=None, period=None, groupby=None,
+             aggregates=None):
+        groupby = groupby or []
+        aggregates = aggregates or []
         p = ['period=%s' % period] if period else []
         if isinstance(groupby, six.string_types):
             groupby = [groupby]
