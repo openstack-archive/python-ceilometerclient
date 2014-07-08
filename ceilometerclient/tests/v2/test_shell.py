@@ -215,7 +215,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         if repeat_actions is not None:
             self.assertEqual(repeat_actions, kwargs.get('repeat_actions'))
         else:
-            self.assertFalse('repeat_actions' in kwargs)
+            self.assertNotIn('repeat_actions', kwargs)
 
     def test_alarm_update_repeat_actions_untouched(self):
         method = ceilometer_shell.do_alarm_update
@@ -281,7 +281,7 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self.assertEqual('instance running hot', kwargs.get('description'))
         actions = ['log://', 'http://example.com/alarm/state']
         self.assertEqual(actions, kwargs.get('alarm_actions'))
-        self.assertTrue('threshold_rule' in kwargs)
+        self.assertIn('threshold_rule', kwargs)
         rule = kwargs['threshold_rule']
         self.assertEqual('cpu_util', rule.get('meter_name'))
         self.assertEqual(70.0, rule.get('threshold'))

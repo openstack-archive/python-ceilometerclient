@@ -345,7 +345,7 @@ class AlarmManagerTest(testtools.TestCase):
             ('DELETE', '/v2/alarms/victim-id', {}, None),
         ]
         self.assertEqual(self.api.calls, expect)
-        self.assertTrue(deleted is None)
+        self.assertIsNone(deleted)
 
     def test_get_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
@@ -379,7 +379,7 @@ class AlarmManagerTest(testtools.TestCase):
             ('DELETE', '/v2/alarms/alarm-id', {}, None)
         ]
         self.assertEqual(expect, self.api.calls)
-        self.assertTrue(deleted is None)
+        self.assertIsNone(deleted)
 
     def _do_test_get_history(self, q, url):
         history = self.mgr.get_history(q=q, alarm_id='alarm-id')
