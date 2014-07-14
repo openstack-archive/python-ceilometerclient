@@ -275,10 +275,10 @@ def do_alarm_list(cc, args={}):
     alarms = cc.alarms.list(q=options.cli_to_array(args.query))
     # omit action initially to keep output width sane
     # (can switch over to vertical formatting when available from CLIFF)
-    field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
-                    'Alarm condition', 'Time constraints']
-    fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
-              'rule', 'time_constraints']
+    field_labels = ['Timestamp', 'Alarm ID', 'Name', 'State', 'Enabled',
+                    'Continuous', 'Alarm condition', 'Time constraints']
+    fields = ['timestamp', 'alarm_id', 'name', 'state', 'enabled',
+              'repeat_actions', 'rule', 'time_constraints']
     utils.print_list(
         alarms, fields, field_labels,
         formatters={'rule': alarm_rule_formatter,
