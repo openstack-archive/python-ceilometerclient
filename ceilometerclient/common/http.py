@@ -88,6 +88,8 @@ class HTTPClient(object):
         curl = ['curl -i -X %s' % method]
 
         for (key, value) in kwargs['headers'].items():
+            if key == 'X-Auth-Token':
+                value = '*** REDACTED ***'
             header = '-H \'%s: %s\'' % (key, value)
             curl.append(header)
 
