@@ -14,6 +14,7 @@
 #    under the License.
 
 import copy
+import hashlib
 import logging
 import os
 import socket
@@ -39,6 +40,7 @@ from ceilometerclient import exc
 LOG = logging.getLogger(__name__)
 USER_AGENT = 'python-ceilometerclient'
 CHUNKSIZE = 1024 * 64  # 64kB
+SENSITIVE_HEADERS = ('X-Auth-Token',)
 
 
 class HTTPClient(object):
@@ -84,11 +86,21 @@ class HTTPClient(object):
         except httplib.InvalidURL:
             raise exc.InvalidEndpoint()
 
+    def safe_header(self, name, value):
+        if name in SENSITIVE_HEADERS:
+            # because in python3 byte string handling is ... ug
+            v = value.encode('utf-8')
+            h = hashlib.sha1(v)
+            d = h.hexdigest()
+            return name, "{SHA1}%s" % d
+        else:
+            return name, value
+
     def log_curl_request(self, method, url, kwargs):
         curl = ['curl -i -X %s' % method]
 
         for (key, value) in kwargs['headers'].items():
-            header = '-H \'%s: %s\'' % (key, value)
+            header = '-H \'%s: %s\'' % self.safe_header(key, value)
             curl.append(header)
 
         conn_params_fmt = [
