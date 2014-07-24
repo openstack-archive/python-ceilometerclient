@@ -6,6 +6,7 @@ build
 cover
 .testrepository
 .venv
+doc/build
 subunit.log
 AUTHORS
 ChangeLog
