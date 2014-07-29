@@ -23,6 +23,7 @@ import testtools
 
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.openstack.common.apiclient import fake_client
+from ceilometerclient import exc
 from ceilometerclient.v2 import alarms
 
 AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],
@@ -379,6 +380,15 @@ class AlarmManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_get_1, pos=0)
         self.http_client.assert_called(*expect_get_2, pos=1)
         self.assertEqual('alarm', state)
+
+    def test_update_missing(self):
+        alarm = None
+        try:
+            alarm =
+            self.mgr.update(alarm_id='missing-alarm-id', **UPDATE_ALARM)
+        except exc.CommandError:
+            pass
+        self.assertEqual(alarm, None)
 
     def test_delete_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
