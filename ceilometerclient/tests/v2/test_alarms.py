@@ -380,6 +380,14 @@ class AlarmManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_get_2, pos=1)
         self.assertEqual('alarm', state)
 
+    def test_update_missing(self):
+        alarm = None
+        try:
+            alarm = self.mgr.update(alarm_id='missing-alarm-id', **UPDATE_ALARM)
+        except exc.CommandError:
+            pass
+        self.assertEqual(alarm, None)
+
     def test_delete_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
         self.assertIsNotNone(alarm)
