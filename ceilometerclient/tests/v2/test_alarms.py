@@ -21,6 +21,7 @@ import six
 from six.moves import xrange  # noqa
 import testtools
 
+from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.v2 import alarms
@@ -207,6 +208,13 @@ fixtures = {
             None,
         ),
     },
+    '/v2/alarms/unk-alarm-id':
+    {
+        'GET': (
+            {},
+            None,
+        ),
+    },
     '/v2/alarms/alarm-id/state':
     {
         'PUT': (
@@ -379,6 +387,14 @@ class AlarmManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_get_1, pos=0)
         self.http_client.assert_called(*expect_get_2, pos=1)
         self.assertEqual('alarm', state)
+
+    def test_update_missing(self):
+        alarm = None
+        try:
+            alarm = self.mgr.update(alarm_id='unk-alarm-id', **UPDATE_ALARM)
+        except exc.CommandError:
+            pass
+        self.assertEqual(alarm, None)
 
     def test_delete_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
