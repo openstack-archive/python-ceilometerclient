@@ -19,6 +19,7 @@ Base utilities to build API operation managers and objects on top of.
 
 import copy
 
+from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import base
 
 # Python 2.4 compat
@@ -55,7 +56,10 @@ class Manager(object):
 
     def _list(self, url, response_key=None, obj_class=None, body=None,
               expect_single=False):
-        body = self.api.get(url).json()
+        resp = self.api.get(url)
+        if not resp.content:
+            raise exc.HTTPNotFound
+        body = resp.json()
 
         if obj_class is None:
             obj_class = self.resource_class
