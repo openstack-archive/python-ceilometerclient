@@ -155,7 +155,10 @@ class AlarmManager(base.Manager):
 
     def update(self, alarm_id, **kwargs):
         self._compat_legacy_alarm_kwargs(kwargs)
-        updated = self.get(alarm_id).to_dict()
+        alarm = self.get(alarm_id)
+        if alarm is None:
+            raise exc.CommandError('Alarm not found: %s' % alarm_id)
+        updated = alarm.to_dict()
         updated['time_constraints'] = self._merge_time_constraints(
             updated.get('time_constraints', []), kwargs)
         kwargs = dict((k, v) for k, v in kwargs.items()
