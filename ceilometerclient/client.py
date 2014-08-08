@@ -146,7 +146,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
                  'auth_url', 'insecure', 'cert_file', 'key_file',
                  'cert', 'key', 'tenant_name', 'project_name',
                  'project_id', 'user_domain_id', 'user_domain_name',
-                 'password', 'username']
+                 'password', 'username', 'endpoint']
 
     def __init__(self, auth_system=None, **kwargs):
         self.opt_names.extend(self.common_opt_names)
