@@ -288,7 +288,7 @@ class AlarmManagerTest(testtools.TestCase):
             'GET', '/v2/alarms/alarm-id'
         ]
         self.http_client.assert_called(*expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         self.assertEqual(alarm.rule, alarm.threshold_rule)
 
@@ -298,7 +298,7 @@ class AlarmManagerTest(testtools.TestCase):
             'POST', '/v2/alarms'
         ]
         self.http_client.assert_called(*expect, body=CREATE_ALARM)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **UPDATE_ALARM)
@@ -310,7 +310,7 @@ class AlarmManagerTest(testtools.TestCase):
         ]
         self.http_client.assert_called(*expect_get, pos=0)
         self.http_client.assert_called(*expect_put, pos=1)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
@@ -325,7 +325,7 @@ class AlarmManagerTest(testtools.TestCase):
         ]
         self.http_client.assert_called(*expect_get, pos=0)
         self.http_client.assert_called(*expect_put, pos=1)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
@@ -356,7 +356,7 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_get_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         alarm.get()
         expect = [
             'GET', '/v2/alarms/alarm-id'
@@ -368,7 +368,7 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_get_state_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         state = alarm.get_state()
         expect_get_1 = [
             'GET', '/v2/alarms/alarm-id'
@@ -382,7 +382,7 @@ class AlarmManagerTest(testtools.TestCase):
 
     def test_delete_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         deleted = alarm.delete()
         expect_get = [
             'GET', '/v2/alarms/alarm-id'
@@ -428,9 +428,8 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         expect = [
             'POST', '/v2/alarms', CREATE_ALARM_WITHOUT_TC,
         ]
-
         self.http_client.assert_called(*expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
 
     def test_create_counter_name(self):
         create = {}
@@ -442,7 +441,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             'POST', '/v2/alarms', CREATE_ALARM_WITHOUT_TC,
         ]
         self.http_client.assert_called(*expect)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
 
     def test_update(self):
         alarm = self.mgr.update(alarm_id='alarm-id', **DELTA_LEGACY_ALARM)
@@ -450,7 +449,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             'PUT', '/v2/alarms/alarm-id', UPDATED_ALARM
         ]
         self.http_client.assert_called(*expect_put)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
@@ -465,7 +464,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
             'PUT', '/v2/alarms/alarm-id', UPDATED_ALARM
         ]
         self.http_client.assert_called(*expect_put)
-        self.assertTrue(alarm)
+        self.assertIsNotNone(alarm)
         self.assertEqual(alarm.alarm_id, 'alarm-id')
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
