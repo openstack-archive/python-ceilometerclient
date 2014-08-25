@@ -1,32 +1,47 @@
-Python API
-==========
-In order to use the python api directly, you must first obtain an auth token and identify which endpoint you wish to speak to. Once you have done so, you can use the API like so::
+Python bindings to the OpenStack Ceilometer API
+==================================================
 
-    >>> from ceilometerclient import Client
-    >>> ceilometer = Client('1', endpoint=OS_IMAGE_ENDPOINT, token=OS_AUTH_TOKEN)
-...
+This is a client for OpenStack Ceilometer API. There's :doc:`a Python API
+<api>` (the :mod:`ceilometerclient` module), and a :doc:`command-line script
+<shell>` (installed as :program:`ceilometer`). Each implements the entire
+OpenStack Ceilometer API.
 
+.. seealso::
 
-Command-line Tool
-=================
-In order to use the CLI, you must provide your OpenStack username, password, tenant, and auth endpoint. Use the corresponding configuration options (``--os-username``, ``--os-password``, ``--os-tenant-id``, and ``--os-auth-url``) or set them in environment variables::
+    You may want to read the `OpenStack Ceilometer Developer Guide`__  -- the overview, at
+    least -- to get an idea of the concepts. By understanding the concepts
+    this library should make more sense.
 
-    export OS_USERNAME=user
-    export OS_PASSWORD=pass
-    export OS_TENANT_ID=b363706f891f48019483f8bd6503c54b
-    export OS_AUTH_URL=http://auth.example.com:5000/v2.0
+    __ http://docs.openstack.org/developer/ceilometer/
 
-The command line tool will attempt to reauthenticate using your provided credentials for every request. You can override this behavior by manually supplying an auth token using ``--os-image-url`` and ``--os-auth-token``. You can alternatively set these environment variables::
+Contents:
 
-    export OS_IMAGE_URL=http://ceilometer.example.org:8004/
-    export OS_AUTH_TOKEN=3bcc3d3a03f44e3d8377f9247b0ad155
+.. toctree::
+   :maxdepth: 2
 
-Once you've configured your authentication parameters, you can run ``ceilometer help`` to see a complete listing of available commands.
+   shell
+   api
+   ref/index
+   ref/v1/index
+   ref/v2/index
+   releases
 
+Contributing
+============
 
-Release Notes
-=============
+Code is hosted at `git.openstack.org`_. Submit bugs to the Ceilometer project on
+`Launchpad`_. Submit code to the openstack/python-ceilometerclient project using
+`Gerrit`_.
 
-0.1.0
------
-* Initial release
+.. _git.openstack.org: https://git.openstack.org/cgit/openstack/python-ceilometerclient
+.. _Launchpad: https://launchpad.net/ceilometer
+.. _Gerrit: http://wiki.openstack.org/GerritWorkflow
+
+Run tests with ``python setup.py test``.
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
