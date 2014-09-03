@@ -367,7 +367,7 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
             q=None,
             limit=None)
 
-        self.assertEqual('''\
+        self.assertEqual(six.b('''\
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
 | Resource ID                          | Name     | Type  | Volume         \
@@ -384,7 +384,7 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
 | %    | 2013-10-15T05:40:29 |
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
-''', sys.stdout.getvalue())
+'''), sys.stdout.getvalue())
 
 
 class ShellSampleCreateCommandTest(utils.BaseTestCase):
@@ -426,7 +426,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 
         ceilometer_shell.do_sample_create(self.cc, self.args)
 
-        self.assertEqual('''\
+        self.assertEqual(six.b('''\
 +-------------------+---------------------------------------------+
 | Property          | Value                                       |
 +-------------------+---------------------------------------------+
@@ -442,7 +442,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 | user_id           | 21b442b8101d407d8242b6610e0ed0eb            |
 | volume            | 1.0                                         |
 +-------------------+---------------------------------------------+
-''', sys.stdout.getvalue())
+'''), sys.stdout.getvalue())
 
 
 class ShellQuerySamplesCommandTest(utils.BaseTestCase):
@@ -482,7 +482,7 @@ class ShellQuerySamplesCommandTest(utils.BaseTestCase):
 
         ceilometer_shell.do_query_samples(self.cc, self.args)
 
-        self.assertEqual('''\
+        self.assertEqual(six.b('''\
 +--------------------------------------+----------+-------+--------+---------\
 -+----------------------------+
 | Resource ID                          | Meter    | Type  | Volume | Unit    \
@@ -493,7 +493,7 @@ class ShellQuerySamplesCommandTest(utils.BaseTestCase):
  | 2014-02-19T05:50:16.673604 |
 +--------------------------------------+----------+-------+--------+---------\
 -+----------------------------+
-''', sys.stdout.getvalue())
+'''), sys.stdout.getvalue())
 
 
 class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
@@ -542,7 +542,7 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
 
         ceilometer_shell.do_query_alarms(self.cc, self.args)
 
-        self.assertEqual('''\
+        self.assertEqual(six.b('''\
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
 ----------------------------------------+--------------------------------+
@@ -558,7 +558,7 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
 ----------------------------------------+--------------------------------+
-''', sys.stdout.getvalue())
+'''), sys.stdout.getvalue())
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_time_constraints_compatibility(self):
@@ -575,7 +575,7 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
 
         ceilometer_shell.do_query_alarms(self.cc, self.args)
 
-        self.assertEqual('''\
+        self.assertEqual(six.b('''\
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
 ----------------------------------------+------------------+
@@ -591,7 +591,7 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
 +--------------------------------------+------------------+-------+---------\
 +------------+--------------------------------------------------------------\
 ----------------------------------------+------------------+
-''', sys.stdout.getvalue())
+'''), sys.stdout.getvalue())
 
 
 class ShellQueryAlarmHistoryCommandTest(utils.BaseTestCase):
@@ -628,7 +628,7 @@ class ShellQueryAlarmHistoryCommandTest(utils.BaseTestCase):
 
         ceilometer_shell.do_query_alarm_history(self.cc, self.args)
 
-        self.assertEqual('''\
+        self.assertEqual(six.b('''\
 +----------------------------------+--------------------------------------+-\
 ------------+----------------------------------------------+----------------\
 ------------+
@@ -644,7 +644,7 @@ rule change | {"threshold": 42.0, "evaluation_periods": 4} | 2014-03-11T16:0\
 +----------------------------------+--------------------------------------+-\
 ------------+----------------------------------------------+----------------\
 ------------+
-''', sys.stdout.getvalue())
+'''), sys.stdout.getvalue())
 
 
 class ShellStatisticsTest(utils.BaseTestCase):

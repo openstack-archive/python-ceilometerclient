@@ -32,14 +32,14 @@ class UtilsTest(test_utils.BaseTestCase):
         # test that the prettytable output is wellformatted (left-aligned)
         with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
             utils.print_dict({'K': 'k', 'Key': 'Value'})
-            self.assertEqual('''\
+            self.assertEqual(six.b('''\
 +----------+-------+
 | Property | Value |
 +----------+-------+
 | K        | k     |
 | Key      | Value |
 +----------+-------+
-''', stdout.getvalue())
+'''), stdout.getvalue())
 
     def test_print_list(self):
         class Foo:
@@ -63,7 +63,7 @@ class UtilsTest(test_utils.BaseTestCase):
                 return stdout.getvalue()
 
         printed = do_print_list(None)
-        self.assertEqual(printed, '''\
+        self.assertEqual(six.b('''\
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
@@ -71,10 +71,10 @@ class UtilsTest(test_utils.BaseTestCase):
 | 80  | c   | c   |
 | 120 | 0   | Z   |
 +-----+-----+-----+
-''')
+'''), printed)
 
         printed = do_print_list(0)
-        self.assertEqual(printed, '''\
+        self.assertEqual(six.b('''\
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
@@ -82,10 +82,10 @@ class UtilsTest(test_utils.BaseTestCase):
 | 100 | a   | B   |
 | 120 | 0   | Z   |
 +-----+-----+-----+
-''')
+'''), printed)
 
         printed = do_print_list(1)
-        self.assertEqual(printed, '''\
+        self.assertEqual(six.b('''\
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
@@ -93,7 +93,7 @@ class UtilsTest(test_utils.BaseTestCase):
 | 100 | a   | B   |
 | 80  | c   | c   |
 +-----+-----+-----+
-''')
+'''), printed)
 
     def test_args_array_to_dict(self):
         my_args = {
