@@ -13,7 +13,9 @@
 from keystoneclient.auth.identity import v2 as v2_auth
 from keystoneclient.auth.identity import v3 as v3_auth
 from keystoneclient import discover
+from keystoneclient import exceptions as ks_exc
 from keystoneclient import session
+import six.moves.urllib.parse as urlparse
 
 from ceilometerclient.common import utils
 from ceilometerclient import exc
@@ -21,11 +23,39 @@ from ceilometerclient.openstack.common.apiclient import auth
 from ceilometerclient.openstack.common.apiclient import exceptions
 
 
+def _discover_auth_versions(session, auth_url):
+    # discover the API versions the server is supporting based on the
+    # given URL
+    v2_auth_url = None
+    v3_auth_url = None
+    try:
+        ks_discover = discover.Discover(session=session, auth_url=auth_url)
+        v2_auth_url = ks_discover.url_for('2.0')
+        v3_auth_url = ks_discover.url_for('3.0')
+    except ks_exc.DiscoveryFailure:
+        raise
+    except exceptions.ClientException:
+        # Identity service may not support discovery. In that case,
+        # try to determine version from auth_url
+        url_parts = urlparse.urlparse(auth_url)
+        (scheme, netloc, path, params, query, fragment) = url_parts
+        path = path.lower()
+        if path.startswith('/v3'):
+            v3_auth_url = auth_url
+        elif path.startswith('/v2'):
+            v2_auth_url = auth_url
+        else:
+            raise exc.CommandError('Unable to determine the Keystone '
+                                   'version to authenticate with '
+                                   'using the given auth_url.')
+    return (v2_auth_url, v3_auth_url)
+
+
 def _get_keystone_session(**kwargs):
     # TODO(fabgia): the heavy lifting here should be really done by Keystone.
     # Unfortunately Keystone does not support a richer method to perform
     # discovery and return a single viable URL. A bug against Keystone has
-    # been filed: https://bugs.launchpad.net/pyhton-keystoneclient/+bug/1330677
+    # been filed: https://bugs.launchpad.net/python-keystoneclient/+bug/1330677
 
     # first create a Keystone session
     cacert = kwargs.pop('cacert', None)
@@ -48,17 +78,7 @@ def _get_keystone_session(**kwargs):
 
     # create the keystone client session
     ks_session = session.Session(verify=verify, cert=cert)
-
-    try:
-        # discover the supported keystone versions using the auth endpoint url
-        ks_discover = discover.Discover(session=ks_session, auth_url=auth_url)
-        # Determine which authentication plugin to use.
-        v2_auth_url = ks_discover.url_for('2.0')
-        v3_auth_url = ks_discover.url_for('3.0')
-    except Exception:
-        raise exc.CommandError('Unable to determine the Keystone version '
-                               'to authenticate with using the given '
-                               'auth_url: %s' % auth_url)
+    v2_auth_url, v3_auth_url = _discover_auth_versions(ks_session, auth_url)
 
     username = kwargs.pop('username', None)
     user_id = kwargs.pop('user_id', None)
@@ -68,46 +88,25 @@ def _get_keystone_session(**kwargs):
     project_domain_id = kwargs.pop('project_domain_id', None)
     auth = None
 
-    if v3_auth_url and v2_auth_url:
-        # the auth_url does not have the versions specified
-        # e.g. http://no.where:5000
-        # Keystone will return both v2 and v3 as viable options
-        # but we need to decide based on the arguments passed
-        # what version is callable
-        if (user_domain_name or user_domain_id or project_domain_name or
-                project_domain_id):
-            # domain is supported only in v3
-            auth = v3_auth.Password(
-                v3_auth_url,
-                username=username,
-                user_id=user_id,
-                user_domain_name=user_domain_name,
-                user_domain_id=user_domain_id,
-                project_domain_name=project_domain_name,
-                project_domain_id=project_domain_id,
-                **kwargs)
-        else:
-            # no domain, then use v2
-            auth = v2_auth.Password(
-                v2_auth_url,
-                username,
-                kwargs.pop('password', None),
-                tenant_id=project_id,
-                tenant_name=project_name)
-    elif v3_auth_url:
+    use_domain = (user_domain_id or user_domain_name or
+                  project_domain_id or project_domain_name)
+    use_v3 = v3_auth_url and (use_domain or (not v2_auth_url))
+    use_v2 = v2_auth_url and not use_domain
+
+    if use_v3:
         # the auth_url as v3 specified
         # e.g. http://no.where:5000/v3
         # Keystone will return only v3 as viable option
         auth = v3_auth.Password(
             v3_auth_url,
             username=username,
+            password=kwargs.pop('password', None),
             user_id=user_id,
             user_domain_name=user_domain_name,
             user_domain_id=user_domain_id,
             project_domain_name=project_domain_name,
-            project_domain_id=project_domain_id,
-            **kwargs)
-    elif v2_auth_url:
+            project_domain_id=project_domain_id)
+    elif use_v2:
         # the auth_url as v2 specified
         # e.g. http://no.where:5000/v2.0
         # Keystone will return only v2 as viable option
