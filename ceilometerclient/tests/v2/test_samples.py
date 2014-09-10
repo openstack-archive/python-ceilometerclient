@@ -103,7 +103,7 @@ class SampleManagerTest(utils.BaseTestCase):
         expect = [
             'POST', '/v2/meters/instance'
         ]
-        self.http_client.assert_called(*expect, body=CREATE_SAMPLE)
+        self.http_client.assert_called(*expect, body=[CREATE_SAMPLE])
         self.assertIsNotNone(sample)
 
     def test_limit(self):
