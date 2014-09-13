@@ -1,0 +1,13 @@
+Verified+2: Jenkins
+Workflow+1: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+1: Dina Belova <dbelova@mirantis.com>
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Workflow+1: Lianhao Lu <lianhao.lu@intel.com>
+Code-Review+1: Fabio Giannetti <fabio.giannetti@hp.com>
+Code-Review+1: Igor Degtiarov <idegtiarov@mirantis.com>
+Code-Review+1: Srinivas Sakhamuri <srinivas.sakhamuri@hp.com>
+Submitted-by: Jenkins
+Submitted-at: Sat, 13 Sep 2014 07:18:03 +0000
+Reviewed-on: https://review.openstack.org/110345
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
