@@ -183,7 +183,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
             token = lambda: ks_session.get_token()
             endpoint = self.opts.get('endpoint') or \
                 _get_endpoint(ks_session, **ks_kwargs)
-        self.opts['token'] = token()
+        self.opts['token'] = token
         self.opts['endpoint'] = endpoint
 
     def token_and_endpoint(self, endpoint_type, service_type):
