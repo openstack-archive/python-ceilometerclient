@@ -222,7 +222,7 @@ def Client(version, *args, **kwargs):
 
 
 def get_client(version, **kwargs):
-    """Get an authtenticated client, based on the credentials
+    """Get an authenticated client, based on the credentials
         in the keyword args.
 
     :param api_version: the API version to use ('1' or '2')
