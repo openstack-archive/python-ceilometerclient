@@ -70,7 +70,7 @@ def obsoleted_by(new_dest):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 @utils.arg('-m', '--meter', metavar='<NAME>', required=True,
-           action=NotEmptyAction, help='Name of meter to show samples for.')
+           action=NotEmptyAction, help='Name of meter to list statistics for.')
 @utils.arg('-p', '--period', metavar='<PERIOD>',
            help='Period in seconds over which to group samples.')
 @utils.arg('-g', '--groupby', metavar='<FIELD>', action='append',
