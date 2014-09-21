@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Code-Review+2: Dina Belova <dbelova@mirantis.com>
+Code-Review+2: gordon chung <gord@live.ca>
+Code-Review+2: Nejc Saje <nsaje@redhat.com>
+Workflow+1: Nejc Saje <nsaje@redhat.com>
+Submitted-by: Jenkins
+Submitted-at: Sun, 21 Sep 2014 14:29:37 +0000
+Reviewed-on: https://review.openstack.org/120020
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
