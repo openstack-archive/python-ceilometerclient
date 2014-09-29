@@ -19,13 +19,13 @@ import sys
 import textwrap
 import uuid
 
+from oslo.utils import encodeutils
+from oslo.utils import importutils
 import prettytable
 import six
 
 from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils
-from ceilometerclient.openstack.common import importutils
-from ceilometerclient.openstack.common import strutils
 
 
 # Decorator for cli-args
@@ -92,7 +92,7 @@ def print_dict(d, dict_property="Property", wrap=0):
         if isinstance(v, dict):
             v = str(v)
         if isinstance(v, six.string_types):
-            v = strutils.safe_encode(v)
+            v = encodeutils.safe_encode(v)
         # if value has a newline, add in multiple rows
         # e.g. fault with stacktrace
         if v and isinstance(v, six.string_types) and r'\n' in v:
