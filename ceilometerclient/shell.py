@@ -20,6 +20,7 @@ import argparse
 import logging
 import sys
 
+from oslo.utils import encodeutils
 import six
 
 import ceilometerclient
@@ -27,7 +28,6 @@ from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
 from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils
-from ceilometerclient.openstack.common import strutils
 
 
 class CeilometerShell(object):
@@ -278,7 +278,7 @@ def main(args=None):
         if '--debug' in args or '-d' in args:
             raise
         else:
-            print(strutils.safe_encode(six.text_type(e)), file=sys.stderr)
+            print(encodeutils.safe_encode(six.text_type(e)), file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
