@@ -19,13 +19,13 @@ import sys
 import textwrap
 import uuid
 
+from oslo.utils import encodeutils
+from oslo.utils import importutils
 import prettytable
 import six
 
 from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils
-from ceilometerclient.openstack.common import importutils
-from ceilometerclient.openstack.common import strutils
 
 
 # Decorator for cli-args
@@ -84,31 +84,29 @@ def format_nested_list_of_dict(l, column_names):
 
 
 def print_dict(d, dict_property="Property", wrap=0):
-    pt = prettytable.PrettyTable([dict_property, 'Value'],
-                                 caching=False, print_empty=False)
+    pt = prettytable.PrettyTable([dict_property, 'Value'], print_empty=False)
     pt.align = 'l'
-    for k, v in sorted(six.iteritems(d)):
+    for k, v in six.iteritems(d):
         # convert dict to str to check length
         if isinstance(v, dict):
             v = str(v)
-        if isinstance(v, six.string_types):
-            v = strutils.safe_encode(v)
+        if wrap > 0:
+            v = textwrap.fill(str(v), wrap)
         # if value has a newline, add in multiple rows
         # e.g. fault with stacktrace
         if v and isinstance(v, six.string_types) and r'\n' in v:
             lines = v.strip().split(r'\n')
             col1 = k
             for line in lines:
-                if wrap > 0:
-                    line = textwrap.fill(str(line), wrap)
                 pt.add_row([col1, line])
                 col1 = ''
         else:
-            if wrap > 0:
-                v = textwrap.fill(str(v), wrap)
             pt.add_row([k, v])
-    print(pt.get_string())
-
+    encoded = encodeutils.safe_encode(pt.get_string(sortby=dict_property))
+    # FIXME(gordc): https://bugs.launchpad.net/oslo-incubator/+bug/1370710
+    if six.PY3:
+        encoded = encoded.decode()
+    print(encoded)
 
 def find_resource(manager, name_or_id):
     """Helper for the _find_* methods."""
