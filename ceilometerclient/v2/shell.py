@@ -22,11 +22,11 @@ import argparse
 import functools
 import json
 
+from oslo.utils import strutils
 import six
 
 from ceilometerclient.common import utils
 from ceilometerclient import exc
-from ceilometerclient.openstack.common import strutils
 from ceilometerclient.v2 import options
 
 
