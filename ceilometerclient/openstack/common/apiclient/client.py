@@ -33,10 +33,11 @@ try:
 except ImportError:
     import json
 
+from oslo.utils import importutils
 import requests
 
+from ceilometerclient.openstack.common._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
-from ceilometerclient.openstack.common import importutils
 
 
 _logger = logging.getLogger(__name__)
@@ -46,6 +47,7 @@ class HTTPClient(object):
     """This client handles sending HTTP requests to OpenStack servers.
 
     Features:
+
     - share authentication information between several clients to different
       services (e.g., for compute and image clients);
     - reissue authentication request for expired tokens;
@@ -151,10 +153,10 @@ class HTTPClient(object):
         :param method: method of HTTP request
         :param url: URL of HTTP request
         :param kwargs: any other parameter that can be passed to
-'            requests.Session.request (such as `headers`) or `json`
+             requests.Session.request (such as `headers`) or `json`
              that will be encoded as JSON and used as `data` argument
         """
-        kwargs.setdefault("headers", kwargs.get("headers", {}))
+        kwargs.setdefault("headers", {})
         kwargs["headers"]["User-Agent"] = self.user_agent
         if self.original_ip:
             kwargs["headers"]["Forwarded"] = "for=%s;by=%s" % (
@@ -206,7 +208,7 @@ class HTTPClient(object):
         :param method: method of HTTP request
         :param url: URL of HTTP request
         :param kwargs: any other parameter that can be passed to
-'            `HTTPClient.request`
+            `HTTPClient.request`
         """
 
         filter_args = {
@@ -228,7 +230,7 @@ class HTTPClient(object):
                     **filter_args)
                 if not (token and endpoint):
                     raise exceptions.AuthorizationFailure(
-                        "Cannot find endpoint or token for request")
+                        _("Cannot find endpoint or token for request"))
 
         old_token_endpoint = (token, endpoint)
         kwargs.setdefault("headers", {})["X-Auth-Token"] = token
@@ -245,6 +247,10 @@ class HTTPClient(object):
                 raise
             self.cached_token = None
             client.cached_endpoint = None
+            if self.auth_plugin.opts.get('token'):
+                self.auth_plugin.opts['token'] = None
+            if self.auth_plugin.opts.get('endpoint'):
+                self.auth_plugin.opts['endpoint'] = None
             self.authenticate()
             try:
                 token, endpoint = self.auth_plugin.token_and_endpoint(
@@ -351,8 +357,11 @@ class BaseClient(object):
         try:
             client_path = version_map[str(version)]
         except (KeyError, ValueError):
-            msg = "Invalid %s client version '%s'. must be one of: %s" % (
-                  (api_name, version, ', '.join(version_map.keys())))
+            msg = _("Invalid %(api_name)s client version '%(version)s'. "
+                    "Must be one of: %(version_map)s") % {
+                        'api_name': api_name,
+                        'version': version,
+                        'version_map': ', '.join(version_map.keys())}
             raise exceptions.UnsupportedVersion(msg)
 
         return importutils.import_class(client_path)
