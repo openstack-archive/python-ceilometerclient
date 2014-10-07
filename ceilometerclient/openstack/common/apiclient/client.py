@@ -33,11 +33,11 @@ try:
 except ImportError:
     import json
 
+from oslo.utils import importutils
 import requests
 
+from ceilometerclient.openstack.common._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
-from ceilometerclient.openstack.common.gettextutils import _
-from ceilometerclient.openstack.common import importutils
 
 
 _logger = logging.getLogger(__name__)

@@ -25,7 +25,7 @@ import sys
 
 import six
 
-from ceilometerclient.openstack.common.gettextutils import _
+from ceilometerclient.openstack.common._i18n import _
 
 
 class ClientException(Exception):
