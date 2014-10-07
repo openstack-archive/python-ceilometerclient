@@ -26,12 +26,12 @@ Base utilities to build API operation managers and objects on top of.
 import abc
 import copy
 
+from oslo.utils import strutils
 import six
 from six.moves.urllib import parse
 
+from ceilometerclient.openstack.common._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
-from ceilometerclient.openstack.common.gettextutils import _
-from ceilometerclient.openstack.common import strutils
 
 
 def getid(obj):
