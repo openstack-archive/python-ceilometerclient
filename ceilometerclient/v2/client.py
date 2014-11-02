@@ -63,7 +63,8 @@ class Client(object):
 
         self.http_client = client.BaseClient(self.client)
         self.meters = meters.MeterManager(self.http_client)
-        self.samples = samples.SampleManager(self.http_client)
+        self.samples = samples.OldSampleManager(self.http_client)
+        self.new_samples = samples.SampleManager(self.http_client)
         self.statistics = statistics.StatisticsManager(self.http_client)
         self.resources = resources.ResourceManager(self.http_client)
         self.alarms = alarms.AlarmManager(self.http_client)
