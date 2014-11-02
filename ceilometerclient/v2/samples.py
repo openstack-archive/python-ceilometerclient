@@ -26,13 +26,13 @@ CREATION_ATTRIBUTES = ('source',
                        'resource_metadata')
 
 
-class Sample(base.Resource):
+class OldSample(base.Resource):
     def __repr__(self):
-        return "<Sample %s>" % self._info
+        return "<OldSample %s>" % self._info
 
 
-class SampleManager(base.Manager):
-    resource_class = Sample
+class OldSampleManager(base.Manager):
+    resource_class = OldSample
 
     @staticmethod
     def _path(counter_name=None):
@@ -49,4 +49,22 @@ class SampleManager(base.Manager):
         url = self._path(counter_name=kwargs['counter_name'])
         body = self.api.post(url, json=[new]).json()
         if body:
-            return [Sample(self, b) for b in body]
+            return [OldSample(self, b) for b in body]
+
+
+class Sample(base.Resource):
+    def __repr__(self):
+        return "<Sample %s>" % self._info
+
+
+class SampleManager(base.Manager):
+    resource_class = Sample
+
+    def list(self, q=None, limit=None):
+        params = ['limit=%s' % str(limit)] if limit else None
+        return self._list(options.build_url("/v2/samples", q, params))
+
+    def get(self, sample_id):
+        body = self.api.get("/v2/samples/" + sample_id).json()
+        if body:
+            return Sample(self, body)
