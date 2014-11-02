@@ -34,19 +34,24 @@ class Sample(base.Resource):
 class SampleManager(base.Manager):
     resource_class = Sample
 
-    @staticmethod
-    def _path(counter_name=None):
-        return '/v2/meters/%s' % counter_name if counter_name else '/v2/meters'
-
     def list(self, meter_name=None, q=None, limit=None):
-        path = self._path(counter_name=meter_name)
-        params = ['limit=%s' % str(limit)] if limit else None
+        if meter_name:
+            path = '/v2/meters/' + meter_name
+        else:
+            path = '/v2/samples'
+        params = ['limit=%s' % limit] if limit else None
         return self._list(options.build_url(path, q, params))
+
+    def get(self, sample_id):
+        path = '/v2/samples/' + sample_id
+        body = self.api.get(path).json()
+        if body:
+            return Sample(self, body)
 
     def create(self, **kwargs):
         new = dict((key, value) for (key, value) in kwargs.items()
                    if key in CREATION_ATTRIBUTES)
-        url = self._path(counter_name=kwargs['counter_name'])
+        url = '/v2/meters/' + kwargs['counter_name']
         body = self.api.post(url, json=[new]).json()
         if body:
             return [Sample(self, b) for b in body]

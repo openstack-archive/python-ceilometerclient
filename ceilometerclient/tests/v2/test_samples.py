@@ -20,60 +20,95 @@ from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
 import ceilometerclient.v2.samples
 
-GET_SAMPLE = {u'counter_name': u'instance',
-              u'user_id': u'user-id',
-              u'resource_id': u'resource-id',
-              u'timestamp': u'2012-07-02T10:40:00',
-              u'source': u'test_source',
-              u'message_id': u'54558a1c-6ef3-11e2-9875-5453ed1bbb5f',
-              u'counter_unit': u'',
-              u'counter_volume': 1.0,
-              u'project_id': u'project1',
-              u'resource_metadata': {u'tag': u'self.counter',
-                                     u'display_name': u'test-server'},
-              u'counter_type': u'cumulative'}
-CREATE_SAMPLE = copy.deepcopy(GET_SAMPLE)
+GET_OLD_SAMPLE = {u'counter_name': u'instance',
+                  u'user_id': u'user-id',
+                  u'resource_id': u'resource-id',
+                  u'timestamp': u'2012-07-02T10:40:00',
+                  u'source': u'test_source',
+                  u'message_id': u'54558a1c-6ef3-11e2-9875-5453ed1bbb5f',
+                  u'counter_unit': u'',
+                  u'counter_volume': 1.0,
+                  u'project_id': u'project1',
+                  u'resource_metadata': {u'tag': u'self.counter',
+                                         u'display_name': u'test-server'},
+                  u'counter_type': u'cumulative'}
+CREATE_SAMPLE = copy.deepcopy(GET_OLD_SAMPLE)
 del CREATE_SAMPLE['message_id']
 del CREATE_SAMPLE['source']
 
-base_url = '/v2/meters/instance'
-args = ('q.field=resource_id&q.field=source&q.op=&q.op='
-        '&q.type=&q.type=&q.value=foo&q.value=bar')
-args_limit = 'limit=1'
-fixtures = {
-    base_url:
-    {
+GET_SAMPLE = {
+    "user_id": None,
+    "resource_id": "9b651dfd-7d30-402b-972e-212b2c4bfb05",
+    "timestamp": "2014-11-03T13:37:46",
+    "meter": "image",
+    "volume": 1.0,
+    "source": "openstack",
+    "recorded_at": "2014-11-03T13:37:46.994458",
+    "project_id": "2cc3a7bb859b4bacbeab0aa9ca673033",
+    "type": "gauge",
+    "id": "98b5f258-635e-11e4-8bdd-0025647390c1",
+    "unit": "image",
+    "resource_metadata": {},
+}
+
+METER_URL = '/v2/meters/instance'
+SAMPLE_URL = '/v2/samples'
+QUERIES = ('q.field=resource_id&q.field=source&q.op=&q.op='
+           '&q.type=&q.type=&q.value=foo&q.value=bar')
+LIMIT = 'limit=1'
+
+OLD_SAMPLE_FIXTURES = {
+    METER_URL: {
         'GET': (
             {},
-            [GET_SAMPLE]
+            [GET_OLD_SAMPLE]
         ),
         'POST': (
             {},
             [CREATE_SAMPLE],
         ),
     },
-    '%s?%s' % (base_url, args):
-    {
+    '%s?%s' % (METER_URL, QUERIES): {
         'GET': (
             {},
             [],
         ),
     },
-    '%s?%s' % (base_url, args_limit):
-    {
+    '%s?%s' % (METER_URL, LIMIT): {
         'GET': (
             {},
-            [GET_SAMPLE]
+            [GET_OLD_SAMPLE]
         ),
     }
 }
+SAMPLE_FIXTURES = {
+    SAMPLE_URL: {
+        'GET': (
+            (),
+            [GET_SAMPLE]
+        ),
+    },
+    '%s?%s' % (SAMPLE_URL, QUERIES): {
+        'GET': (
+            {},
+            [],
+        ),
+    },
+    '%s?%s' % (SAMPLE_URL, LIMIT): {
+        'GET': (
+            {},
+            [GET_SAMPLE],
+        ),
+    },
+}
 
 
-class SampleManagerTest(utils.BaseTestCase):
+class OldSampleManagerTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(SampleManagerTest, self).setUp()
-        self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
+        super(OldSampleManagerTest, self).setUp()
+        self.http_client = fake_client.FakeHTTPClient(
+            fixtures=OLD_SAMPLE_FIXTURES)
         self.api = client.BaseClient(self.http_client)
         self.mgr = ceilometerclient.v2.samples.SampleManager(self.api)
 
@@ -94,7 +129,7 @@ class SampleManagerTest(utils.BaseTestCase):
                                          {"field": "source",
                                           "value": "bar"},
                                      ]))
-        expect = ['GET', '%s?%s' % (base_url, args)]
+        expect = ['GET', '%s?%s' % (METER_URL, QUERIES)]
         self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 0)
 
@@ -109,5 +144,43 @@ class SampleManagerTest(utils.BaseTestCase):
     def test_limit(self):
         samples = list(self.mgr.list(meter_name='instance', limit=1))
         expect = ['GET', '/v2/meters/instance?limit=1']
+        self.http_client.assert_called(*expect)
+        self.assertEqual(len(samples), 1)
+
+
+class SampleManagerTest(utils.BaseTestCase):
+
+    def setUp(self):
+        super(SampleManagerTest, self).setUp()
+        self.http_client = fake_client.FakeHTTPClient(
+            fixtures=SAMPLE_FIXTURES)
+        self.api = client.BaseClient(self.http_client)
+        self.mgr = ceilometerclient.v2.samples.SampleManager(self.api)
+
+    def test_sample_list(self):
+        samples = list(self.mgr.list())
+        expect = [
+            'GET', '/v2/samples'
+        ]
+        self.http_client.assert_called(*expect)
+        self.assertEqual(len(samples), 1)
+        self.assertEqual(samples[0].resource_id,
+                         '9b651dfd-7d30-402b-972e-212b2c4bfb05')
+
+    def test_sample_list_with_queries(self):
+        queries = [
+            {"field": "resource_id",
+             "value": "foo"},
+            {"field": "source",
+             "value": "bar"},
+        ]
+        samples = list(self.mgr.list(q=queries))
+        expect = ['GET', '%s?%s' % (SAMPLE_URL, QUERIES)]
+        self.http_client.assert_called(*expect)
+        self.assertEqual(len(samples), 0)
+
+    def test_sample_list_with_limit(self):
+        samples = list(self.mgr.list(limit=1))
+        expect = ['GET', '/v2/samples?limit=1']
         self.http_client.assert_called(*expect)
         self.assertEqual(len(samples), 1)
