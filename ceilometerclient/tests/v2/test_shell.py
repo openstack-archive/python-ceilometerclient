@@ -323,47 +323,74 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
 class ShellSampleListCommandTest(utils.BaseTestCase):
 
     METER = 'cpu_util'
-    SAMPLES = [{"counter_name": "cpu_util",
-                "resource_id": "5dcf5537-3161-4e25-9235-407e1385bd35",
-                "timestamp": "2013-10-15T05:50:30",
-                "counter_unit": "%",
-                "counter_volume": 0.261666666667,
-                "counter_type": "gauge"},
-               {"counter_name": "cpu_util",
-                "resource_id": "87d197e9-9cf6-4c25-bc66-1b1f4cedb52f",
-                "timestamp": "2013-10-15T05:50:29",
-                "counter_unit": "%",
-                "counter_volume": 0.261666666667,
-                "counter_type": "gauge"},
-               {"counter_name": "cpu_util",
-                "resource_id": "5dcf5537-3161-4e25-9235-407e1385bd35",
-                "timestamp": "2013-10-15T05:40:30",
-                "counter_unit": "%",
-                "counter_volume": 0.251247920133,
-                "counter_type": "gauge"},
-               {"counter_name": "cpu_util",
-                "resource_id": "87d197e9-9cf6-4c25-bc66-1b1f4cedb52f",
-                "timestamp": "2013-10-15T05:40:29",
-                "counter_unit": "%",
-                "counter_volume": 0.26,
-                "counter_type": "gauge"}]
+    SAMPLE_VALUES = (
+        ("cpu_util",
+         "5dcf5537-3161-4e25-9235-407e1385bd35",
+         "2013-10-15T05:50:30",
+         "%",
+         0.261666666667,
+         "gauge",
+         "86536501-b2c9-48f6-9c6a-7a5b14ba7482"),
+        ("cpu_util",
+         "87d197e9-9cf6-4c25-bc66-1b1f4cedb52f",
+         "2013-10-15T05:50:29",
+         "%",
+         0.261666666667,
+         "gauge",
+         "fe2a91ec-602b-4b55-8cba-5302ce3b916e",),
+        ("cpu_util",
+         "5dcf5537-3161-4e25-9235-407e1385bd35",
+         "2013-10-15T05:40:30",
+         "%",
+         0.251247920133,
+         "gauge",
+         "52768bcb-b4e9-4db9-a30c-738c758b6f43"),
+        ("cpu_util",
+         "87d197e9-9cf6-4c25-bc66-1b1f4cedb52f",
+         "2013-10-15T05:40:29",
+         "%",
+         0.26,
+         "gauge",
+         "31ae614a-ac6b-4fb9-b106-4667bae03308"),
+    )
+
+    OLD_SAMPLES = [
+        dict(counter_name=s[0],
+             resource_id=s[1],
+             timestamp=s[2],
+             counter_unit=s[3],
+             counter_volume=s[4],
+             counter_type=s[5])
+        for s in SAMPLE_VALUES
+    ]
+
+    SAMPLES = [
+        dict(meter=s[0],
+             resource_id=s[1],
+             timestamp=s[2],
+             unit=s[3],
+             volume=s[4],
+             type=s[5],
+             id=s[6])
+        for s in SAMPLE_VALUES
+    ]
 
     def setUp(self):
         super(ShellSampleListCommandTest, self).setUp()
         self.cc = mock.Mock()
         self.args = mock.Mock()
-        self.args.meter = self.METER
         self.args.query = None
         self.args.limit = None
 
     @mock.patch('sys.stdout', new=six.StringIO())
-    def test_sample_list(self):
-        sample_list = [samples.Sample(mock.Mock(), sample)
-                       for sample in self.SAMPLES]
-        self.cc.samples.list.return_value = sample_list
+    def test_old_sample_list(self):
+        self.args.meter = self.METER
+        sample_list = [samples.OldSample(mock.Mock(), sample)
+                       for sample in self.OLD_SAMPLES]
+        self.cc.old_samples.list.return_value = sample_list
 
         ceilometer_shell.do_sample_list(self.cc, self.args)
-        self.cc.samples.list.assert_called_once_with(
+        self.cc.old_samples.list.assert_called_once_with(
             meter_name=self.METER,
             q=None,
             limit=None)
@@ -385,6 +412,91 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
 | %    | 2013-10-15T05:40:29 |
 +--------------------------------------+----------+-------+----------------\
 +------+---------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_sample_list(self):
+        self.args.meter = None
+        sample_list = [samples.Sample(mock.Mock(), sample)
+                       for sample in self.SAMPLES]
+        self.cc.samples.list.return_value = sample_list
+
+        ceilometer_shell.do_sample_list(self.cc, self.args)
+        self.cc.samples.list.assert_called_once_with(
+            q=None,
+            limit=None)
+
+        self.assertEqual('''\
++--------------------------------------+--------------------------------------\
++----------+-------+----------------+------+---------------------+
+| ID                                   | Resource ID                          \
+| Name     | Type  | Volume         | Unit | Timestamp           |
++--------------------------------------+--------------------------------------\
++----------+-------+----------------+------+---------------------+
+| 86536501-b2c9-48f6-9c6a-7a5b14ba7482 | 5dcf5537-3161-4e25-9235-407e1385bd35 \
+| cpu_util | gauge | 0.261666666667 | %    | 2013-10-15T05:50:30 |
+| fe2a91ec-602b-4b55-8cba-5302ce3b916e | 87d197e9-9cf6-4c25-bc66-1b1f4cedb52f \
+| cpu_util | gauge | 0.261666666667 | %    | 2013-10-15T05:50:29 |
+| 52768bcb-b4e9-4db9-a30c-738c758b6f43 | 5dcf5537-3161-4e25-9235-407e1385bd35 \
+| cpu_util | gauge | 0.251247920133 | %    | 2013-10-15T05:40:30 |
+| 31ae614a-ac6b-4fb9-b106-4667bae03308 | 87d197e9-9cf6-4c25-bc66-1b1f4cedb52f \
+| cpu_util | gauge | 0.26           | %    | 2013-10-15T05:40:29 |
++--------------------------------------+--------------------------------------\
++----------+-------+----------------+------+---------------------+
+''', sys.stdout.getvalue())
+
+
+class ShellSampleShowCommandTest(utils.BaseTestCase):
+
+    SAMPLE = {
+        "user_id": None,
+        "resource_id": "9b651dfd-7d30-402b-972e-212b2c4bfb05",
+        "timestamp": "2014-11-03T13:37:46",
+        "meter": "image",
+        "volume": 1.0,
+        "source": "openstack",
+        "recorded_at": "2014-11-03T13:37:46.994458",
+        "project_id": "2cc3a7bb859b4bacbeab0aa9ca673033",
+        "type": "gauge",
+        "id": "98b5f258-635e-11e4-8bdd-0025647390c1",
+        "unit": "image",
+        "metadata": {
+            "name": "cirros-0.3.2-x86_64-uec",
+        }
+    }
+
+    def setUp(self):
+        super(ShellSampleShowCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.args = mock.Mock()
+        self.args.sample_id = "98b5f258-635e-11e4-8bdd-0025647390c1"
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_sample_show(self):
+        sample = samples.Sample(mock.Mock(), self.SAMPLE)
+        self.cc.samples.get.return_value = sample
+
+        ceilometer_shell.do_sample_show(self.cc, self.args)
+        self.cc.samples.get.assert_called_once_with(
+            "98b5f258-635e-11e4-8bdd-0025647390c1")
+
+        self.assertEqual('''\
++-------------+--------------------------------------+
+| Property    | Value                                |
++-------------+--------------------------------------+
+| id          | 98b5f258-635e-11e4-8bdd-0025647390c1 |
+| metadata    | {"name": "cirros-0.3.2-x86_64-uec"}  |
+| meter       | image                                |
+| project_id  | 2cc3a7bb859b4bacbeab0aa9ca673033     |
+| recorded_at | 2014-11-03T13:37:46.994458           |
+| resource_id | 9b651dfd-7d30-402b-972e-212b2c4bfb05 |
+| source      | openstack                            |
+| timestamp   | 2014-11-03T13:37:46                  |
+| type        | gauge                                |
+| unit        | image                                |
+| user_id     | None                                 |
+| volume      | 1.0                                  |
++-------------+--------------------------------------+
 ''', sys.stdout.getvalue())
 
 
@@ -421,9 +533,9 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_sample_create(self):
-        ret_sample = [samples.Sample(mock.Mock(), sample)
+        ret_sample = [samples.OldSample(mock.Mock(), sample)
                       for sample in self.SAMPLE]
-        self.cc.samples.create.return_value = ret_sample
+        self.cc.old_samples.create.return_value = ret_sample
 
         ceilometer_shell.do_sample_create(self.cc, self.args)
 
