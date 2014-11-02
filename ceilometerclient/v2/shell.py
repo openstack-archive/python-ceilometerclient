@@ -123,17 +123,24 @@ def do_statistics(cc, args):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
-@utils.arg('-m', '--meter', metavar='<NAME>', required=True,
+@utils.arg('-m', '--meter', metavar='<NAME>',
            action=NotEmptyAction, help='Name of meter to show samples for.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
            help='Maximum number of samples to return.')
 def do_sample_list(cc, args):
-    '''List the samples for a meter.'''
+    '''List all samples (return OldSample objects if -m/--meter is set).'''
+    if not args.meter:
+        return _do_sample_list(cc, args)
+    else:
+        return _do_old_sample_list(cc, args)
+
+
+def _do_old_sample_list(cc, args):
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query),
               'limit': args.limit}
     try:
-        samples = cc.samples.list(**fields)
+        samples = cc.old_samples.list(**fields)
     except exc.HTTPNotFound:
         raise exc.CommandError('Samples not found: %s' % args.meter)
     else:
@@ -141,8 +148,36 @@ def do_sample_list(cc, args):
                         'Timestamp']
         fields = ['resource_id', 'counter_name', 'counter_type',
                   'counter_volume', 'counter_unit', 'timestamp']
-        utils.print_list(samples, fields, field_labels,
-                         sortby=None)
+        utils.print_list(samples, fields, field_labels, sortby=None)
+
+
+def _do_sample_list(cc, args):
+    fields = {
+        'q': options.cli_to_array(args.query),
+        'limit': args.limit
+    }
+    samples = cc.samples.list(**fields)
+    field_labels = ['ID', 'Resource ID', 'Name', 'Type', 'Volume', 'Unit',
+                    'Timestamp']
+    fields = ['id', 'resource_id', 'meter', 'type', 'volume', 'unit',
+              'timestamp']
+    utils.print_list(samples, fields, field_labels, sortby=None)
+
+
+@utils.arg('sample_id', metavar='<SAMPLE_ID>', action=NotEmptyAction,
+           help='ID (aka message ID) of the sample to show.')
+def do_sample_show(cc, args):
+    '''Show an sample.'''
+    sample = cc.samples.get(args.sample_id)
+
+    if sample is None:
+        raise exc.CommandError('Sample not found: %s' % args.sample_id)
+
+    fields = ['id', 'meter', 'volume', 'type', 'unit', 'source',
+              'resource_id', 'user_id', 'project_id',
+              'timestamp', 'recorded_at', 'metadata']
+    data = dict((f, getattr(sample, f, '')) for f in fields)
+    utils.print_dict(data, wrap=72)
 
 
 @utils.arg('--project-id', metavar='<PROJECT_ID>',
@@ -180,7 +215,7 @@ def do_sample_create(cc, args={}):
                 fields[k] = json.loads(v)
             else:
                 fields[arg_to_field_mapping.get(k, k)] = v
-    sample = cc.samples.create(**fields)
+    sample = cc.old_samples.create(**fields)
     fields = ['counter_name', 'user_id', 'resource_id',
               'timestamp', 'message_id', 'source', 'counter_unit',
               'counter_volume', 'project_id', 'resource_metadata',
