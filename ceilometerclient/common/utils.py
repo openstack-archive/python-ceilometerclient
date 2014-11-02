@@ -19,6 +19,7 @@ import sys
 import textwrap
 import uuid
 
+from oslo.serialization import jsonutils
 from oslo.utils import encodeutils
 from oslo.utils import importutils
 import prettytable
@@ -89,7 +90,7 @@ def print_dict(d, dict_property="Property", wrap=0):
     for k, v in sorted(six.iteritems(d)):
         # convert dict to str to check length
         if isinstance(v, dict):
-            v = str(v)
+            v = jsonutils.dumps(v)
         # if value has a newline, add in multiple rows
         # e.g. fault with stacktrace
         if v and isinstance(v, six.string_types) and r'\n' in v:
