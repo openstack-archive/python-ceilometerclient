@@ -17,7 +17,6 @@ import mock
 from ceilometerclient import client
 from ceilometerclient.tests import fakes
 from ceilometerclient.tests import utils
-from ceilometerclient.v1 import client as v1client
 from ceilometerclient.v2 import client as v2client
 
 FAKE_ENV = {'username': 'username',
@@ -41,9 +40,6 @@ class ClientTest(utils.BaseTestCase):
         super(ClientTest, self).setUp()
 
     def test_client_version(self):
-        c1 = self.create_client(env=FAKE_ENV, api_version=1)
-        self.assertIsInstance(c1, v1client.Client)
-
         c2 = self.create_client(env=FAKE_ENV, api_version=2)
         self.assertIsInstance(c2, v2client.Client)
 

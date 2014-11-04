@@ -22,7 +22,6 @@ from testtools import matchers
 from ceilometerclient import exc
 from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.tests import utils
-from ceilometerclient.v1 import client as v1client
 
 FAKE_V2_ENV = {'OS_USERNAME': 'username',
                'OS_PASSWORD': 'password',
@@ -49,8 +48,6 @@ class ShellTest(utils.BaseTestCase):
 
     @mock.patch('sys.stdout', new=six.StringIO())
     @mock.patch.object(ks_session, 'Session', mock.MagicMock())
-    @mock.patch.object(v1client.client.HTTPClient,
-                       'client_request', mock.MagicMock())
     def shell(self, argstr):
         try:
             _shell = ceilometer_shell.CeilometerShell()

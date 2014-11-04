@@ -14,7 +14,13 @@ First create a client instance with your credentials::
     >>> import ceilometerclient.client
     >>> cclient = ceilometerclient.client.get_client(VERSION, username=USERNAME, password=PASSWORD, tenant_name=PROJECT_NAME, auth_url=AUTH_URL)
 
-Here ``VERSION`` can be: ``1`` and ``2``.
+Here ``VERSION`` can be: ``2``.
+
+.. warning::
+
+   The V1 Web API is being deprecated during the Havana development
+   cycle and no longer exists since Juno. CLI V1 has been removed
+   since v1.0.13.
 
 Then call methods on its managers::
 
