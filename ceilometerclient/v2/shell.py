@@ -22,6 +22,7 @@ import argparse
 import functools
 import json
 
+from oslo.serialization import jsonutils
 from oslo.utils import strutils
 import six
 
@@ -1079,3 +1080,15 @@ def do_query_alarm_history(cc, args):
         utils.print_list(alarm_history, fields, field_labels,
                          formatters={'rule': alarm_change_detail_formatter},
                          sortby=None)
+
+
+def do_capabilities(cc, args):
+    """Print Ceilometer capabilities."""
+    capabilities = cc.capabilities.get().to_dict()
+    # Capability is a nested dict, and has no user defined data,
+    # so it is safe to format here with json tools.
+    for key in capabilities:
+        # remove the leading and trailing pair of {}
+        capabilities[key] = jsonutils.dumps(capabilities[key],
+                                            sort_keys=True, indent=0)[2:-2]
+    utils.print_dict(capabilities)
