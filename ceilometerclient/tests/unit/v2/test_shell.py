@@ -27,6 +27,7 @@ from ceilometerclient import shell as base_shell
 from ceilometerclient.tests.unit import test_shell
 from ceilometerclient.tests.unit import utils
 from ceilometerclient.v2 import alarms
+from ceilometerclient.v2 import capabilities
 from ceilometerclient.v2 import events
 from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import shell as ceilometer_shell
@@ -1173,3 +1174,45 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
         args, kwargs = mocked.call_args
         self.assertEqual('the-project-id-i-want-to-set',
                          kwargs.get('project_id'))
+
+
+class ShellCapabilityShowTest(utils.BaseTestCase):
+
+    CAPABILITIES = {
+        "alarm_storage": {
+            "storage:production_ready": True
+        },
+        "api": {
+            "alarms:query:complex": True,
+            "alarms:query:simple": True
+        },
+        "event_storage": {
+            "storage:production_ready": True
+        },
+        "storage": {
+            "storage:production_ready": True
+        },
+    }
+
+    def setUp(self):
+        super(ShellCapabilityShowTest, self).setUp()
+        self.cc = mock.Mock()
+        self.args = mock.Mock()
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_capability_show(self):
+        _cap = capabilities.Capabilities(mock.Mock, self.CAPABILITIES)
+        self.cc.capabilities.get.return_value = _cap
+
+        ceilometer_shell.do_capabilities(self.cc, self.args)
+        self.assertEqual('''\
++---------------+----------------------------------+
+| Property      | Value                            |
++---------------+----------------------------------+
+| alarm_storage | "storage:production_ready": true |
+| api           | "alarms:query:complex": true,    |
+|               | "alarms:query:simple": true      |
+| event_storage | "storage:production_ready": true |
+| storage       | "storage:production_ready": true |
++---------------+----------------------------------+
+''', sys.stdout.getvalue())
