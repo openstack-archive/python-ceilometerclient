@@ -22,6 +22,7 @@ import argparse
 import functools
 import json
 
+from oslo.serialization import jsonutils
 from oslo.utils import strutils
 import six
 
@@ -868,3 +869,16 @@ def do_query_alarm_history(cc, args):
         utils.print_list(alarm_history, fields, field_labels,
                          formatters={'rule': alarm_change_detail_formatter},
                          sortby=None)
+
+
+def do_capability_show(cc, args):
+    capability = cc.capabilities.get()
+    # Capability is a nested dict, and has no user defined data,
+    # so it is safe to format here with json tools.
+    data = {}
+    for f in ["alarm_storage", "api", "event_storage", "storage"]:
+        item = getattr(capability, f, {})
+        # remove the leading and trailing pair of {}
+        item_str = jsonutils.dumps(item, sort_keys=True, indent=0)[2:-2]
+        data[f] = item_str
+    utils.print_dict(data)
