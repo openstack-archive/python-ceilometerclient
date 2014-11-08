@@ -18,6 +18,7 @@
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.v2 import alarms
+from ceilometerclient.v2 import capabilities
 from ceilometerclient.v2 import event_types
 from ceilometerclient.v2 import events
 from ceilometerclient.v2 import meters
@@ -80,3 +81,4 @@ class Client(object):
             self.http_client)
         self.query_alarm_history = query.QueryAlarmHistoryManager(
             self.http_client)
+        self.capabilities = capabilities.CapabilitiesManager(self.http_client)
