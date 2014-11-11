@@ -261,6 +261,10 @@ def get_client(version, **kwargs):
         'cert_file': kwargs.get('os_cert'),
         'key_file': kwargs.get('os_key'),
         'token': kwargs.get('os_auth_token'),
+        'user_domain_name': kwargs.get('os_user_domain_name'),
+        'user_domain_id': kwargs.get('os_user_domain_id'),
+        'project_domain_name': kwargs.get('os_project_domain_name'),
+        'project_domain_id': kwargs.get('os_project_domain_id'),
     }
 
     cli_kwargs.update(kwargs)
@@ -279,5 +283,9 @@ def get_auth_plugin(endpoint, **kwargs):
         username=kwargs.get('username'),
         password=kwargs.get('password'),
         tenant_name=kwargs.get('tenant_name'),
+        user_domain_name=kwargs.get('user_domain_name'),
+        user_domain_id=kwargs.get('user_domain_id'),
+        project_domain_name=kwargs.get('project_domain_name'),
+        project_domain_id=kwargs.get('project_domain_id')
     )
     return auth_plugin
