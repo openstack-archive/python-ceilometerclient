@@ -20,13 +20,17 @@ from ceilometerclient.tests import utils
 from ceilometerclient.v1 import client as v1client
 from ceilometerclient.v2 import client as v2client
 
-FAKE_ENV = {'username': 'username',
-            'password': 'password',
-            'tenant_name': 'tenant_name',
-            'auth_url': 'http://no.where',
-            'ceilometer_url': 'http://no.where',
-            'auth_plugin': 'fake_auth',
-            'token': '1234'}
+FAKE_ENV = {
+    'username': 'username',
+    'password': 'password',
+    'tenant_name': 'tenant_name',
+    'auth_url': 'http://no.where',
+    'ceilometer_url': 'http://no.where',
+    'auth_plugin': 'fake_auth',
+    'token': '1234',
+    'user_domain_name': 'default',
+    'project_domain_name': 'default',
+}
 
 
 class ClientTest(utils.BaseTestCase):
@@ -68,6 +72,29 @@ class ClientTest(utils.BaseTestCase):
         del env['auth_plugin']
         c = self.create_client(env, api_version=2, endpoint='fake_endpoint')
         self.assertIsInstance(c.auth_plugin, client.AuthPlugin)
+
+    def test_client_without_auth_plugin_keystone_v3(self):
+        env = FAKE_ENV.copy()
+        del env['auth_plugin']
+        expected = {
+            'username': 'username',
+            'endpoint': None,
+            'tenant_name': 'tenant_name',
+            'service_type': None,
+            'token': '1234',
+            'endpoint_type': None,
+            'auth_url': 'http://no.where',
+            'tenant_id': None,
+            'cacert': None,
+            'password': 'password',
+            'user_domain_name': 'default',
+            'user_domain_id': None,
+            'project_domain_name': 'default',
+            'project_domain_id': None,
+        }
+        with mock.patch('ceilometerclient.client.AuthPlugin') as auth_plugin:
+            self.create_client(env, api_version=2)
+            auth_plugin.assert_called_with(**expected)
 
     def test_client_with_auth_plugin(self):
         c = self.create_client(FAKE_ENV, api_version=2)
