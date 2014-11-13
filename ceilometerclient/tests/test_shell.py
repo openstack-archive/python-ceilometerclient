@@ -22,7 +22,7 @@ from testtools import matchers
 from ceilometerclient import exc
 from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.tests import utils
-from ceilometerclient.v1 import client as v1client
+from ceilometerclient.v2 import client as v2client
 
 FAKE_V2_ENV = {'OS_USERNAME': 'username',
                'OS_PASSWORD': 'password',
@@ -36,20 +36,20 @@ FAKE_V3_ENV = {'OS_USERNAME': 'username',
                'OS_AUTH_URL': 'http://localhost:5000/v3'}
 
 
-class ShellTest(utils.BaseTestCase):
-    re_options = re.DOTALL | re.MULTILINE
+class ShellTestBase(utils.BaseTestCase):
 
     # Patch os.environ to avoid required auth info.
     def make_env(self, env_version, exclude=None):
         env = dict((k, v) for k, v in env_version.items() if k != exclude)
         self.useFixture(fixtures.MonkeyPatch('os.environ', env))
 
-    def setUp(self):
-        super(ShellTest, self).setUp()
+
+class ShellHelpTest(ShellTestBase):
+    RE_OPTIONS = re.DOTALL | re.MULTILINE
 
     @mock.patch('sys.stdout', new=six.StringIO())
     @mock.patch.object(ks_session, 'Session', mock.MagicMock())
-    @mock.patch.object(v1client.client.HTTPClient,
+    @mock.patch.object(v2client.client.HTTPClient,
                        'client_request', mock.MagicMock())
     def shell(self, argstr):
         try:
@@ -75,7 +75,7 @@ class ShellTest(utils.BaseTestCase):
             for r in required:
                 self.assertThat(help_text,
                                 matchers.MatchesRegex(r,
-                                                      self.re_options))
+                                                      self.RE_OPTIONS))
 
     def test_help_on_subcommand(self):
         required = [
@@ -89,14 +89,10 @@ class ShellTest(utils.BaseTestCase):
             help_text = self.shell(argstr)
             for r in required:
                 self.assertThat(help_text,
-                                matchers.MatchesRegex(r, self.re_options))
+                                matchers.MatchesRegex(r, self.RE_OPTIONS))
 
 
-class ShellKeystoneV2Test(ShellTest):
-
-    def test_auth_param(self):
-        self.make_env(FAKE_V2_ENV, exclude='OS_USERNAME')
-        self.test_help()
+class ShellKeystoneV2Test(ShellTestBase):
 
     @mock.patch.object(ks_session, 'Session')
     def test_debug_switch_raises_error(self, mock_ksclient):
@@ -121,11 +117,7 @@ class ShellKeystoneV2Test(ShellTest):
         self.assertRaises(SystemExit, ceilometer_shell.main, args)
 
 
-class ShellKeystoneV3Test(ShellTest):
-
-    def test_auth_param(self):
-        self.make_env(FAKE_V3_ENV, exclude='OS_USER_DOMAIN_NAME')
-        self.test_help()
+class ShellKeystoneV3Test(ShellTestBase):
 
     @mock.patch.object(ks_session, 'Session')
     def test_debug_switch_raises_error(self, mock_ksclient):
