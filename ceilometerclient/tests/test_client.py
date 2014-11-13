@@ -72,3 +72,38 @@ class ClientTest(utils.BaseTestCase):
     def test_client_with_auth_plugin(self):
         c = self.create_client(FAKE_ENV, api_version=2)
         self.assertIsInstance(c.auth_plugin, str)
+
+    def test_v2_client_timeout_invalid_value(self):
+        env = FAKE_ENV.copy()
+        env['timeout'] = 'abc'
+        self.assertRaises(ValueError, self.create_client, env)
+        env['timeout'] = '1.5'
+        self.assertRaises(ValueError, self.create_client, env)
+
+    def _test_v2_client_timeout_integer(self, timeout, expected_value):
+        env = FAKE_ENV.copy()
+        env['timeout'] = timeout
+        expected = {
+            'auth_plugin': 'fake_auth',
+            'timeout': expected_value,
+            'original_ip': None,
+            'http': None,
+            'region_name': None,
+            'verify': None,
+            'timings': None,
+            'keyring_saver': None,
+            'cert': None,
+            'endpoint_type': None,
+            'user_agent': None,
+            'debug': None,
+        }
+        cls = 'ceilometerclient.openstack.common.apiclient.client.HTTPClient'
+        with mock.patch(cls) as mocked:
+            self.create_client(env)
+            mocked.assert_called_with(**expected)
+
+    def test_v2_client_timeout_zero(self):
+        self._test_v2_client_timeout_integer(0, None)
+
+    def test_v2_client_timeout_valid_value(self):
+        self._test_v2_client_timeout_integer(30, 30)
