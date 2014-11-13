@@ -30,6 +30,20 @@ from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils
 
 
+def _positive_non_zero_int(argument_value):
+    if argument_value is None:
+        return None
+    try:
+        value = int(argument_value)
+    except ValueError:
+        msg = "%s must be an integer" % argument_value
+        raise argparse.ArgumentTypeError(msg)
+    if value <= 0:
+        msg = "%s must be greater than 0" % argument_value
+        raise argparse.ArgumentTypeError(msg)
+    return value
+
+
 class CeilometerShell(object):
 
     def get_base_parser(self):
@@ -64,6 +78,7 @@ class CeilometerShell(object):
 
         parser.add_argument('--timeout',
                             default=600,
+                            type=_positive_non_zero_int,
                             help='Number of seconds to wait for a response.')
 
         parser.add_argument('--ceilometer-url',

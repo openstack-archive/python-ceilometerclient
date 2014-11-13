@@ -140,3 +140,38 @@ class ShellKeystoneV3Test(ShellTestBase):
         self.make_env(FAKE_V3_ENV)
         args = ['event-list']
         self.assertRaises(SystemExit, ceilometer_shell.main, args)
+
+
+class ShellTimeoutTest(ShellTestBase):
+
+    @mock.patch('sys.stderr', new=six.StringIO())
+    def test_timeout_invalid_value(self):
+        args = ['--timeout', 'abc', 'alarm-list']
+        self.assertRaises(SystemExit, ceilometer_shell.main, args)
+        expected_msg = ('ceilometer: error: argument --timeout: '
+                        'abc must be an integer')
+        self.assertEqual(expected_msg, sys.stderr.getvalue().splitlines()[-1])
+
+    @mock.patch('sys.stderr', new=six.StringIO())
+    def test_timeout_negative_value(self):
+        args = ['--timeout', '-1', 'alarm-list']
+        self.assertRaises(SystemExit, ceilometer_shell.main, args)
+        expected_msg = ('ceilometer: error: argument --timeout: '
+                        '-1 must be greater than 0')
+        self.assertEqual(expected_msg, sys.stderr.getvalue().splitlines()[-1])
+
+    @mock.patch('sys.stderr', new=six.StringIO())
+    def test_timeout_float_value(self):
+        args = ['--timeout', '1.5', 'alarm-list']
+        self.assertRaises(SystemExit, ceilometer_shell.main, args)
+        expected_msg = ('ceilometer: error: argument --timeout: '
+                        '1.5 must be an integer')
+        self.assertEqual(expected_msg, sys.stderr.getvalue().splitlines()[-1])
+
+    @mock.patch('sys.stderr', new=six.StringIO())
+    def test_timeout_zero(self):
+        args = ['--timeout', '0', 'alarm-list']
+        self.assertRaises(SystemExit, ceilometer_shell.main, args)
+        expected_msg = ('ceilometer: error: argument --timeout: '
+                        '0 must be greater than 0')
+        self.assertEqual(expected_msg, sys.stderr.getvalue().splitlines()[-1])

@@ -32,11 +32,14 @@ from ceilometerclient.v2 import traits
 class Client(object):
     """Client for the Ceilometer v2 API.
 
-    :param string endpoint: A user-supplied endpoint URL for the ceilometer
+    :param endpoint: A user-supplied endpoint URL for the ceilometer
                             service.
-    :param function token: Provides token for authentication.
-    :param integer timeout: Allows customization of the timeout for client
-                            http requests. (optional)
+    :type endpoint: string
+    :param token: Provides token for authentication.
+    :type token: function
+    :param timeout: Allows customization of the timeout for client
+                    http requests. (optional)
+    :type timeout: integer
     """
 
     def __init__(self, *args, **kwargs):
@@ -44,6 +47,13 @@ class Client(object):
         """Initialize a new client for the Ceilometer v2 API."""
         self.auth_plugin = kwargs.get('auth_plugin') \
             or ceiloclient.get_auth_plugin(*args, **kwargs)
+
+        timeout = kwargs.get('timeout')
+        if timeout is not None:
+            timeout = int(timeout)
+            if timeout <= 0:
+                timeout = None
+
         self.client = client.HTTPClient(
             auth_plugin=self.auth_plugin,
             region_name=kwargs.get('region_name'),
@@ -51,7 +61,7 @@ class Client(object):
             original_ip=kwargs.get('original_ip'),
             verify=kwargs.get('verify'),
             cert=kwargs.get('cacert'),
-            timeout=kwargs.get('timeout'),
+            timeout=timeout,
             timings=kwargs.get('timings'),
             keyring_saver=kwargs.get('keyring_saver'),
             debug=kwargs.get('debug'),
