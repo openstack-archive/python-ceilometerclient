@@ -41,6 +41,38 @@ class UtilsTest(test_utils.BaseTestCase):
 +----------+-------+
 ''', stdout.getvalue())
 
+        with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
+            utils.print_dict({'alarm_id': '262567fd-d79a-4bbb-a9d0-59d879b6',
+                              'description': 'test alarm',
+                              'state': 'insufficient data',
+                              'repeat_actions': 'False',
+                              'type': 'threshold',
+                              'threshold': '1.0',
+                              'statistic': 'avg',
+                              'time_constraints': '[{name: c1,'
+                                                  '\\n  description: test,'
+                                                  '\\n  start: 0 18 * * *,'
+                                                  '\\n  duration: 1,'
+                                                  '\\n  timezone: US}]'})
+            self.assertEqual('''\
++------------------+----------------------------------+
+| Property         | Value                            |
++------------------+----------------------------------+
+| alarm_id         | 262567fd-d79a-4bbb-a9d0-59d879b6 |
+| description      | test alarm                       |
+| repeat_actions   | False                            |
+| state            | insufficient data                |
+| statistic        | avg                              |
+| threshold        | 1.0                              |
+| time_constraints | [{name: c1,                      |
+|                  |   description: test,             |
+|                  |   start: 0 18 * * *,             |
+|                  |   duration: 1,                   |
+|                  |   timezone: US}]                 |
+| type             | threshold                        |
++------------------+----------------------------------+
+''', stdout.getvalue())
+
     def test_print_list(self):
         class Foo:
             def __init__(self, one, two, three):
