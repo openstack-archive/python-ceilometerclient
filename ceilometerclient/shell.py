@@ -81,11 +81,14 @@ class CeilometerShell(object):
                             type=_positive_non_zero_int,
                             help='Number of seconds to wait for a response.')
 
-        parser.add_argument('--ceilometer-url',
+        parser.add_argument('--ceilometer-url', metavar='<CEILOMETER_URL>',
+                            dest='os_endpoint',
                             default=cliutils.env('CEILOMETER_URL'),
-                            help='Defaults to env[CEILOMETER_URL].')
+                            help=("DEPRECATED, use --os-endpoint instead. "
+                                  "Defaults to env[CEILOMETER_URL]."))
 
         parser.add_argument('--ceilometer_url',
+                            dest='os_endpoint',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ceilometer-api-version',
@@ -154,7 +157,7 @@ class CeilometerShell(object):
 
     def parse_args(self, argv):
         # Parse args once to find version
-        self.auth_plugin = ceiloclient.AuthPlugin(argv)
+        self.auth_plugin = ceiloclient.AuthPlugin()
         parser = self.get_base_parser()
         (options, args) = parser.parse_known_args(argv)
         self.auth_plugin.parse_opts(options)
@@ -196,7 +199,9 @@ class CeilometerShell(object):
             self.do_bash_completion(args)
             return 0
 
-        if not (self.auth_plugin.opts['auth_token'] and args.ceilometer_url):
+        if not ((self.auth_plugin.opts.get('token')
+                 or self.auth_plugin.opts.get('auth_token'))
+                and self.auth_plugin.opts['endpoint']):
             if not self.auth_plugin.opts['username']:
                 raise exc.CommandError("You must provide a username via "
                                        "either --os-username or via "
