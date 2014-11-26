@@ -133,7 +133,7 @@ def _get_endpoint(ks_session, **kwargs):
     service_type = kwargs.get('service_type') or 'metering'
 
     endpoint = ks_session.get_endpoint(service_type=service_type,
-                                       endpoint_type=endpoint_type,
+                                       interface=endpoint_type,
                                        region_name=kwargs.get('region_name'))
 
     return endpoint
@@ -174,7 +174,8 @@ class AuthPlugin(auth.BaseAuthPlugin):
                 'cacert': self.opts.get('cacert'),
                 'cert': self.opts.get('cert'),
                 'key': self.opts.get('key'),
-                'insecure': self.opts.get('insecure')
+                'insecure': self.opts.get('insecure'),
+                'endpoint_type': self.opts.get('endpoint_type'),
             }
 
             # retrieve session
