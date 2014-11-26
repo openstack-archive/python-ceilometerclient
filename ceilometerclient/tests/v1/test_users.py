@@ -42,8 +42,8 @@ class UserManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(UserManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = ceilometerclient.v1.meters.UserManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = ceilometerclient.v1.meters.UserManager(self.client)
 
     def test_list_all(self):
         users = list(self.mgr.list())

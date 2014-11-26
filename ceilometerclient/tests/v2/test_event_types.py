@@ -16,7 +16,7 @@
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
-import ceilometerclient.v2.event_types
+from ceilometerclient.v2 import event_types
 
 
 fixtures = {
@@ -34,8 +34,8 @@ class EventTypesManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(EventTypesManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = ceilometerclient.v2.event_types.EventTypeManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = event_types.EventTypeManager(self.client)
 
     def test_list(self):
         event_types = list(self.mgr.list())

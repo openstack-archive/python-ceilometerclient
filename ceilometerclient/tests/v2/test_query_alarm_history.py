@@ -52,8 +52,8 @@ class QueryAlarmsManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(QueryAlarmsManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = query.QueryAlarmHistoryManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = query.QueryAlarmHistoryManager(self.client)
 
     def test_query(self):
         alarm_history = self.mgr.query(**QUERY)

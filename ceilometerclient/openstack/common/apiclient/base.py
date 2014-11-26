@@ -20,18 +20,32 @@
 Base utilities to build API operation managers and objects on top of.
 """
 
+########################################################################
+#
+# THIS MODULE IS DEPRECATED
+#
+# Please refer to
+# https://etherpad.openstack.org/p/kilo-ceilometerclient-library-proposals for
+# the discussion leading to this deprecation.
+#
+# We recommend checking out the python-openstacksdk project
+# (https://launchpad.net/python-openstacksdk) instead.
+#
+########################################################################
+
+
 # E1102: %s is not callable
 # pylint: disable=E1102
 
 import abc
 import copy
 
+from oslo.utils import strutils
 import six
 from six.moves.urllib import parse
 
+from ceilometerclient.openstack.common._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
-from ceilometerclient.openstack.common.gettextutils import _
-from ceilometerclient.openstack.common import strutils
 
 
 def getid(obj):
@@ -495,6 +509,8 @@ class Resource(object):
         new = self.manager.get(self.id)
         if new:
             self._add_details(new._info)
+            self._add_details(
+                {'x_request_id': self.manager.client.last_request_id})
 
     def __eq__(self, other):
         if not isinstance(other, Resource):

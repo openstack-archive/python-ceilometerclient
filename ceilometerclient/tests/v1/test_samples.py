@@ -124,8 +124,8 @@ class SampleManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(SampleManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = ceilometerclient.v1.meters.SampleManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = ceilometerclient.v1.meters.SampleManager(self.client)
 
     def test_list_all(self):
         samples = list(self.mgr.list(counter_name=None))

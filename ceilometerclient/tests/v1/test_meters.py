@@ -111,8 +111,8 @@ class MeterManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(MeterManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = ceilometerclient.v1.meters.MeterManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = ceilometerclient.v1.meters.MeterManager(self.client)
 
     def test_list_all(self):
         resources = list(self.mgr.list())

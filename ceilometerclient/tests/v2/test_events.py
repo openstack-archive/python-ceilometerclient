@@ -126,8 +126,8 @@ class EventManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(EventManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = ceilometerclient.v2.events.EventManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = ceilometerclient.v2.events.EventManager(self.client)
 
     def test_list_all(self):
         events = list(self.mgr.list())

@@ -34,7 +34,7 @@ class QueryManager(base.Manager):
 
         url = '/v2/query%s' % self.path_suffix
 
-        body = self.api.post(url, json=query).json()
+        body = self.client.post(url, json=query).json()
 
         if body:
             return [self.resource_class(self, b) for b in body]

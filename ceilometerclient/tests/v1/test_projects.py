@@ -42,8 +42,8 @@ class ProjectManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(ProjectManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = ceilometerclient.v1.meters.ProjectManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = ceilometerclient.v1.meters.ProjectManager(self.client)
 
     def test_list_all(self):
         projects = list(self.mgr.list())

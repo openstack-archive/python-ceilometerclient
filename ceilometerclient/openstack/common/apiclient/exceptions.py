@@ -20,26 +20,31 @@
 Exception definitions.
 """
 
+########################################################################
+#
+# THIS MODULE IS DEPRECATED
+#
+# Please refer to
+# https://etherpad.openstack.org/p/kilo-ceilometerclient-library-proposals for
+# the discussion leading to this deprecation.
+#
+# We recommend checking out the python-openstacksdk project
+# (https://launchpad.net/python-openstacksdk) instead.
+#
+########################################################################
+
 import inspect
 import sys
 
 import six
 
-from ceilometerclient.openstack.common.gettextutils import _
+from ceilometerclient.openstack.common._i18n import _
 
 
 class ClientException(Exception):
     """The base exception class for all exceptions this library raises.
     """
     pass
-
-
-class MissingArgs(ClientException):
-    """Supplied arguments are not sufficient for calling a function."""
-    def __init__(self, missing):
-        self.missing = missing
-        msg = _("Missing arguments: %s") % ", ".join(missing)
-        super(MissingArgs, self).__init__(msg)
 
 
 class ValidationError(ClientException):
@@ -447,10 +452,13 @@ def from_response(response, method, url):
         except ValueError:
             pass
         else:
-            if isinstance(body, dict) and isinstance(body.get("error"), dict):
-                error = body["error"]
-                kwargs["message"] = error.get("message")
-                kwargs["details"] = error.get("details")
+            if isinstance(body, dict):
+                error = body.get(list(body)[0])
+                if isinstance(error, dict):
+                    kwargs["message"] = (error.get("message") or
+                                         error.get("faultstring"))
+                    kwargs["details"] = (error.get("details") or
+                                         six.text_type(body))
     elif content_type.startswith("text/"):
         kwargs["details"] = response.text
 

@@ -46,17 +46,17 @@ class Manager(object):
     """
     resource_class = None
 
-    def __init__(self, api):
-        self.api = api
+    def __init__(self, client):
+        self.client = client
 
     def _create(self, url, body):
-        body = self.api.post(url, json=body).json()
+        body = self.client.post(url, json=body).json()
         if body:
             return self.resource_class(self, body)
 
     def _list(self, url, response_key=None, obj_class=None, body=None,
               expect_single=False):
-        resp = self.api.get(url)
+        resp = self.client.get(url)
         if not resp.content:
             raise exc.HTTPNotFound
         body = resp.json()
@@ -76,13 +76,13 @@ class Manager(object):
         return [obj_class(self, res, loaded=True) for res in data if res]
 
     def _update(self, url, body, response_key=None):
-        body = self.api.put(url, json=body).json()
+        body = self.client.put(url, json=body).json()
         # PUT requests may not return a body
         if body:
             return self.resource_class(self, body)
 
     def _delete(self, url):
-        self.api.delete(url)
+        self.client.delete(url)
 
 
 class Resource(base.Resource):

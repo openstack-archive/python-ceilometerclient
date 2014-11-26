@@ -47,6 +47,6 @@ class SampleManager(base.Manager):
         new = dict((key, value) for (key, value) in kwargs.items()
                    if key in CREATION_ATTRIBUTES)
         url = self._path(counter_name=kwargs['counter_name'])
-        body = self.api.post(url, json=[new]).json()
+        body = self.client.post(url, json=[new]).json()
         if body:
             return [Sample(self, b) for b in body]

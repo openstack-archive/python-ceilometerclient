@@ -36,9 +36,9 @@ class TraitDescriptionManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(TraitDescriptionManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
+        self.client = client.BaseClient(self.http_client)
         self.mgr = (ceilometerclient.v2.trait_descriptions.
-                    TraitDescriptionManager(self.api))
+                    TraitDescriptionManager(self.client))
 
     def test_list(self):
         trait_descriptions = list(self.mgr.list('Foo'))

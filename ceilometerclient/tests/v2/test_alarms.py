@@ -268,8 +268,8 @@ class AlarmManagerTest(testtools.TestCase):
     def setUp(self):
         super(AlarmManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = alarms.AlarmManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = alarms.AlarmManager(self.client)
 
     def test_list_all(self):
         alarms = list(self.mgr.list())
@@ -440,8 +440,8 @@ class AlarmLegacyManagerTest(testtools.TestCase):
     def setUp(self):
         super(AlarmLegacyManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = alarms.AlarmManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = alarms.AlarmManager(self.client)
 
     def test_create(self):
         alarm = self.mgr.create(**CREATE_LEGACY_ALARM)
@@ -495,8 +495,8 @@ class AlarmTimeConstraintTest(testtools.TestCase):
     def setUp(self):
         super(AlarmTimeConstraintTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = alarms.AlarmManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = alarms.AlarmManager(self.client)
 
     def test_add_new(self):
         new_constraint = dict(name='cons3',

@@ -12,10 +12,12 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.tests import utils
-import ceilometerclient.v2.statistics
+from ceilometerclient.v2 import statistics
+
 
 base_url = '/v2/meters/instance/statistics'
 qry = ('q.field=resource_id&q.field=source&q.op=&q.op='
@@ -116,8 +118,8 @@ class StatisticsManagerTest(utils.BaseTestCase):
     def setUp(self):
         super(StatisticsManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
-        self.api = client.BaseClient(self.http_client)
-        self.mgr = ceilometerclient.v2.statistics.StatisticsManager(self.api)
+        self.client = client.BaseClient(self.http_client)
+        self.mgr = statistics.StatisticsManager(self.client)
 
     def test_list_by_meter_name(self):
         stats = list(self.mgr.list(meter_name='instance'))
