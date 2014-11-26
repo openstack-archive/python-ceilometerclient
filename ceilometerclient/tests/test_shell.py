@@ -169,3 +169,24 @@ class ShellTimeoutTest(ShellTestBase):
         expected_msg = ('ceilometer: error: argument --timeout: '
                         '0 must be greater than 0')
         self._test_timeout('0', expected_msg)
+
+
+class ShellEndpointTest(ShellTestBase):
+
+    @mock.patch('ceilometerclient.v2.shell.do_alarm_list')
+    def test_ceilometer_url(self, mocked):
+        mocked.return_value = []
+        args = ['--os-auth-token', 'fake-token',
+                '--ceilometer-url', 'http://fake-url', 'alarm-list']
+        self.assertEqual(None, ceilometer_shell.main(args))
+
+    @mock.patch('ceilometerclient.v2.shell.do_alarm_list')
+    def test_endpoint(self, mocked):
+        mocked.return_value = []
+        args = ['--os-auth-token', 'fake-token',
+                '--os-endpoint', 'http://fake-url', 'alarm-list']
+        self.assertEqual(None, ceilometer_shell.main(args))
+
+    def test_without_endpoint_nor_credentials(self):
+        args = ['--debug', '--os-auth-token', 'fake-token', 'alarm-list']
+        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)

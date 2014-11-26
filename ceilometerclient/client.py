@@ -152,10 +152,9 @@ class AuthPlugin(auth.BaseAuthPlugin):
         super(AuthPlugin, self).__init__(auth_system, **kwargs)
 
     def _do_authenticate(self, http_client):
-        if self.opts.get('token') and self.opts.get('endpoint'):
-            token = self.opts.get('token')
-            endpoint = self.opts.get('endpoint')
-        else:
+        token = self.opts.get('token') or self.opts.get('auth_token')
+        endpoint = self.opts.get('endpoint')
+        if not (token and endpoint):
             project_id = self.opts.get('project_id') \
                 or self.opts.get('tenant_id')
             project_name = (self.opts.get('project_name') or
@@ -196,7 +195,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
 
         :raises: AuthPluginOptionsMissing
         """
-        missing = not ((self.opts.get('token') and
+        missing = not ((self.opts.get('auth_token') and
                         self.opts.get('endpoint')) or
                        (self.opts.get('username')
                         and self.opts.get('password')
