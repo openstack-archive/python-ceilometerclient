@@ -153,12 +153,11 @@ class AuthPlugin(auth.BaseAuthPlugin):
         super(AuthPlugin, self).__init__(auth_system, **kwargs)
 
     def _do_authenticate(self, http_client):
-        if self.opts.get('token') and self.opts.get('endpoint'):
-            token = self.opts.get('token')
-            endpoint = self.opts.get('endpoint')
-        else:
-            project_id = self.opts.get('project_id') \
-                or self.opts.get('tenant_id')
+        token = self.opts.get('token') or self.opts.get('auth_token')
+        endpoint = self.opts.get('endpoint')
+        if not (token and endpoint):
+            project_id = (self.opts.get('project_id') or
+                          self.opts.get('tenant_id'))
             project_name = (self.opts.get('project_name') or
                             self.opts.get('tenant_name'))
             ks_kwargs = {
@@ -183,8 +182,8 @@ class AuthPlugin(auth.BaseAuthPlugin):
             # retrieve session
             ks_session = _get_keystone_session(**ks_kwargs)
             token = lambda: ks_session.get_token()
-            endpoint = self.opts.get('endpoint') or \
-                _get_endpoint(ks_session, **ks_kwargs)
+            endpoint = (self.opts.get('endpoint') or
+                        _get_endpoint(ks_session, **ks_kwargs))
         self.opts['token'] = token
         self.opts['endpoint'] = endpoint
 
@@ -199,14 +198,13 @@ class AuthPlugin(auth.BaseAuthPlugin):
 
         :raises: AuthPluginOptionsMissing
         """
-        missing = not ((self.opts.get('token') and
-                        self.opts.get('endpoint')) or
-                       (self.opts.get('username')
-                        and self.opts.get('password')
-                        and self.opts.get('auth_url') and
-                        (self.opts.get('tenant_id')
-                        or self.opts.get('tenant_name'))))
-
+        has_token = self.opts.get('token') or self.opts.get('auth_token')
+        no_auth = has_token and self.opts.get('endpoint')
+        has_tenant = self.opts.get('tenant_id') or self.opts.get('tenant_name')
+        has_credential = (self.opts.get('username') and has_tenant
+                          and self.opts.get('password')
+                          and self.opts.get('auth_url'))
+        missing = not (no_auth or has_credential)
         if missing:
             missing_opts = []
             opts = ['token', 'endpoint', 'username', 'password', 'auth_url',
@@ -220,6 +218,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
 def Client(version, *args, **kwargs):
     module = utils.import_versioned_module(version, 'client')
     client_class = getattr(module, 'Client')
+    kwargs['token'] = kwargs.get('token') or kwargs.get('auth_token')
     return client_class(*args, **kwargs)
 
 
@@ -230,8 +229,12 @@ def get_client(version, **kwargs):
     :param api_version: the API version to use ('1' or '2')
     :param kwargs: keyword args containing credentials, either:
 
-            * os_auth_token: pre-existing token to re-use
-            * ceilometer_url: ceilometer API endpoint
+            * os_auth_token: (DEPRECATED) pre-existing token to re-use,
+                             use os_token instead
+            * os_token: pre-existing token to re-use
+            * ceilometer_url: (DEPRECATED) Ceilometer API endpoint,
+                              use os_endpoint instead
+            * os_endpoint: Ceilometer API endpoint
             or:
             * os_username: name of user
             * os_password: user's password
@@ -249,7 +252,7 @@ def get_client(version, **kwargs):
             * os_key: SSL private key
             * insecure: allow insecure SSL (no cert verification)
     """
-    endpoint = kwargs.get('ceilometer_url')
+    endpoint = kwargs.get('os_endpoint') or kwargs.get('ceilometer_url')
 
     cli_kwargs = {
         'username': kwargs.get('os_username'),
@@ -263,7 +266,7 @@ def get_client(version, **kwargs):
         'cacert': kwargs.get('os_cacert'),
         'cert_file': kwargs.get('os_cert'),
         'key_file': kwargs.get('os_key'),
-        'token': kwargs.get('os_auth_token'),
+        'token': kwargs.get('os_token') or kwargs.get('os_auth_token'),
         'user_domain_name': kwargs.get('os_user_domain_name'),
         'user_domain_id': kwargs.get('os_user_domain_id'),
         'project_domain_name': kwargs.get('os_project_domain_name'),
