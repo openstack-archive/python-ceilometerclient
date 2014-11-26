@@ -152,12 +152,11 @@ class AuthPlugin(auth.BaseAuthPlugin):
         super(AuthPlugin, self).__init__(auth_system, **kwargs)
 
     def _do_authenticate(self, http_client):
-        if self.opts.get('token') and self.opts.get('endpoint'):
-            token = self.opts.get('token')
-            endpoint = self.opts.get('endpoint')
-        else:
-            project_id = self.opts.get('project_id') \
-                or self.opts.get('tenant_id')
+        token = self.opts.get('token') or self.opts.get('auth_token')
+        endpoint = self.opts.get('endpoint')
+        if not (token and endpoint):
+            project_id = (self.opts.get('project_id') or
+                          self.opts.get('tenant_id'))
             project_name = (self.opts.get('project_name') or
                             self.opts.get('tenant_name'))
             ks_kwargs = {
@@ -180,8 +179,8 @@ class AuthPlugin(auth.BaseAuthPlugin):
             # retrieve session
             ks_session = _get_keystone_session(**ks_kwargs)
             token = lambda: ks_session.get_token()
-            endpoint = self.opts.get('endpoint') or \
-                _get_endpoint(ks_session, **ks_kwargs)
+            endpoint = (self.opts.get('endpoint') or
+                        _get_endpoint(ks_session, **ks_kwargs))
         self.opts['token'] = token
         self.opts['endpoint'] = endpoint
 
@@ -196,7 +195,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
 
         :raises: AuthPluginOptionsMissing
         """
-        missing = not ((self.opts.get('token') and
+        missing = not ((self.opts.get('auth_token') and
                         self.opts.get('endpoint')) or
                        (self.opts.get('username')
                         and self.opts.get('password')
