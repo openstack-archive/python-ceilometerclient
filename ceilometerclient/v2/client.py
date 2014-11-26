@@ -45,6 +45,7 @@ class Client(object):
     def __init__(self, *args, **kwargs):
 
         """Initialize a new client for the Ceilometer v2 API."""
+        kwargs['token'] = kwargs.get('token') or kwargs.get('auth_token')
         self.auth_plugin = kwargs.get('auth_plugin') \
             or ceiloclient.get_auth_plugin(*args, **kwargs)
 
