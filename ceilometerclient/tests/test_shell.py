@@ -20,6 +20,7 @@ import six
 from testtools import matchers
 
 from ceilometerclient import exc
+from ceilometerclient.openstack.common.apiclient import client as api_client
 from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.tests import utils
 from ceilometerclient.v2 import client as v2client
@@ -27,13 +28,13 @@ from ceilometerclient.v2 import client as v2client
 FAKE_V2_ENV = {'OS_USERNAME': 'username',
                'OS_PASSWORD': 'password',
                'OS_TENANT_NAME': 'tenant_name',
-               'OS_AUTH_URL': 'http://localhost:5000/v2.0'}
+               'OS_AUTH_URL': 'http://nowhere:5000/v2.0'}
 
 FAKE_V3_ENV = {'OS_USERNAME': 'username',
                'OS_PASSWORD': 'password',
                'OS_USER_DOMAIN_NAME': 'domain_name',
                'OS_PROJECT_ID': '1234567890',
-               'OS_AUTH_URL': 'http://localhost:5000/v3'}
+               'OS_AUTH_URL': 'http://nowhere:5000/v3'}
 
 
 class ShellTestBase(utils.BaseTestCase):
@@ -169,3 +170,38 @@ class ShellTimeoutTest(ShellTestBase):
         expected_msg = ('ceilometer: error: argument --timeout: '
                         '0 must be greater than 0')
         self._test_timeout('0', expected_msg)
+
+
+class ShellInsecureTest(ShellTestBase):
+
+    @mock.patch.object(api_client, 'HTTPClient')
+    def test_insecure_true_ceilometer(self, mocked_client):
+        self.make_env(FAKE_V2_ENV)
+        args = ['--debug', '--os-insecure', 'true', 'alarm-list']
+        self.assertIsNone(ceilometer_shell.main(args))
+        args, kwargs = mocked_client.call_args
+        self.assertEqual(False, kwargs.get('verify'))
+
+    @mock.patch.object(ks_session, 'Session')
+    def test_insecure_true_keystone(self, mocked_session):
+        mocked_session.side_effect = exc.HTTPUnauthorized("FAIL")
+        self.make_env(FAKE_V2_ENV)
+        args = ['--debug', '--os-insecure', 'true', 'alarm-list']
+        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        mocked_session.assert_called_with(verify=False, cert='')
+
+    @mock.patch.object(api_client, 'HTTPClient')
+    def test_insecure_false_ceilometer(self, mocked_client):
+        self.make_env(FAKE_V2_ENV)
+        args = ['--debug', '--os-insecure', 'false', 'alarm-list']
+        self.assertIsNone(ceilometer_shell.main(args))
+        args, kwargs = mocked_client.call_args
+        self.assertEqual(True, kwargs.get('verify'))
+
+    @mock.patch.object(ks_session, 'Session')
+    def test_insecure_false_keystone(self, mocked_session):
+        mocked_session.side_effect = exc.HTTPUnauthorized("FAIL")
+        self.make_env(FAKE_V2_ENV)
+        args = ['--debug', '--os-insecure', 'false', 'alarm-list']
+        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        mocked_session.assert_called_with(verify=True, cert='')

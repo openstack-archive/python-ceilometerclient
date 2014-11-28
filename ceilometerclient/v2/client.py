@@ -15,6 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo.utils import strutils
+
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.v2 import alarms
@@ -54,12 +56,15 @@ class Client(object):
             if timeout <= 0:
                 timeout = None
 
+        insecure = strutils.bool_from_string(kwargs.get('insecure'))
+        verify = kwargs.get('verify', not insecure)
+
         self.client = client.HTTPClient(
             auth_plugin=self.auth_plugin,
             region_name=kwargs.get('region_name'),
             endpoint_type=kwargs.get('endpoint_type'),
             original_ip=kwargs.get('original_ip'),
-            verify=kwargs.get('verify'),
+            verify=verify,
             cert=kwargs.get('cacert'),
             timeout=timeout,
             timings=kwargs.get('timings'),
