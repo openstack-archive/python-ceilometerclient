@@ -15,6 +15,7 @@ from keystoneclient.auth.identity import v3 as v3_auth
 from keystoneclient import discover
 from keystoneclient import exceptions as ks_exc
 from keystoneclient import session
+from oslo.utils import strutils
 import six.moves.urllib.parse as urlparse
 
 from ceilometerclient.common import utils
@@ -174,7 +175,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
                 'cacert': self.opts.get('cacert'),
                 'cert': self.opts.get('cert'),
                 'key': self.opts.get('key'),
-                'insecure': self.opts.get('insecure')
+                'insecure': strutils.bool_from_string(self.opts.get('insecure')),
             }
 
             # retrieve session
