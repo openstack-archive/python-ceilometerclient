@@ -35,7 +35,7 @@ Code is hosted at `git.openstack.org`_. Submit bugs to the Ceilometer project on
 
 .. _git.openstack.org: https://git.openstack.org/cgit/openstack/python-ceilometerclient
 .. _Launchpad: https://launchpad.net/ceilometer
-.. _Gerrit: http://wiki.openstack.org/GerritWorkflow
+.. _Gerrit: http://docs.openstack.org/infra/manual/developers.html#development-workflow
 
 Run tests with ``python setup.py test``.
 
