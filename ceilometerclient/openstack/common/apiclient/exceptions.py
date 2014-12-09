@@ -447,10 +447,20 @@ def from_response(response, method, url):
         except ValueError:
             pass
         else:
-            if isinstance(body, dict) and isinstance(body.get("error"), dict):
-                error = body["error"]
-                kwargs["message"] = error.get("message")
-                kwargs["details"] = error.get("details")
+            # Sync from change: https://review.openstack.org/#/c/132542/
+            # note this py file has been marked "DEPRECATED" in oslo-incubator,
+            # more details please see:
+            # https://etherpad.openstack.org/p/kilo-oslo-library-proposals
+            # and https://launchpad.net/python-openstacksdk
+            # But, the exception message display of ceilometerclient has been
+            # broken a long time, this change fix it.
+            if isinstance(body, dict):
+                error = body.get(list(body)[0])
+                if isinstance(error, dict):
+                    kwargs["message"] = (error.get("message") or
+                                         error.get("faultstring"))
+                    kwargs["details"] = (error.get("details") or
+                                         six.text_type(body))
     elif content_type.startswith("text/"):
         kwargs["details"] = response.text
 
