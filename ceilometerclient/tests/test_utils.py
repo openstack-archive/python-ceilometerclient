@@ -25,7 +25,7 @@ from ceilometerclient.tests import utils as test_utils
 class UtilsTest(test_utils.BaseTestCase):
 
     def test_prettytable(self):
-        class Struct:
+        class Struct(object):
             def __init__(self, **entries):
                 self.__dict__.update(entries)
 
@@ -74,7 +74,7 @@ class UtilsTest(test_utils.BaseTestCase):
 ''', stdout.getvalue())
 
     def test_print_list(self):
-        class Foo:
+        class Foo(object):
             def __init__(self, one, two, three):
                 self.one = one
                 self.two = two
