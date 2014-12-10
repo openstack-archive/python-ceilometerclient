@@ -25,7 +25,8 @@ class Statistics(base.Resource):
 class StatisticsManager(base.Manager):
     resource_class = Statistics
 
-    def _build_aggregates(self, aggregates):
+    @staticmethod
+    def _build_aggregates(aggregates):
         url_aggregates = []
         for aggregate in aggregates:
             if 'param' in aggregate:

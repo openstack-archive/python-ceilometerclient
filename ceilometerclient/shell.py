@@ -143,7 +143,8 @@ class CeilometerShell(object):
                 subparser.add_argument(*args, **kwargs)
             subparser.set_defaults(func=callback)
 
-    def _setup_logging(self, debug):
+    @staticmethod
+    def _setup_logging(debug):
         format = '%(levelname)s (%(module)s) %(message)s'
         if debug:
             logging.basicConfig(format=format, level=logging.DEBUG)
@@ -174,7 +175,8 @@ class CeilometerShell(object):
         # Return parsed args
         return api_version, subcommand_parser.parse_args(argv)
 
-    def no_project_and_domain_set(self, args):
+    @staticmethod
+    def no_project_and_domain_set(args):
         if not (args.os_project_id or (args.os_project_name and
                 (args.os_user_domain_name or args.os_user_domain_id)) or
                 (args.os_tenant_id or args.os_tenant_name)):

@@ -30,7 +30,8 @@ def fake_headers():
 
 
 class FakeServiceCatalog(object):
-    def url_for(self, endpoint_type, service_type):
+    @staticmethod
+    def url_for(endpoint_type, service_type):
         return 'http://192.168.1.5:8004/v1/f14b41234'
 
 
