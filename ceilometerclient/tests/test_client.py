@@ -35,7 +35,8 @@ FAKE_ENV = {
 
 class ClientTest(utils.BaseTestCase):
 
-    def create_client(self, env, api_version=2, endpoint=None, exclude=[]):
+    @staticmethod
+    def create_client(env, api_version=2, endpoint=None, exclude=[]):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
 
