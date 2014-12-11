@@ -297,6 +297,9 @@ def main(args=None):
         else:
             print(encodeutils.safe_encode(six.text_type(e)), file=sys.stderr)
         sys.exit(1)
+    except KeyboardInterrupt:
+        print("Shutting down ceilometerclient", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
