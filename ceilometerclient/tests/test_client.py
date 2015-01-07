@@ -117,7 +117,7 @@ class ClientTest(utils.BaseTestCase):
             'original_ip': None,
             'http': None,
             'region_name': None,
-            'verify': None,
+            'verify': True,
             'timings': None,
             'keyring_saver': None,
             'cert': None,
