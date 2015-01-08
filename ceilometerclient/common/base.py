@@ -49,6 +49,11 @@ class Manager(object):
     def __init__(self, api):
         self.api = api
 
+    @property
+    def client(self):
+        """Compatible with latest oslo-incubator.apiclient code."""
+        return self.api
+
     def _create(self, url, body):
         body = self.api.post(url, json=body).json()
         if body:
