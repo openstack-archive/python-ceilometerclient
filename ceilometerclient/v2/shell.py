@@ -22,7 +22,7 @@ import argparse
 import functools
 import json
 
-from oslo.utils import strutils
+from oslo_utils import strutils
 import six
 
 from ceilometerclient.common import utils
