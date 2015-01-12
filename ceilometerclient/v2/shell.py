@@ -786,9 +786,7 @@ def do_trait_description_list(cc, args={}):
            help='The name of the trait to list.',
            required=True, action=NotEmptyAction)
 def do_trait_list(cc, args={}):
-    '''List trait all traits with name <trait_name> for Event Type
-    <event_type>.
-    '''
+    '''List all traits with name <trait_name> for Event Type <event_type>.'''
     traits = cc.traits.list(args.event_type, args.trait_name)
     field_labels = ['Trait Name', 'Value', 'Data Type']
     fields = ['name', 'value', 'type']

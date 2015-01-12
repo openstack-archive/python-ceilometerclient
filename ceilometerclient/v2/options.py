@@ -29,18 +29,19 @@ DATA_TYPE_RE = re.compile(r'^(string|integer|float|datetime|boolean)(::)(.+)$')
 
 
 def build_url(path, q, params=None):
-    '''This converts from a list of dicts and a list of params to
-       what the rest api needs, so from:
-    "[{field=this,op=le,value=34},
-      {field=that,op=eq,value=foo,type=string}],
-     ['foo=bar','sna=fu']"
+    """Convert list of dicts and a list of params to query url format.
+
+    This will convert the following:
+        "[{field=this,op=le,value=34},
+          {field=that,op=eq,value=foo,type=string}],
+         ['foo=bar','sna=fu']"
     to:
-    "?q.field=this&q.field=that&
-      q.op=le&q.op=eq&
-      q.type=&q.type=string&
-      q.value=34&q.value=foo&
-      foo=bar&sna=fu"
-    '''
+        "?q.field=this&q.field=that&
+          q.op=le&q.op=eq&
+          q.type=&q.type=string&
+          q.value=34&q.value=foo&
+          foo=bar&sna=fu"
+    """
     if q:
         query_params = {'q.field': [],
                         'q.value': [],
@@ -67,13 +68,13 @@ def build_url(path, q, params=None):
 
 
 def cli_to_array(cli_query):
-    """This converts from the cli list of queries to what is required
-    by the python api.
-    so from:
-    "this<=34;that=string::foo"
+    """Convert CLI list of queries to the Python API format.
+
+    This will convert the following:
+        "this<=34;that=string::foo"
     to
-    "[{field=this,op=le,value=34,type=''},
-      {field=that,op=eq,value=foo,type=string}]"
+        "[{field=this,op=le,value=34,type=''},
+          {field=that,op=eq,value=foo,type=string}]"
 
     """
 
@@ -81,8 +82,7 @@ def cli_to_array(cli_query):
         return None
 
     def split_by_op(query):
-        """Split a single query string to field, operator, value.
-        """
+        """Split a single query string to field, operator, value."""
 
         def _value_error(message):
             raise ValueError('invalid query %(query)s: missing %(message)s' %
