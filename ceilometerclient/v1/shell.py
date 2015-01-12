@@ -108,7 +108,7 @@ def do_user_list(cc, args={}):
            help='ISO date in UTC which limits resouces by '
            'last update time <= this value')
 def do_resource_list(cc, args={}):
-    '''List the resources.'''
+    """List the resources."""
     kwargs = {'source': args.source,
               'user_id': args.user_id,
               'project_id': args.project_id,
@@ -126,7 +126,7 @@ def do_resource_list(cc, args={}):
 @utils.arg('-s', '--source', metavar='<SOURCE>',
            help='ID of the resource to show projects for.')
 def do_project_list(cc, args={}):
-    '''List the projects.'''
+    """List the projects."""
     kwargs = {'source': args.source}
     projects = cc.projects.list(**kwargs)
 
