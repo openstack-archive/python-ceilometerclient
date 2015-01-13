@@ -15,8 +15,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo.utils import strutils
-
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.v2 import alarms
@@ -48,24 +46,14 @@ class Client(object):
         """Initialize a new client for the Ceilometer v2 API."""
         self.auth_plugin = kwargs.get('auth_plugin') \
             or ceiloclient.get_auth_plugin(*args, **kwargs)
-
-        timeout = kwargs.get('timeout')
-        if timeout is not None:
-            timeout = int(timeout)
-            if timeout <= 0:
-                timeout = None
-
-        insecure = strutils.bool_from_string(kwargs.get('insecure'))
-        verify = kwargs.get('verify', not insecure)
-
         self.client = client.HTTPClient(
             auth_plugin=self.auth_plugin,
             region_name=kwargs.get('region_name'),
             endpoint_type=kwargs.get('endpoint_type'),
             original_ip=kwargs.get('original_ip'),
-            verify=verify,
-            cert=kwargs.get('cacert'),
-            timeout=timeout,
+            verify=kwargs.get('verify'),
+            cert=kwargs.get('cert'),
+            timeout=kwargs.get('timeout'),
             timings=kwargs.get('timings'),
             keyring_saver=kwargs.get('keyring_saver'),
             debug=kwargs.get('debug'),

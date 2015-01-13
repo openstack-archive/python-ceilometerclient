@@ -240,7 +240,7 @@ class CeilometerShell(object):
         client_kwargs = vars(args)
         client_kwargs.update(self.auth_plugin.opts)
         client_kwargs['auth_plugin'] = self.auth_plugin
-        client = ceiloclient.Client(api_version, **client_kwargs)
+        client = ceiloclient.get_client(api_version, **client_kwargs)
         # call whatever callback was selected
         try:
             args.func(client, args)

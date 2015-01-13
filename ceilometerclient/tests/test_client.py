@@ -40,7 +40,7 @@ class ClientTest(utils.BaseTestCase):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
 
-        return client.Client(api_version, endpoint, **env)
+        return client.get_client(api_version, **env)
 
     def setUp(self):
         super(ClientTest, self).setUp()
@@ -79,7 +79,7 @@ class ClientTest(utils.BaseTestCase):
         del env['auth_plugin']
         expected = {
             'username': 'username',
-            'endpoint': None,
+            'endpoint': 'http://no.where',
             'tenant_name': 'tenant_name',
             'service_type': None,
             'token': '1234',
@@ -135,3 +135,17 @@ class ClientTest(utils.BaseTestCase):
 
     def test_v2_client_timeout_valid_value(self):
         self._test_v2_client_timeout_integer(30, 30)
+
+    def test_v2_client_cacert_in_verify(self):
+        env = FAKE_ENV.copy()
+        env['cacert'] = '/path/to/cacert'
+        client = self.create_client(env)
+        self.assertEqual('/path/to/cacert', client.client.verify)
+
+    def test_v2_client_certfile_and_keyfile(self):
+        env = FAKE_ENV.copy()
+        env['cert_file'] = '/path/to/cert'
+        env['key_file'] = '/path/to/keycert'
+        client = self.create_client(env)
+        self.assertEqual(('/path/to/cert', '/path/to/keycert'),
+                         client.client.cert)
