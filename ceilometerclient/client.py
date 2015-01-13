@@ -222,6 +222,28 @@ def Client(version, *args, **kwargs):
     return client_class(*args, **kwargs)
 
 
+def _adjust_params(kwargs):
+    timeout = kwargs.get('timeout')
+    if timeout is not None:
+        timeout = int(timeout)
+        if timeout <= 0:
+            timeout = None
+
+    insecure = strutils.bool_from_string(kwargs.get('insecure'))
+    verify = kwargs.get('verify')
+    if verify is None:
+        if insecure:
+            verify = False
+        else:
+            verify = kwargs.get('cacert') or True
+
+    cert = kwargs.get('cert_file')
+    key = kwargs.get('key_file')
+    if cert and key:
+        cert = cert, key
+    return {'verify': verify, 'cert': cert, 'timeout': timeout}
+
+
 def get_client(version, **kwargs):
     """Get an authenticated client, based on the credentials
         in the keyword args.
@@ -274,6 +296,8 @@ def get_client(version, **kwargs):
     }
 
     cli_kwargs.update(kwargs)
+    cli_kwargs.update(_adjust_params(cli_kwargs))
+
     return Client(version, endpoint, **cli_kwargs)
 
 
