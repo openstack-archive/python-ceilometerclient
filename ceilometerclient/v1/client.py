@@ -39,7 +39,7 @@ class Client(object):
             endpoint_type=kwargs.get('endpoint_type'),
             original_ip=kwargs.get('original_ip'),
             verify=kwargs.get('verify'),
-            cert=kwargs.get('cacert'),
+            cert=kwargs.get('cert'),
             timeout=kwargs.get('timeout'),
             timings=kwargs.get('timings'),
             keyring_saver=kwargs.get('keyring_saver'),
