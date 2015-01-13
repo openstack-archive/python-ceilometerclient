@@ -56,7 +56,17 @@ class Client(object):
                 timeout = None
 
         insecure = strutils.bool_from_string(kwargs.get('insecure'))
-        verify = kwargs.get('verify', not insecure)
+        verify = kwargs.get('verify')
+        if verify is None:
+            if insecure:
+                verify = False
+            else:
+                verify = kwargs.get('cacert') or True
+
+        cert = kwargs.get('cert_file')
+        key = kwargs.get('key_file')
+        if cert and key:
+            cert = cert, key
 
         self.client = client.HTTPClient(
             auth_plugin=self.auth_plugin,
@@ -64,7 +74,7 @@ class Client(object):
             endpoint_type=kwargs.get('endpoint_type'),
             original_ip=kwargs.get('original_ip'),
             verify=verify,
-            cert=kwargs.get('cacert'),
+            cert=cert,
             timeout=timeout,
             timings=kwargs.get('timings'),
             keyring_saver=kwargs.get('keyring_saver'),
