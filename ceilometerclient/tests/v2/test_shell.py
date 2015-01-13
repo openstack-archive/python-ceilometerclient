@@ -26,6 +26,7 @@ from ceilometerclient import exc
 from ceilometerclient import shell as base_shell
 from ceilometerclient.tests import utils
 from ceilometerclient.v2 import alarms
+from ceilometerclient.v2 import events
 from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import shell as ceilometer_shell
 from ceilometerclient.v2 import statistics
@@ -901,3 +902,48 @@ class ShellObsoletedArgsTest(utils.BaseTestCase):
                        'alarm-combination-update', 'alarm-delete',
                        'alarm-state-get', 'alarm-history']:
             self._test_entity_obsoleted('alarm_id', 'abcde', False, method)
+
+
+class ShellEventListCommandTest(utils.BaseTestCase):
+
+    EVENTS = [
+        {
+            "traits": [],
+            "generated": "2015-01-12T04:03:25.741471",
+            "message_id": "fb2bef58-88af-4380-8698-e0f18fcf452d",
+            "event_type": "compute.instance.create.start",
+        },
+        {
+            "traits": [],
+            "generated": "2015-01-12T04:03:28.452495",
+            "message_id": "9b20509a-576b-4995-acfa-1a24ee5cf49f",
+            "event_type": "compute.instance.create.end",
+        },
+    ]
+
+    def setUp(self):
+        super(ShellEventListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.args = mock.Mock()
+        self.args.query = None
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_event_list(self):
+        ret_events = [events.Event(mock.Mock(), event)
+                      for event in self.EVENTS]
+        self.cc.events.list.return_value = ret_events
+        ceilometer_shell.do_event_list(self.cc, self.args)
+        self.assertEqual('''\
++--------------------------------------+-------------------------------\
++----------------------------+--------+
+| Message ID                           | Event Type                    \
+| Generated                  | Traits |
++--------------------------------------+-------------------------------\
++----------------------------+--------+
+| fb2bef58-88af-4380-8698-e0f18fcf452d | compute.instance.create.start \
+| 2015-01-12T04:03:25.741471 |        |
+| 9b20509a-576b-4995-acfa-1a24ee5cf49f | compute.instance.create.end   \
+| 2015-01-12T04:03:28.452495 |        |
++--------------------------------------+-------------------------------\
++----------------------------+--------+
+''', sys.stdout.getvalue())

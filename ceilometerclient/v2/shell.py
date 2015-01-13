@@ -749,7 +749,8 @@ def do_event_list(cc, args={}):
                      formatters={
                          'traits': utils.nested_list_of_dict_formatter(
                              'traits', ['name', 'type', 'value']
-                         )})
+                         )},
+                     sortby=None)
 
 
 @utils.arg('message_id', metavar='<message_id>', action=NotEmptyAction,
