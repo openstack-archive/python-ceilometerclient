@@ -49,7 +49,7 @@ def _discover_auth_versions(session, auth_url):
             raise exc.CommandError('Unable to determine the Keystone '
                                    'version to authenticate with '
                                    'using the given auth_url.')
-    return (v2_auth_url, v3_auth_url)
+    return v2_auth_url, v3_auth_url
 
 
 def _get_keystone_session(**kwargs):

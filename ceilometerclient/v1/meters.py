@@ -51,7 +51,7 @@ class UserManager(base.Manager):
     def list(self, **kwargs):
         s = kwargs.get('source')
         if s:
-            path = '/sources/%s/users' % (s)
+            path = '/sources/%s/users' % s
         else:
             path = '/users'
         return self._list('/v1%s' % path, 'users')
@@ -100,17 +100,17 @@ class ResourceManager(base.Manager):
         opts_path = _get_opt_path(['start_timestamp', 'end_timestamp'],
                                   **kwargs)
         if u:
-            path = '/users/%s/resources' % (u)
+            path = '/users/%s/resources' % u
         elif s:
-            path = '/sources/%s/resources' % (s)
+            path = '/sources/%s/resources' % s
         elif p:
-            path = '/projects/%s/resources' % (p)
+            path = '/projects/%s/resources' % p
         else:
             path = '/resources'
         if opts_path:
             path = '/v1%s?%s' % (path, opts_path)
         else:
-            path = '/v1%s' % (path)
+            path = '/v1%s' % path
         return self._list(path, 'resources')
 
 
@@ -152,7 +152,7 @@ class SampleManager(base.Manager):
         if opts_path:
             path = '/v1%s?%s' % (path, opts_path)
         else:
-            path = '/v1%s' % (path)
+            path = '/v1%s' % path
         return self._list(path, 'events')
 
 
@@ -186,5 +186,5 @@ class MeterManager(base.Manager):
         if opts_path:
             path = '/v1%s?%s' % (path, opts_path)
         else:
-            path = '/v1%s' % (path)
+            path = '/v1%s' % path
         return self._list(path, 'meters')
