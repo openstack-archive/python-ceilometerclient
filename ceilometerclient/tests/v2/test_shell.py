@@ -912,12 +912,22 @@ class ShellEventListCommandTest(utils.BaseTestCase):
             "generated": "2015-01-12T04:03:25.741471",
             "message_id": "fb2bef58-88af-4380-8698-e0f18fcf452d",
             "event_type": "compute.instance.create.start",
+            "traits": [{
+                "name": "state",
+                "type": "string",
+                "value": "building",
+            }],
         },
         {
             "traits": [],
             "generated": "2015-01-12T04:03:28.452495",
             "message_id": "9b20509a-576b-4995-acfa-1a24ee5cf49f",
             "event_type": "compute.instance.create.end",
+            "traits": [{
+                "name": "state",
+                "type": "string",
+                "value": "active",
+            }],
         },
     ]
 
@@ -926,6 +936,7 @@ class ShellEventListCommandTest(utils.BaseTestCase):
         self.cc = mock.Mock()
         self.args = mock.Mock()
         self.args.query = None
+        self.args.no_traits = None
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_event_list(self):
@@ -934,16 +945,54 @@ class ShellEventListCommandTest(utils.BaseTestCase):
         self.cc.events.list.return_value = ret_events
         ceilometer_shell.do_event_list(self.cc, self.args)
         self.assertEqual('''\
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+| Message ID                           | Event Type                    |\
+ Generated                  | Traits                        |
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+| fb2bef58-88af-4380-8698-e0f18fcf452d | compute.instance.create.start |\
+ 2015-01-12T04:03:25.741471 | +-------+--------+----------+ |
+|                                      |                               |\
+                            | |  name |  type  |  value   | |
+|                                      |                               |\
+                            | +-------+--------+----------+ |
+|                                      |                               |\
+                            | | state | string | building | |
+|                                      |                               |\
+                            | +-------+--------+----------+ |
+| 9b20509a-576b-4995-acfa-1a24ee5cf49f | compute.instance.create.end   |\
+ 2015-01-12T04:03:28.452495 | +-------+--------+--------+   |
+|                                      |                               |\
+                            | |  name |  type  | value  |   |
+|                                      |                               |\
+                            | +-------+--------+--------+   |
+|                                      |                               |\
+                            | | state | string | active |   |
+|                                      |                               |\
+                            | +-------+--------+--------+   |
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_event_list_no_traits(self):
+        self.args.no_traits = True
+        ret_events = [events.Event(mock.Mock(), event)
+                      for event in self.EVENTS]
+        self.cc.events.list.return_value = ret_events
+        ceilometer_shell.do_event_list(self.cc, self.args)
+        self.assertEqual('''\
 +--------------------------------------+-------------------------------\
-+----------------------------+--------+
++----------------------------+
 | Message ID                           | Event Type                    \
-| Generated                  | Traits |
+| Generated                  |
 +--------------------------------------+-------------------------------\
-+----------------------------+--------+
++----------------------------+
 | fb2bef58-88af-4380-8698-e0f18fcf452d | compute.instance.create.start \
-| 2015-01-12T04:03:25.741471 |        |
+| 2015-01-12T04:03:25.741471 |
 | 9b20509a-576b-4995-acfa-1a24ee5cf49f | compute.instance.create.end   \
-| 2015-01-12T04:03:28.452495 |        |
+| 2015-01-12T04:03:28.452495 |
 +--------------------------------------+-------------------------------\
-+----------------------------+--------+
++----------------------------+
 ''', sys.stdout.getvalue())
