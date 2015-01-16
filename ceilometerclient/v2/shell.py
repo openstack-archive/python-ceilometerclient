@@ -744,11 +744,16 @@ def do_resource_show(cc, args={}):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float'
                 'or datetime.')
+@utils.arg('--no-traits', dest='no_traits', action='store_true',
+           help='If specified, traits will not be printed.')
 def do_event_list(cc, args={}):
     """List events."""
     events = cc.events.list(q=options.cli_to_array(args.query))
     field_labels = ['Message ID', 'Event Type', 'Generated', 'Traits']
     fields = ['message_id', 'event_type', 'generated', 'traits']
+    if args.no_traits:
+        field_labels.pop()
+        fields.pop()
     utils.print_list(events, fields, field_labels,
                      formatters={
                          'traits': utils.nested_list_of_dict_formatter(
