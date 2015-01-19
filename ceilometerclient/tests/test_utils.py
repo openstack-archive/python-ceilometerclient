@@ -43,7 +43,8 @@ class UtilsTest(test_utils.BaseTestCase):
 
         with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
             utils.print_dict({'alarm_id': '262567fd-d79a-4bbb-a9d0-59d879b6',
-                              'description': 'test alarm',
+                              'name': u'\u6d4b\u8bd5',
+                              'description': u'\u6d4b\u8bd5',
                               'state': 'insufficient data',
                               'repeat_actions': 'False',
                               'type': 'threshold',
@@ -53,13 +54,15 @@ class UtilsTest(test_utils.BaseTestCase):
                                                   '\\n  description: test,'
                                                   '\\n  start: 0 18 * * *,'
                                                   '\\n  duration: 1,'
-                                                  '\\n  timezone: US}]'})
+                                                  '\\n  timezone: US}]'},
+                             wrap=72)
             self.assertEqual('''\
 +------------------+----------------------------------+
 | Property         | Value                            |
 +------------------+----------------------------------+
 | alarm_id         | 262567fd-d79a-4bbb-a9d0-59d879b6 |
-| description      | test alarm                       |
+| description      | \xe6\xb5\x8b\xe8\xaf\x95                             |
+| name             | \xe6\xb5\x8b\xe8\xaf\x95                             |
 | repeat_actions   | False                            |
 | state            | insufficient data                |
 | statistic        | avg                              |
