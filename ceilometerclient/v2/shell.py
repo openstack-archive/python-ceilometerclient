@@ -80,7 +80,7 @@ def obsoleted_by(new_dest):
                              'Available aggregates are: '
                              '%s.' % ", ".join(AGGREGATES.keys())))
 def do_statistics(cc, args):
-    '''List the statistics for a meter.'''
+    """List the statistics for a meter."""
     aggregates = []
     for a in args.aggregate:
         aggregates.append(dict(zip(('func', 'param'), a.split("<-"))))
@@ -128,7 +128,7 @@ def do_statistics(cc, args):
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
            help='Maximum number of samples to return.')
 def do_sample_list(cc, args):
-    '''List the samples for a meter.'''
+    """List the samples for a meter."""
     fields = {'meter_name': args.meter,
               'q': options.cli_to_array(args.query),
               'limit': args.limit}
@@ -167,7 +167,7 @@ def do_sample_list(cc, args):
 @utils.arg('--timestamp', metavar='<TIMESTAMP>',
            help='The sample timestamp.')
 def do_sample_create(cc, args={}):
-    '''Create a sample.'''
+    """Create a sample."""
     arg_to_field_mapping = {'meter_name': 'counter_name',
                             'meter_unit': 'counter_unit',
                             'meter_type': 'counter_type',
@@ -194,7 +194,7 @@ def do_sample_create(cc, args={}):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 def do_meter_list(cc, args={}):
-    '''List the user's meters.'''
+    """List the user's meters."""
     meters = cc.meters.list(q=options.cli_to_array(args.query))
     field_labels = ['Name', 'Type', 'Unit', 'Resource ID', 'User ID',
                     'Project ID']
@@ -305,7 +305,7 @@ def alarm_change_detail_formatter(change):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 def do_alarm_list(cc, args={}):
-    '''List the user's alarms.'''
+    """List the user's alarms."""
     alarms = cc.alarms.list(q=options.cli_to_array(args.query))
     _display_alarm_list(alarms, sortby=0)
 
@@ -349,7 +349,7 @@ def _display_alarm(alarm):
 @utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
            action=NotEmptyAction, help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
-    '''Show an alarm.'''
+    """Show an alarm."""
     alarm = cc.alarms.get(args.alarm_id)
     if alarm is None:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
@@ -430,7 +430,7 @@ def common_alarm_arguments(create=False):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 def do_alarm_create(cc, args={}):
-    '''Create a new alarm (Deprecated). Use alarm-threshold-create instead.'''
+    """Create a new alarm (Deprecated). Use alarm-threshold-create instead."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.args_array_to_dict(fields, "matching_metadata")
@@ -468,7 +468,7 @@ def do_alarm_create(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 def do_alarm_threshold_create(cc, args={}):
-    '''Create a new alarm based on computed statistics.'''
+    """Create a new alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -494,7 +494,7 @@ def do_alarm_threshold_create(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 def do_alarm_combination_create(cc, args={}):
-    '''Create a new alarm based on state of other alarms.'''
+    """Create a new alarm based on state of other alarms."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -535,7 +535,7 @@ def do_alarm_combination_create(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 def do_alarm_update(cc, args={}):
-    '''Update an existing alarm (Deprecated).'''
+    """Update an existing alarm (Deprecated)."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.args_array_to_dict(fields, "matching_metadata")
@@ -586,7 +586,7 @@ def do_alarm_update(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 def do_alarm_threshold_update(cc, args={}):
-    '''Update an existing alarm based on computed statistics.'''
+    """Update an existing alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -624,7 +624,7 @@ def do_alarm_threshold_update(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 def do_alarm_combination_update(cc, args={}):
-    '''Update an existing alarm based on state of other alarms.'''
+    """Update an existing alarm based on state of other alarms."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -643,7 +643,7 @@ def do_alarm_combination_update(cc, args={}):
 @utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
            action=NotEmptyAction, help='ID of the alarm to delete.')
 def do_alarm_delete(cc, args={}):
-    '''Delete an alarm.'''
+    """Delete an alarm."""
     try:
         cc.alarms.delete(args.alarm_id)
     except exc.HTTPNotFound:
@@ -659,7 +659,7 @@ def do_alarm_delete(cc, args={}):
            help='State of the alarm, one of: ' + str(ALARM_STATES) +
            '.')
 def do_alarm_state_set(cc, args={}):
-    '''Set the state of an alarm.'''
+    """Set the state of an alarm."""
     try:
         state = cc.alarms.set_state(args.alarm_id, args.state)
     except exc.HTTPNotFound:
@@ -673,7 +673,7 @@ def do_alarm_state_set(cc, args={}):
 @utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
            action=NotEmptyAction, help='ID of the alarm state to show.')
 def do_alarm_state_get(cc, args={}):
-    '''Get the state of an alarm.'''
+    """Get the state of an alarm."""
     try:
         state = cc.alarms.get_state(args.alarm_id)
     except exc.HTTPNotFound:
@@ -690,7 +690,7 @@ def do_alarm_state_get(cc, args={}):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 def do_alarm_history(cc, args={}):
-    '''Display the change history of an alarm.'''
+    """Display the change history of an alarm."""
     kwargs = dict(alarm_id=args.alarm_id,
                   q=options.cli_to_array(args.query))
     try:
@@ -712,7 +712,7 @@ def do_alarm_history(cc, args={}):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 def do_resource_list(cc, args={}):
-    '''List the resources.'''
+    """List the resources."""
     resources = cc.resources.list(q=options.cli_to_array(args.query))
 
     field_labels = ['Resource ID', 'Source', 'User ID', 'Project ID']
@@ -724,7 +724,7 @@ def do_resource_list(cc, args={}):
 @utils.arg('resource_id', metavar='<RESOURCE_ID>',
            action=NotEmptyAction, help='ID of the resource to show.')
 def do_resource_show(cc, args={}):
-    '''Show the resource.'''
+    """Show the resource."""
     try:
         resource = cc.resources.get(args.resource_id)
     except exc.HTTPNotFound:
@@ -741,7 +741,7 @@ def do_resource_show(cc, args={}):
                 'but if supplied must be string, integer, float'
                 'or datetime.')
 def do_event_list(cc, args={}):
-    '''List events.'''
+    """List events."""
     events = cc.events.list(q=options.cli_to_array(args.query))
     field_labels = ['Message ID', 'Event Type', 'Generated', 'Traits']
     fields = ['message_id', 'event_type', 'generated', 'traits']
@@ -756,7 +756,7 @@ def do_event_list(cc, args={}):
 @utils.arg('message_id', metavar='<message_id>', action=NotEmptyAction,
            help='The ID of the event. Should be a UUID.')
 def do_event_show(cc, args={}):
-    '''Show a particular event.'''
+    """Show a particular event."""
     event = cc.events.get(args.message_id)
     fields = ['event_type', 'generated', 'traits']
     data = dict([(f, getattr(event, f, '')) for f in fields])
@@ -764,7 +764,7 @@ def do_event_show(cc, args={}):
 
 
 def do_event_type_list(cc, args={}):
-    '''List event types.'''
+    """List event types."""
     event_types = cc.event_types.list()
     utils.print_list(event_types, ['event_type'], ['Event Type'])
 
@@ -773,7 +773,7 @@ def do_event_type_list(cc, args={}):
            help='Type of the event for which traits will be shown.',
            required=True, action=NotEmptyAction)
 def do_trait_description_list(cc, args={}):
-    '''List trait info for an event type.'''
+    """List trait info for an event type."""
     trait_descriptions = cc.trait_descriptions.list(args.event_type)
     field_labels = ['Trait Name', 'Data Type']
     fields = ['name', 'type']
@@ -787,7 +787,7 @@ def do_trait_description_list(cc, args={}):
            help='The name of the trait to list.',
            required=True, action=NotEmptyAction)
 def do_trait_list(cc, args={}):
-    '''List all traits with name <trait_name> for Event Type <event_type>.'''
+    """List all traits with name <trait_name> for Event Type <event_type>."""
     traits = cc.traits.list(args.event_type, args.trait_name)
     field_labels = ['Trait Name', 'Value', 'Data Type']
     fields = ['name', 'value', 'type']
@@ -804,7 +804,7 @@ def do_trait_list(cc, args={}):
 @utils.arg('-l', '--limit', metavar='<LIMIT>',
            help='Maximum number of samples to return.')
 def do_query_samples(cc, args):
-    '''Query samples.'''
+    """Query samples."""
     fields = {'filter': args.filter,
               'orderby': args.orderby,
               'limit': args.limit}
@@ -831,7 +831,7 @@ def do_query_samples(cc, args):
 @utils.arg('-l', '--limit', metavar='<LIMIT>',
            help='Maximum number of alarms to return.')
 def do_query_alarms(cc, args):
-    '''Query Alarms.'''
+    """Query Alarms."""
     fields = {'filter': args.filter,
               'orderby': args.orderby,
               'limit': args.limit}
@@ -853,7 +853,7 @@ def do_query_alarms(cc, args):
 @utils.arg('-l', '--limit', metavar='<LIMIT>',
            help='Maximum number of alarm history items to return.')
 def do_query_alarm_history(cc, args):
-    '''Query Alarm History.'''
+    """Query Alarm History."""
     fields = {'filter': args.filter,
               'orderby': args.orderby,
               'limit': args.limit}
