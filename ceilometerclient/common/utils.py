@@ -157,8 +157,7 @@ def args_array_to_dict(kwargs, key_to_convert):
 
 
 def args_array_to_list_of_dicts(kwargs, key_to_convert):
-    """Converts ['a=1;b=2','c=3;d=4'] to [{a:1,b:2},{c:3,d:4}]
-    """
+    """Converts ['a=1;b=2','c=3;d=4'] to [{a:1,b:2},{c:3,d:4}]."""
     values_to_convert = kwargs.get(key_to_convert)
     if values_to_convert:
         try:
