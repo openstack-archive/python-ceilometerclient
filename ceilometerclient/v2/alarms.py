@@ -32,6 +32,8 @@ UPDATABLE_ATTRIBUTES = [
     'insufficient_data_actions',
     'repeat_actions',
     'threshold_rule',
+    'gnocchi_resources_threshold_rule',
+    'gnocchi_metrics_threshold_rule',
     'combination_rule',
 ]
 CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['project_id', 'user_id',
