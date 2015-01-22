@@ -440,6 +440,47 @@ def do_alarm_create(cc, args={}):
 
 @common_alarm_arguments(create=True)
 @utils.arg('-m', '--meter-name', metavar='<METRIC>', required=True,
+           dest='gnocchi_threshold_rule/meter_name',
+           help='Metric to evaluate against.')
+@utils.arg('--resource-type', metavar='<RESOURCE_TYPE>', required=True,
+           dest='gnocchi_threshold_rule/resource_type',
+           help='Resource_type to evaluate against.')
+@utils.arg('--resource-id', metavar='<RESOURCE_ID>', required=True,
+           dest='gnocchi_threshold_rule/resource_id_or_selector',
+           help='Resource_id_or_selector to evaluate against.')
+@utils.arg('--period', type=int, metavar='<PERIOD>',
+           dest='gnocchi_threshold_rule/period',
+           help='Length of each period (seconds) to evaluate over.')
+@utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
+           dest='gnocchi_threshold_rule/evaluation_periods',
+           help='Number of periods to evaluate over.')
+@utils.arg('--statistic', metavar='<STATISTIC>',
+           dest='gnocchi_threshold_rule/statistic',
+           help='Statistic to evaluate, one of: ' + str(STATISTICS) + '.')
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           dest='gnocchi_threshold_rule/comparison_operator',
+           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS) +
+           '.')
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>', required=True,
+           dest='gnocchi_threshold_rule/threshold',
+           help='Threshold to evaluate against.')
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=strutils.bool_from_string,
+           default=False,
+           help=('True if actions should be repeatedly notified '
+                 'while alarm remains in target state.'))
+def do_alarm_gnocchi_threshold_create(cc, args={}):
+    """Create a new alarm based on computed statistics."""
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields['type'] = 'gnocchi_threshold'
+    alarm = cc.alarms.create(**fields)
+    _display_alarm(alarm)
+
+
+@common_alarm_arguments(create=True)
+@utils.arg('-m', '--meter-name', metavar='<METRIC>', required=True,
            dest='threshold_rule/meter_name',
            help='Metric to evaluate against.')
 @utils.arg('--period', type=int, metavar='<PERIOD>',
@@ -595,6 +636,60 @@ def do_alarm_threshold_update(cc, args={}):
     if 'threshold_rule' in fields and 'query' in fields['threshold_rule']:
         fields['threshold_rule']['query'] = options.cli_to_array(
             fields['threshold_rule']['query'])
+    try:
+        alarm = cc.alarms.update(args.alarm_id, **fields)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
+    _display_alarm(alarm)
+
+
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+           action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
+           dest='alarm_id_deprecated')
+@utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
+           action=NotEmptyAction, help='ID of the alarm to update.')
+@common_alarm_arguments()
+@utils.arg('--remove-time-constraint', action='append',
+           metavar='<Constraint names>',
+           dest='remove_time_constraints',
+           help='Name or list of names of the time constraints to remove.')
+@utils.arg('-m', '--meter-name', metavar='<METRIC>',
+           dest='gnocchi_threshold_rule/meter_name',
+           help='Metric to evaluate against.')
+@utils.arg('--resource-type', metavar='<RESOURCE_TYPE>',
+           dest='gnocchi_threshold_rule/resource_type',
+           help='Resource_type to evaluate against.')
+@utils.arg('--resource-id', metavar='<RESOURCE_ID>',
+           dest='gnocchi_threshold_rule/resource_id_or_selector',
+           help='Resource_id_or_selector to evaluate against.')
+@utils.arg('--period', type=int, metavar='<PERIOD>',
+           dest='gnocchi_threshold_rule/period',
+           help='Length of each period (seconds) to evaluate over.')
+@utils.arg('--evaluation-periods', type=int, metavar='<COUNT>',
+           dest='gnocchi_threshold_rule/evaluation_periods',
+           help='Number of periods to evaluate over.')
+@utils.arg('--statistic', metavar='<STATISTIC>',
+           dest='gnocchi_threshold_rule/statistic',
+           help='Statistic to evaluate, one of: ' + str(STATISTICS) + '.')
+@utils.arg('--comparison-operator', metavar='<OPERATOR>',
+           dest='gnocchi_threshold_rule/comparison_operator',
+           help='Operator to compare with, one of: ' + str(ALARM_OPERATORS) +
+           '.')
+@utils.arg('--threshold', type=float, metavar='<THRESHOLD>',
+           dest='gnocchi_threshold_rule/threshold',
+           help='Threshold to evaluate against.')
+@utils.arg('--repeat-actions', dest='repeat_actions',
+           metavar='{True|False}', type=strutils.bool_from_string,
+           default=False,
+           help=('True if actions should be repeatedly notified '
+                 'while alarm remains in target state.'))
+def do_alarm_gnocchi_threshold_update(cc, args={}):
+    """Update an existing alarm based on computed statistics."""
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields.pop('alarm_id')
+    fields['type'] = 'gnocchi_threshold'
     try:
         alarm = cc.alarms.update(args.alarm_id, **fields)
     except exc.HTTPNotFound:
