@@ -31,6 +31,7 @@ from ceilometerclient.v2 import options
 
 
 ALARM_STATES = ['ok', 'alarm', 'insufficient data']
+ALARM_SEVERITY = ['low', 'moderate', 'critical']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
@@ -207,10 +208,10 @@ def do_meter_list(cc, args={}):
 def _display_alarm_list(alarms, sortby=None):
     # omit action initially to keep output width sane
     # (can switch over to vertical formatting when available from CLIFF)
-    field_labels = ['Alarm ID', 'Name', 'State', 'Enabled', 'Continuous',
-                    'Alarm condition', 'Time constraints']
-    fields = ['alarm_id', 'name', 'state', 'enabled', 'repeat_actions',
-              'rule', 'time_constraints']
+    field_labels = ['Alarm ID', 'Name', 'State', 'Severity', 'Enabled',
+                    'Continuous', 'Alarm condition', 'Time constraints']
+    fields = ['alarm_id', 'name', 'state', 'severity', 'enabled',
+              'repeat_actions', 'rule', 'time_constraints']
     utils.print_list(
         alarms, fields, field_labels,
         formatters={'rule': alarm_rule_formatter,
@@ -331,9 +332,9 @@ def time_constraints_formatter_full(alarm):
 
 def _display_alarm(alarm):
     fields = ['name', 'description', 'type',
-              'state', 'enabled', 'alarm_id', 'user_id', 'project_id',
-              'alarm_actions', 'ok_actions', 'insufficient_data_actions',
-              'repeat_actions']
+              'state', 'severity', 'enabled', 'alarm_id', 'user_id',
+              'project_id', 'alarm_actions', 'ok_actions',
+              'insufficient_data_actions', 'repeat_actions']
     data = dict([(f, getattr(alarm, f, '')) for f in fields])
     data.update(alarm.rule)
     if alarm.type == 'threshold':
@@ -371,6 +372,9 @@ def common_alarm_arguments(create=False):
                    help='Free text description of the alarm.')
         @utils.arg('--state', metavar='<STATE>',
                    help='State of the alarm, one of: ' + str(ALARM_STATES))
+        @utils.arg('--severity', metavar='<SEVERITY>',
+                   help='Severity of the alarm, one of: '
+                        + str(ALARM_SEVERITY))
         @utils.arg('--enabled', type=strutils.bool_from_string,
                    metavar='{True|False}',
                    help='True if alarm evaluation/actioning is enabled.')

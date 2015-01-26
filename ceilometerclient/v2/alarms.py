@@ -26,6 +26,7 @@ UPDATABLE_ATTRIBUTES = [
     'description',
     'type',
     'state',
+    'severity',
     'enabled',
     'alarm_actions',
     'ok_actions',
