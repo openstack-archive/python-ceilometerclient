@@ -396,7 +396,7 @@ def common_alarm_arguments(create=False):
                    default=None,
                    help=('Only evaluate the alarm if the time at evaluation '
                          'is within this time constraint. Start point(s) of '
-                         'the constraint are specified with a cron expression '
+                         'the constraint are specified with a cron expression'
                          ', whereas its duration is given in seconds. '
                          'Can be specified multiple times for multiple '
                          'time constraints, format is: '
