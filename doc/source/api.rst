@@ -12,7 +12,7 @@ Usage
 First create a client instance with your credentials::
 
     >>> import ceilometerclient.client
-    >>> cclient = ceilometerclient.client.get_client(VERSION, username=USERNAME, password=PASSWORD, tenant_name=PROJECT_NAME, auth_url=AUTH_URL)
+    >>> cclient = ceilometerclient.client.get_client(VERSION, os_username=USERNAME, os_password=PASSWORD, os_tenant_name=PROJECT_NAME, os_auth_url=AUTH_URL)
 
 Here ``VERSION`` can be: ``1`` and ``2``.
 
