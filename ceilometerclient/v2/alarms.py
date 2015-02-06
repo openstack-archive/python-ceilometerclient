@@ -31,8 +31,6 @@ UPDATABLE_ATTRIBUTES = [
     'ok_actions',
     'insufficient_data_actions',
     'repeat_actions',
-    'threshold_rule',
-    'combination_rule',
 ]
 CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['project_id', 'user_id',
                                               'time_constraints']
@@ -150,7 +148,8 @@ class AlarmManager(base.Manager):
     def create(self, **kwargs):
         self._compat_legacy_alarm_kwargs(kwargs, create=True)
         new = dict((key, value) for (key, value) in kwargs.items()
-                   if key in CREATION_ATTRIBUTES)
+                   if (key in CREATION_ATTRIBUTES
+                       or key.endswith('_rule')))
         return self._create(self._path(), new)
 
     def update(self, alarm_id, **kwargs):
@@ -162,7 +161,8 @@ class AlarmManager(base.Manager):
         updated['time_constraints'] = self._merge_time_constraints(
             updated.get('time_constraints', []), kwargs)
         kwargs = dict((k, v) for k, v in kwargs.items()
-                      if k in updated and k in UPDATABLE_ATTRIBUTES)
+                      if k in updated and (k in UPDATABLE_ATTRIBUTES
+                                           or k.endswith('_rule')))
         utils.merge_nested_dict(updated, kwargs, depth=1)
         return self._update(self._path(alarm_id), updated)
 
