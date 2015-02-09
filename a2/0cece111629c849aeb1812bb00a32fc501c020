@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Workflow+1: Julien Danjou <julien@danjou.info>
+Code-Review+2: Eoghan Glynn <eglynn@redhat.com>
+Submitted-by: Jenkins
+Submitted-at: Mon, 09 Feb 2015 10:09:32 +0000
+Reviewed-on: https://review.openstack.org/149192
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
