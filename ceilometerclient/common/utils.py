@@ -19,9 +19,9 @@ import sys
 import textwrap
 import uuid
 
-from oslo.serialization import jsonutils
 from oslo.utils import encodeutils
 from oslo.utils import importutils
+from oslo_serialization import jsonutils
 import prettytable
 import six
 
