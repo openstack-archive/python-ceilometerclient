@@ -19,9 +19,13 @@ import sys
 import textwrap
 import uuid
 
-from oslo.serialization import jsonutils
 from oslo.utils import encodeutils
 from oslo.utils import importutils
+try:
+    from oslo_serialization import jsonutils
+except ImportError:
+    # For icehouse backward compatibility
+    from oslo.serialization import jsonutils
 import prettytable
 import six
 
