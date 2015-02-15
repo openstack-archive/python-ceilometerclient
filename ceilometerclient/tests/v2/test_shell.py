@@ -379,6 +379,8 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
     def setUp(self):
         super(ShellSampleListCommandTest, self).setUp()
         self.cc = mock.Mock()
+        self.cc.samples = mock.Mock()
+        self.cc.new_samples = mock.Mock()
         self.args = mock.Mock()
         self.args.query = None
         self.args.limit = None
@@ -469,16 +471,17 @@ class ShellSampleShowCommandTest(utils.BaseTestCase):
     def setUp(self):
         super(ShellSampleShowCommandTest, self).setUp()
         self.cc = mock.Mock()
+        self.cc.new_samples = mock.Mock()
         self.args = mock.Mock()
         self.args.sample_id = "98b5f258-635e-11e4-8bdd-0025647390c1"
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_sample_show(self):
         sample = samples.Sample(mock.Mock(), self.SAMPLE)
-        self.cc.samples.get.return_value = sample
+        self.cc.new_samples.get.return_value = sample
 
         ceilometer_shell.do_sample_show(self.cc, self.args)
-        self.cc.samples.get.assert_called_once_with(
+        self.cc.new_samples.get.assert_called_once_with(
             "98b5f258-635e-11e4-8bdd-0025647390c1")
 
         self.assertEqual('''\
@@ -525,6 +528,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
     def setUp(self):
         super(ShellSampleCreateCommandTest, self).setUp()
         self.cc = mock.Mock()
+        self.cc.samples = mock.Mock()
         self.args = mock.Mock()
         self.args.meter_name = self.METER
         self.args.meter_type = self.METER_TYPE
@@ -536,7 +540,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
     def test_sample_create(self):
         ret_sample = [samples.OldSample(mock.Mock(), sample)
                       for sample in self.SAMPLE]
-        self.cc.old_samples.create.return_value = ret_sample
+        self.cc.samples.create.return_value = ret_sample
 
         ceilometer_shell.do_sample_create(self.cc, self.args)
 

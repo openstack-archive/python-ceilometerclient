@@ -169,7 +169,7 @@ def _do_sample_list(cc, args):
            help='ID (aka message ID) of the sample to show.')
 def do_sample_show(cc, args):
     '''Show an sample.'''
-    sample = cc.samples.get(args.sample_id)
+    sample = cc.new_samples.get(args.sample_id)
 
     if sample is None:
         raise exc.CommandError('Sample not found: %s' % args.sample_id)
@@ -216,7 +216,7 @@ def do_sample_create(cc, args={}):
                 fields[k] = json.loads(v)
             else:
                 fields[arg_to_field_mapping.get(k, k)] = v
-    sample = cc.old_samples.create(**fields)
+    sample = cc.samples.create(**fields)
     fields = ['counter_name', 'user_id', 'resource_id',
               'timestamp', 'message_id', 'source', 'counter_unit',
               'counter_volume', 'project_id', 'resource_metadata',
