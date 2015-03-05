@@ -219,6 +219,7 @@ def Client(version, *args, **kwargs):
     module = utils.import_versioned_module(version, 'client')
     client_class = getattr(module, 'Client')
     kwargs['token'] = kwargs.get('token') or kwargs.get('auth_token')
+    kwargs.update(_adjust_params(kwargs))
     return client_class(*args, **kwargs)
 
 
@@ -295,7 +296,6 @@ def get_client(version, **kwargs):
     }
 
     cli_kwargs.update(kwargs)
-    cli_kwargs.update(_adjust_params(cli_kwargs))
 
     return Client(version, endpoint, **cli_kwargs)
 
