@@ -215,14 +215,29 @@ class AuthPlugin(auth.BaseAuthPlugin):
             raise exceptions.AuthPluginOptionsMissing(missing_opts)
 
 
-def Client(version, *args, **kwargs):
-    module = utils.import_versioned_module(version, 'client')
-    client_class = getattr(module, 'Client')
-    kwargs['token'] = kwargs.get('token') or kwargs.get('auth_token')
-    return client_class(*args, **kwargs)
+def _adjust_kwargs(kwargs):
+    client_kwargs = {
+        'username': kwargs.get('os_username'),
+        'password': kwargs.get('os_password'),
+        'tenant_id': kwargs.get('os_tenant_id'),
+        'tenant_name': kwargs.get('os_tenant_name'),
+        'auth_url': kwargs.get('os_auth_url'),
+        'region_name': kwargs.get('os_region_name'),
+        'service_type': kwargs.get('os_service_type'),
+        'endpoint_type': kwargs.get('os_endpoint_type'),
+        'cacert': kwargs.get('os_cacert'),
+        'cert_file': kwargs.get('os_cert'),
+        'key_file': kwargs.get('os_key'),
+        'token': kwargs.get('os_token') or kwargs.get('os_auth_token'),
+        'user_domain_name': kwargs.get('os_user_domain_name'),
+        'user_domain_id': kwargs.get('os_user_domain_id'),
+        'project_domain_name': kwargs.get('os_project_domain_name'),
+        'project_domain_id': kwargs.get('os_project_domain_id'),
+    }
 
+    client_kwargs.update(kwargs)
+    client_kwargs['token'] = kwargs.get('token') or kwargs.get('auth_token')
 
-def _adjust_params(kwargs):
     timeout = kwargs.get('timeout')
     if timeout is not None:
         timeout = int(timeout)
@@ -241,7 +256,17 @@ def _adjust_params(kwargs):
     key = kwargs.get('key_file')
     if cert and key:
         cert = cert, key
-    return {'verify': verify, 'cert': cert, 'timeout': timeout}
+
+    client_kwargs.update({'verify': verify, 'cert': cert, 'timeout': timeout})
+    return client_kwargs
+
+
+def Client(version, *args, **kwargs):
+    client_kwargs = _adjust_kwargs(kwargs)
+
+    module = utils.import_versioned_module(version, 'client')
+    client_class = getattr(module, 'Client')
+    return client_class(*args, **client_kwargs)
 
 
 def get_client(version, **kwargs):
@@ -275,29 +300,7 @@ def get_client(version, **kwargs):
     """
     endpoint = kwargs.get('os_endpoint') or kwargs.get('ceilometer_url')
 
-    cli_kwargs = {
-        'username': kwargs.get('os_username'),
-        'password': kwargs.get('os_password'),
-        'tenant_id': kwargs.get('os_tenant_id'),
-        'tenant_name': kwargs.get('os_tenant_name'),
-        'auth_url': kwargs.get('os_auth_url'),
-        'region_name': kwargs.get('os_region_name'),
-        'service_type': kwargs.get('os_service_type'),
-        'endpoint_type': kwargs.get('os_endpoint_type'),
-        'cacert': kwargs.get('os_cacert'),
-        'cert_file': kwargs.get('os_cert'),
-        'key_file': kwargs.get('os_key'),
-        'token': kwargs.get('os_token') or kwargs.get('os_auth_token'),
-        'user_domain_name': kwargs.get('os_user_domain_name'),
-        'user_domain_id': kwargs.get('os_user_domain_id'),
-        'project_domain_name': kwargs.get('os_project_domain_name'),
-        'project_domain_id': kwargs.get('os_project_domain_id'),
-    }
-
-    cli_kwargs.update(kwargs)
-    cli_kwargs.update(_adjust_params(cli_kwargs))
-
-    return Client(version, endpoint, **cli_kwargs)
+    return Client(version, endpoint, **kwargs)
 
 
 def get_auth_plugin(endpoint, **kwargs):
