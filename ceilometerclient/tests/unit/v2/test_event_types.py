@@ -11,46 +11,40 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
+
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.openstack.common.apiclient import fake_client
-from ceilometerclient.tests import utils
-import ceilometerclient.v2.trait_descriptions
+from ceilometerclient.tests.unit import utils
+import ceilometerclient.v2.event_types
 
 
 fixtures = {
-    '/v2/event_types/Foo/traits': {
+    '/v2/event_types/': {
         'GET': (
             {},
-            [
-                {'name': 'trait_1', 'type': 'string'},
-                {'name': 'trait_2', 'type': 'integer'},
-                {'name': 'trait_3', 'type': 'datetime'}
-            ]
+            ['Foo', 'Bar', 'Sna', 'Fu']
         ),
     }
 }
 
 
-class TraitDescriptionManagerTest(utils.BaseTestCase):
+class EventTypesManagerTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(TraitDescriptionManagerTest, self).setUp()
+        super(EventTypesManagerTest, self).setUp()
         self.http_client = fake_client.FakeHTTPClient(fixtures=fixtures)
         self.api = client.BaseClient(self.http_client)
-        self.mgr = (ceilometerclient.v2.trait_descriptions.
-                    TraitDescriptionManager(self.api))
+        self.mgr = ceilometerclient.v2.event_types.EventTypeManager(self.api)
 
     def test_list(self):
-        trait_descriptions = list(self.mgr.list('Foo'))
+        event_types = list(self.mgr.list())
         expect = [
-            'GET', '/v2/event_types/Foo/traits'
+            'GET', '/v2/event_types/'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(trait_descriptions), 3)
-        for i, vals in enumerate([('trait_1', 'string'),
-                                  ('trait_2', 'integer'),
-                                  ('trait_3', 'datetime')]):
-
-            name, type = vals
-            self.assertEqual(trait_descriptions[i].name, name)
-            self.assertEqual(trait_descriptions[i].type, type)
+        self.assertEqual(len(event_types), 4)
+        self.assertEqual(event_types[0].event_type, "Foo")
+        self.assertEqual(event_types[1].event_type, "Bar")
+        self.assertEqual(event_types[2].event_type, "Sna")
+        self.assertEqual(event_types[3].event_type, "Fu")

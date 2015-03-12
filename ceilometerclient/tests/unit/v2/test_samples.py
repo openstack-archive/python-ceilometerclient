@@ -17,7 +17,7 @@ import copy
 
 from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.openstack.common.apiclient import fake_client
-from ceilometerclient.tests import utils
+from ceilometerclient.tests.unit import utils
 import ceilometerclient.v2.samples
 
 GET_OLD_SAMPLE = {u'counter_name': u'instance',
