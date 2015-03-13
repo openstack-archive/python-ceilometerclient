@@ -1,0 +1,12 @@
+Verified+2: Jenkins
+Code-Review+2: gordon chung <gord@live.ca>
+Code-Review+1: ZhiQiang Fan <aji.zqfan@gmail.com>
+Code-Review+1: Fabio Giannetti <fabio.giannetti@hp.com>
+Code-Review+2: Ildiko Vancsa <ildiko.vancsa@ericsson.com>
+Workflow+1: Ildiko Vancsa <ildiko.vancsa@ericsson.com>
+Code-Review+1: Igor Degtiarov <idegtiarov@mirantis.com>
+Submitted-by: Jenkins
+Submitted-at: Fri, 13 Mar 2015 09:02:35 +0000
+Reviewed-on: https://review.openstack.org/161943
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
