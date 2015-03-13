@@ -477,12 +477,37 @@ def common_alarm_gnocchi_arguments(rule_namespace, create=False):
     return _wrapper
 
 
-def common_alarm_gnocchi_metrics_arguments(create=False):
+def common_alarm_gnocchi_aggregation_by_metrics_arguments(create=False):
     def _wrapper(func):
         @utils.arg('-m', '--metrics', metavar='<METRICS>',
-                   dest='gnocchi_metrics_threshold_rule/meter_name',
+                   dest=('gnocchi_aggregation_by_metrics_threshold_rule/'
+                         'meter_name'),
                    action='append', required=create,
                    help='Metric to evaluate against.')
+        @functools.wraps(func)
+        def _wrapped(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapped
+    return _wrapper
+
+
+def common_alarm_gnocchi_aggregation_by_resources_arguments(create=False):
+    def _wrapper(func):
+        @utils.arg('-m', '--metric', metavar='<METRIC>',
+                   dest=('gnocchi_aggregation_by_resources_threshold_rule/'
+                         'metric'),
+                   required=create,
+                   help='Metric to evaluate against.')
+        @utils.arg('--resource-type', metavar='<RESOURCE_TYPE>',
+                   dest=('gnocchi_aggregation_by_resources_threshold_rule/'
+                         'resource_type'),
+                   required=create,
+                   help='Resource_type to evaluate against.')
+        @utils.arg('--query', metavar='<QUERY>',
+                   dest=('gnocchi_aggregation_by_resources_threshold_rule/'
+                         'query'),
+                   required=create,
+                   help=('Gnocchi resources search query filter'))
         @functools.wraps(func)
         def _wrapped(*args, **kwargs):
             return func(*args, **kwargs)
@@ -500,11 +525,10 @@ def common_alarm_gnocchi_resources_arguments(create=False):
                    dest='gnocchi_resources_threshold_rule/resource_type',
                    required=create,
                    help='Resource_type to evaluate against.')
-        @utils.arg('--resource-constraint', metavar='<RESOURCE_CONSTRAINT>',
-                   dest='gnocchi_resources_threshold_rule/resource_constraint',
+        @utils.arg('--resource-id', metavar='<RESOURCE_ID>',
+                   dest='gnocchi_resources_threshold_rule/resource_id',
                    required=create,
-                   help=('Resources to evaluate against or a expression '
-                         'to select multiple resources.'))
+                   help=('Resource id to evaluate against'))
         @functools.wraps(func)
         def _wrapped(*args, **kwargs):
             return func(*args, **kwargs)
@@ -559,14 +583,29 @@ def do_alarm_gnocchi_resources_threshold_create(cc, args={}):
 
 
 @common_alarm_arguments(create=True)
-@common_alarm_gnocchi_arguments('gnocchi_metrics_threshold_rule', create=True)
-@common_alarm_gnocchi_metrics_arguments(create=True)
-def do_alarm_gnocchi_metrics_threshold_create(cc, args={}):
+@common_alarm_gnocchi_arguments(
+    'gnocchi_aggregation_by_metrics_threshold_rule', create=True)
+@common_alarm_gnocchi_aggregation_by_metrics_arguments(create=True)
+def do_alarm_gnocchi_aggregation_by_metrics_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
-    fields['type'] = 'gnocchi_metrics_threshold'
+    fields['type'] = 'gnocchi_aggregation_by_metrics_threshold'
+    alarm = cc.alarms.create(**fields)
+    _display_alarm(alarm)
+
+
+@common_alarm_arguments(create=True)
+@common_alarm_gnocchi_arguments(
+    'gnocchi_aggregation_by_resources_threshold_rule', create=True)
+@common_alarm_gnocchi_aggregation_by_resources_arguments(create=True)
+def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
+    """Create a new alarm based on computed statistics."""
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields['type'] = 'gnocchi_aggregation_by_resources_threshold'
     alarm = cc.alarms.create(**fields)
     _display_alarm(alarm)
 
@@ -741,7 +780,7 @@ def do_alarm_threshold_update(cc, args={}):
 @utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
            action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
-@common_alarm_gnocchi_arguments('gnocchi_resources_threshold')
+@common_alarm_gnocchi_arguments('gnocchi_resources_threshold_rule')
 @common_alarm_gnocchi_resources_arguments()
 @utils.arg('--remove-time-constraint', action='append',
            metavar='<Constraint names>',
@@ -767,19 +806,47 @@ def do_alarm_gnocchi_resources_threshold_update(cc, args={}):
 @utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
            action=NotEmptyAction, help='ID of the alarm to update.')
 @common_alarm_arguments()
-@common_alarm_gnocchi_arguments('gnocchi_metrics_threshold')
-@common_alarm_gnocchi_metrics_arguments()
+@common_alarm_gnocchi_arguments(
+    'gnocchi_aggregation_by_metrics_threshold_rule')
+@common_alarm_gnocchi_aggregation_by_metrics_arguments()
 @utils.arg('--remove-time-constraint', action='append',
            metavar='<Constraint names>',
            dest='remove_time_constraints',
            help='Name or list of names of the time constraints to remove.')
-def do_alarm_gnocchi_metrics_threshold_update(cc, args={}):
+def do_alarm_gnocchi_aggregation_by_metrics_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields.pop('alarm_id')
-    fields['type'] = 'gnocchi_metrics_threshold'
+    fields['type'] = 'gnocchi_aggregation_by_metrics_threshold'
+    try:
+        alarm = cc.alarms.update(args.alarm_id, **fields)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
+    _display_alarm(alarm)
+
+
+@utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
+           action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
+           dest='alarm_id_deprecated')
+@utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
+           action=NotEmptyAction, help='ID of the alarm to update.')
+@common_alarm_arguments()
+@common_alarm_gnocchi_arguments(
+    'gnocchi_aggregation_by_resources_threshold_rule')
+@common_alarm_gnocchi_aggregation_by_resources_arguments()
+@utils.arg('--remove-time-constraint', action='append',
+           metavar='<Constraint names>',
+           dest='remove_time_constraints',
+           help='Name or list of names of the time constraints to remove.')
+def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
+    """Update an existing alarm based on computed statistics."""
+    fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
+    fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
+    fields = utils.key_with_slash_to_nested_dict(fields)
+    fields.pop('alarm_id')
+    fields['type'] = 'gnocchi_aggregation_by_resources_threshold'
     try:
         alarm = cc.alarms.update(args.alarm_id, **fields)
     except exc.HTTPNotFound:
