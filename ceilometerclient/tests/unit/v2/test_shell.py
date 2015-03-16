@@ -24,8 +24,8 @@ from testtools import matchers
 
 from ceilometerclient import exc
 from ceilometerclient import shell as base_shell
-from ceilometerclient.tests import test_shell
-from ceilometerclient.tests import utils
+from ceilometerclient.tests.unit import test_shell
+from ceilometerclient.tests.unit import utils
 from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import events
 from ceilometerclient.v2 import samples

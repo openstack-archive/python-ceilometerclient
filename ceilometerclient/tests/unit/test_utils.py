@@ -19,7 +19,7 @@ import mock
 import six
 
 from ceilometerclient.common import utils
-from ceilometerclient.tests import utils as test_utils
+from ceilometerclient.tests.unit import utils as test_utils
 
 
 class UtilsTest(test_utils.BaseTestCase):

@@ -16,7 +16,7 @@
 import json
 
 from ceilometerclient import exc
-from ceilometerclient.tests import utils
+from ceilometerclient.tests.unit import utils
 
 HTTPEXCEPTIONS = {'HTTPBadRequest': exc.HTTPBadRequest,
                   'HTTPUnauthorized': exc.HTTPUnauthorized,

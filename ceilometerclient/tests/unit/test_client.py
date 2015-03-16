@@ -15,8 +15,8 @@ import types
 import mock
 
 from ceilometerclient import client
-from ceilometerclient.tests import fakes
-from ceilometerclient.tests import utils
+from ceilometerclient.tests.unit import fakes
+from ceilometerclient.tests.unit import utils
 from ceilometerclient.v1 import client as v1client
 from ceilometerclient.v2 import client as v2client
 

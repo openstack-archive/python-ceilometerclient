@@ -22,7 +22,7 @@ from testtools import matchers
 from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import client as api_client
 from ceilometerclient import shell as ceilometer_shell
-from ceilometerclient.tests import utils
+from ceilometerclient.tests.unit import utils
 from ceilometerclient.v2 import client as v2client
 
 FAKE_V2_ENV = {'OS_USERNAME': 'username',
