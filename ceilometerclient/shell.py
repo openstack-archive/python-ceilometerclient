@@ -46,6 +46,9 @@ def _positive_non_zero_int(argument_value):
 
 class CeilometerShell(object):
 
+    def __init__(self):
+        self.auth_plugin = ceiloclient.AuthPlugin()
+
     def get_base_parser(self):
         parser = argparse.ArgumentParser(
             prog='ceilometer',
@@ -158,7 +161,6 @@ class CeilometerShell(object):
 
     def parse_args(self, argv):
         # Parse args once to find version
-        self.auth_plugin = ceiloclient.AuthPlugin()
         parser = self.get_base_parser()
         (options, args) = parser.parse_known_args(argv)
         self.auth_plugin.parse_opts(options)
