@@ -92,6 +92,11 @@ class ShellHelpTest(ShellTestBase):
                 self.assertThat(help_text,
                                 matchers.MatchesRegex(r, self.RE_OPTIONS))
 
+    def test_get_base_parser(self):
+        standalone_shell = ceilometer_shell.CeilometerShell()
+        parser = standalone_shell.get_base_parser()
+        self.assertEqual(600, parser.get_default('timeout'))
+
 
 class ShellKeystoneV2Test(ShellTestBase):
 
