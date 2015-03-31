@@ -12,6 +12,7 @@
 
 import types
 
+from keystoneclient import session as ks_session
 import mock
 
 from ceilometerclient import client
@@ -132,6 +133,18 @@ class ClientTest(utils.BaseTestCase):
 
     def test_v2_client_timeout_valid_value(self):
         self._test_v2_client_timeout_integer(30, 30)
+
+    @mock.patch.object(ks_session, 'Session')
+    def test_v2_client_timeout_keystone_seesion(self, mocked_session):
+        mocked_session.side_effect = RuntimeError('Stop!')
+        env = FAKE_ENV.copy()
+        env['timeout'] = 5
+        del env['auth_plugin']
+        del env['token']
+        client = self.create_client(env)
+        self.assertRaises(RuntimeError, client.alarms.list)
+        args, kwargs = mocked_session.call_args
+        self.assertEqual(5, kwargs['timeout'])
 
     def test_v2_client_cacert_in_verify(self):
         env = FAKE_ENV.copy()
