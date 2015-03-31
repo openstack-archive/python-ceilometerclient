@@ -66,6 +66,7 @@ def _get_keystone_session(**kwargs):
     auth_url = kwargs.pop('auth_url', None)
     project_id = kwargs.pop('project_id', None)
     project_name = kwargs.pop('project_name', None)
+    timeout = kwargs.get('timeout')
 
     if insecure:
         verify = False
@@ -78,7 +79,7 @@ def _get_keystone_session(**kwargs):
         cert = (cert, key)
 
     # create the keystone client session
-    ks_session = session.Session(verify=verify, cert=cert)
+    ks_session = session.Session(verify=verify, cert=cert, timeout=timeout)
     v2_auth_url, v3_auth_url = _discover_auth_versions(ks_session, auth_url)
 
     username = kwargs.pop('username', None)
@@ -147,7 +148,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
                  'cert', 'key', 'tenant_name', 'project_name',
                  'project_id', 'project_domain_id', 'project_domain_name',
                  'user_id', 'user_domain_id', 'user_domain_name',
-                 'password', 'username', 'endpoint']
+                 'password', 'username', 'endpoint', 'timeout']
 
     def __init__(self, auth_system=None, **kwargs):
         self.opt_names.extend(self.common_opt_names)
@@ -178,6 +179,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
                 'insecure': strutils.bool_from_string(
                     self.opts.get('insecure')),
                 'endpoint_type': self.opts.get('endpoint_type'),
+                'timeout': self.opts.get('timeout'),
             }
 
             # retrieve session
