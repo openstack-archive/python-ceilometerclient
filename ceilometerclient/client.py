@@ -105,6 +105,8 @@ def _get_keystone_session(**kwargs):
             user_id=user_id,
             user_domain_name=user_domain_name,
             user_domain_id=user_domain_id,
+            project_name=project_name,
+            project_id=project_id,
             project_domain_name=project_domain_name,
             project_domain_id=project_domain_id)
     elif use_v2:
