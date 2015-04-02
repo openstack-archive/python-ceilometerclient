@@ -81,6 +81,7 @@ class ClientTest(utils.BaseTestCase):
             'service_type': None,
             'token': '1234',
             'endpoint_type': None,
+            'region_name': None,
             'auth_url': 'http://no.where',
             'tenant_id': None,
             'insecure': None,
