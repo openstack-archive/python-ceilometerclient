@@ -180,6 +180,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
                 'insecure': strutils.bool_from_string(
                     self.opts.get('insecure')),
                 'endpoint_type': self.opts.get('endpoint_type'),
+                'region_name': self.opts.get('region_name'),
             }
 
             # retrieve session
@@ -316,6 +317,7 @@ def get_auth_plugin(endpoint, **kwargs):
         token=kwargs.get('token'),
         endpoint_type=kwargs.get('endpoint_type'),
         insecure=kwargs.get('insecure'),
+        region_name=kwargs.get('region_name'),
         cacert=kwargs.get('cacert'),
         tenant_id=kwargs.get('project_id') or kwargs.get('tenant_id'),
         endpoint=endpoint,
