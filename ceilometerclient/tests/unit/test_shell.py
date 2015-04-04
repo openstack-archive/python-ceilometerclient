@@ -130,14 +130,16 @@ class ShellKeystoneV3Test(ShellTestBase):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env(FAKE_V3_ENV)
         args = ['--debug', 'event-list']
-        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        e = self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertEqual('Invalid OpenStack Identity credentials.', str(e))
 
     @mock.patch.object(ks_session, 'Session')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
         mock_ksclient.side_effect = exc.CommandError("FAIL")
         self.make_env(FAKE_V3_ENV)
         args = ['-d', 'event-list']
-        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        e = self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertEqual('FAIL', str(e))
 
     @mock.patch('sys.stderr')
     @mock.patch.object(ks_session, 'Session')
