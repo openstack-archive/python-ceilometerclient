@@ -201,18 +201,39 @@ class AuthPlugin(auth.BaseAuthPlugin):
         """
         has_token = self.opts.get('token') or self.opts.get('auth_token')
         no_auth = has_token and self.opts.get('endpoint')
+
         has_tenant = self.opts.get('tenant_id') or self.opts.get('tenant_name')
-        has_credential = (self.opts.get('username') and has_tenant
+        v2_credential = has_tenant and self.opts.get('username')
+
+        has_project_domain = (self.opts.get('project_domain_name') or
+                              self.opts.get('project_domain_id'))
+        has_project = (self.opts.get('project_id') or
+                       (self.opts.get('project_name') and has_project_domain))
+        has_user_domain = (self.opts.get('user_domain_name') or
+                           self.opts.get('user_domain_id'))
+        has_user = (self.opts.get('user_id') or
+                    (self.opts.get('username') and has_user_domain))
+        v3_credential = has_project and has_user
+
+        has_credential = ((v2_credential or v3_credential)
                           and self.opts.get('password')
                           and self.opts.get('auth_url'))
         missing = not (no_auth or has_credential)
         if missing:
             missing_opts = []
-            opts = ['token', 'endpoint', 'username', 'password', 'auth_url',
-                    'tenant_id', 'tenant_name']
-            for opt in opts:
+            for opt in ['password', 'auth_url']:
                 if not self.opts.get(opt):
                     missing_opts.append(opt)
+            if has_tenant:
+                if not v2_credential:
+                    missing_opts.append('username')
+            elif has_project:
+                if not has_user:
+                    missing_opts.append('user_id')
+            elif has_user:
+                missing_opts.append('project_id')
+            else:
+                missing_opts.extend(['user_id', 'project_id'])
             raise exceptions.AuthPluginOptionsMissing(missing_opts)
 
 
