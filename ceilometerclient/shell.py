@@ -27,6 +27,7 @@ import ceilometerclient
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
 from ceilometerclient import exc
+from ceilometerclient.openstack.common.apiclient import exceptions
 from ceilometerclient.openstack.common import cliutils
 
 
@@ -183,7 +184,7 @@ class CeilometerShell(object):
     @staticmethod
     def no_project_and_domain_set(args):
         if not (args.os_project_id or (args.os_project_name and
-                (args.os_user_domain_name or args.os_user_domain_id)) or
+                (args.os_project_domain_name or args.os_project_domain_id)) or
                 (args.os_tenant_id or args.os_tenant_name)):
             return True
         else:
@@ -203,41 +204,14 @@ class CeilometerShell(object):
             self.do_bash_completion(args)
             return 0
 
-        if not ((self.auth_plugin.opts.get('token')
-                 or self.auth_plugin.opts.get('auth_token'))
-                and self.auth_plugin.opts['endpoint']):
-            if not self.auth_plugin.opts['username']:
-                raise exc.CommandError("You must provide a username via "
-                                       "either --os-username or via "
-                                       "env[OS_USERNAME]")
-
-            if not self.auth_plugin.opts['password']:
-                raise exc.CommandError("You must provide a password via "
-                                       "either --os-password or via "
-                                       "env[OS_PASSWORD]")
-
-            if self.no_project_and_domain_set(args):
-                # steer users towards Keystone V3 API
-                raise exc.CommandError("You must provide a project_id via "
-                                       "either --os-project-id or via "
-                                       "env[OS_PROJECT_ID] and "
-                                       "a domain_name via either "
-                                       "--os-user-domain-name or via "
-                                       "env[OS_USER_DOMAIN_NAME] or "
-                                       "a domain_id via either "
-                                       "--os-user-domain-id or via "
-                                       "env[OS_USER_DOMAIN_ID]")
-
-            if not (self.auth_plugin.opts['tenant_id']
-                    or self.auth_plugin.opts['tenant_name']):
-                raise exc.CommandError("You must provide a tenant_id via "
-                                       "either --os-tenant-id or via "
-                                       "env[OS_TENANT_ID]")
-
-            if not self.auth_plugin.opts['auth_url']:
-                raise exc.CommandError("You must provide an auth url via "
-                                       "either --os-auth-url or via "
-                                       "env[OS_AUTH_URL]")
+        try:
+            self.auth_plugin.sufficient_options()
+        except exceptions.AuthPluginOptionsMissing as e:
+            required_opts = []
+            for opt in e.opt_names:
+                required_opts.append('--os-%s' % opt.replace('_', '-'))
+            msg = "Required option(s): %s" % required_opts
+            raise exc.CommandError(msg)
 
         client_kwargs = vars(args)
         client_kwargs.update(self.auth_plugin.opts)

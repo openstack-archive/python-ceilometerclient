@@ -12,9 +12,11 @@
 
 import types
 
+from keystoneclient import session as ks_session
 import mock
 
 from ceilometerclient import client
+from ceilometerclient.openstack.common.apiclient import exceptions
 from ceilometerclient.tests.unit import fakes
 from ceilometerclient.tests.unit import utils
 from ceilometerclient.v1 import client as v1client
@@ -77,12 +79,12 @@ class ClientTest(utils.BaseTestCase):
         expected = {
             'username': 'username',
             'endpoint': 'http://no.where',
-            'tenant_name': 'tenant_name',
+            'project_name': 'tenant_name',
             'service_type': None,
             'token': '1234',
             'endpoint_type': None,
             'auth_url': 'http://no.where',
-            'tenant_id': None,
+            'project_id': None,
             'cacert': None,
             'password': 'password',
             'user_domain_name': 'default',
@@ -93,6 +95,24 @@ class ClientTest(utils.BaseTestCase):
         with mock.patch('ceilometerclient.client.AuthPlugin') as auth_plugin:
             self.create_client(env, api_version=2, endpoint='http://no.where')
             auth_plugin.assert_called_with(**expected)
+
+    @mock.patch.object(ks_session, 'Session')
+    def test_keystone_v3_style_project_info(self, mocked_session):
+        mocked_session.side_effect = RuntimeError('Cut!')
+        env = FAKE_ENV.copy()
+        env['project_name'] = 'Project-A-by-Jackie-Chan'
+        exclude = ['tenant_name', 'auth_plugin', 'token']
+        client = self.create_client(env, exclude=exclude)
+        e = self.assertRaises(RuntimeError, client.alarms.list)
+        self.assertEqual('Cut!', str(e))
+
+    def test_without_project_info(self):
+        exclude = ['tenant_name', 'auth_plugin', 'token']
+        client = self.create_client(FAKE_ENV, exclude=exclude)
+        exc = exceptions.AuthPluginOptionsMissing
+        e = self.assertRaises(exc, client.alarms.list)
+        expected = 'Authentication failed. Missing options: project_id'
+        self.assertEqual(expected, str(e))
 
     def test_client_with_auth_plugin(self):
         c = self.create_client(FAKE_ENV, api_version=2)

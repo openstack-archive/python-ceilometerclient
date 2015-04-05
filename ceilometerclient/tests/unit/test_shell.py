@@ -130,14 +130,16 @@ class ShellKeystoneV3Test(ShellTestBase):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env(FAKE_V3_ENV)
         args = ['--debug', 'event-list']
-        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        e = self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertEqual('Invalid OpenStack Identity credentials.', str(e))
 
     @mock.patch.object(ks_session, 'Session')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
         mock_ksclient.side_effect = exc.CommandError("FAIL")
         self.make_env(FAKE_V3_ENV)
         args = ['-d', 'event-list']
-        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        e = self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertEqual('FAIL', str(e))
 
     @mock.patch('sys.stderr')
     @mock.patch.object(ks_session, 'Session')
@@ -146,6 +148,44 @@ class ShellKeystoneV3Test(ShellTestBase):
         self.make_env(FAKE_V3_ENV)
         args = ['event-list']
         self.assertRaises(SystemExit, ceilometer_shell.main, args)
+
+    def _test_without_user_info(self):
+        args = ['-d', 'alarm-list']
+        e = self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertEqual("Required option(s): ['--os-user-id']", str(e))
+
+    def test_without_user_name(self):
+        self.make_env(FAKE_V3_ENV, exclude='OS_USERNAME')
+        self._test_without_user_info()
+
+    def test_without_user_domain_name(self):
+        self.make_env(FAKE_V3_ENV, exclude='OS_USER_DOMAIN_NAME')
+        self._test_without_user_info()
+
+    def _test_without_project_info(self):
+        args = ['-d', 'alarm-list']
+        e = self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertEqual("Required option(s): ['--os-project-id']", str(e))
+
+    def test_without_project_id(self):
+        self.make_env(FAKE_V3_ENV, exclude='OS_PROJECT_ID')
+        self._test_without_project_info()
+
+    def test_without_project_domain_info(self):
+        env = FAKE_V3_ENV.copy()
+        env['OS_PROJECT_NAME'] = 'non-existent-project'
+        self.make_env(env, exclude='OS_PROJECT_ID')
+        self._test_without_project_info()
+
+    def test_without_user_and_project_info(self):
+        env = FAKE_V3_ENV.copy()
+        env.pop('OS_USERNAME')
+        env.pop('OS_PROJECT_ID')
+        self.make_env(env)
+        args = ['-d', 'alarm-list']
+        e = self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertEqual(("Required option(s): ['--os-project-id', "
+                          "'--os-user-id']"), str(e))
 
 
 class ShellTimeoutTest(ShellTestBase):
