@@ -52,8 +52,3 @@ def gen_ref(ver, title, names):
                           % {"title": name.capitalize(),
                              "signs": "=" * len(name),
                              "pkg": pkg, "name": name})
-
-gen_ref("", "Client Reference", ["client", "exc"])
-gen_ref("v1", "Version 1 API Reference",
-        ["stacks", "resources", "events", "actions",
-         "software_configs", "software_deployments"])
