@@ -24,7 +24,6 @@ Contents:
    ref/index
    ref/v1/index
    ref/v2/index
-   releases
 
 Contributing
 ============
