@@ -282,7 +282,9 @@ def get_client(version, **kwargs):
             * ceilometer_url: (DEPRECATED) Ceilometer API endpoint,
                               use os_endpoint instead
             * os_endpoint: Ceilometer API endpoint
+
             or:
+
             * os_username: name of user
             * os_password: user's password
             * os_user_id: user's id
