@@ -1,0 +1,13 @@
+Verified+2: Jenkins
+Code-Review+2: Eoghan Glynn <eglynn@redhat.com>
+Workflow+1: Eoghan Glynn <eglynn@redhat.com>
+Code-Review+2: gordon chung <gord@live.ca>
+Code-Review+1: Pradeep Kilambi <pkilambi@redhat.com>
+Code-Review+1: Fabio Giannetti <fabiogianne@gmail.com>
+Code-Review+1: Joe Cropper <jwcroppe@us.ibm.com>
+Code-Review+1: Divya K Konoor <dikonoor@in.ibm.com>
+Submitted-by: Jenkins
+Submitted-at: Tue, 07 Apr 2015 18:21:58 +0000
+Reviewed-on: https://review.openstack.org/169409
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
