@@ -228,6 +228,7 @@ def _adjust_kwargs(kwargs):
         'region_name': kwargs.get('os_region_name'),
         'service_type': kwargs.get('os_service_type'),
         'endpoint_type': kwargs.get('os_endpoint_type'),
+        'insecure': kwargs.get('os_insecure'),
         'cacert': kwargs.get('os_cacert'),
         'cert_file': kwargs.get('os_cert'),
         'key_file': kwargs.get('os_key'),
@@ -301,7 +302,7 @@ def get_client(version, **kwargs):
             * os_auth_url: endpoint to authenticate against
             * os_cert|os_cacert: path of CA TLS certificate
             * os_key: SSL private key
-            * insecure: allow insecure SSL (no cert verification)
+            * os_insecure: allow insecure SSL (no cert verification)
     """
     endpoint = kwargs.get('os_endpoint') or kwargs.get('ceilometer_url')
 
@@ -314,6 +315,7 @@ def get_auth_plugin(endpoint, **kwargs):
         service_type=kwargs.get('service_type'),
         token=kwargs.get('token'),
         endpoint_type=kwargs.get('endpoint_type'),
+        insecure=kwargs.get('insecure'),
         cacert=kwargs.get('cacert'),
         tenant_id=kwargs.get('project_id') or kwargs.get('tenant_id'),
         endpoint=endpoint,
