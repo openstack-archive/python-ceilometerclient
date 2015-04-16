@@ -32,9 +32,10 @@ UPDATABLE_ATTRIBUTES = [
     'ok_actions',
     'insufficient_data_actions',
     'repeat_actions',
+    'project_id',
+    'user_id'
 ]
-CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['project_id', 'user_id',
-                                              'time_constraints']
+CREATION_ATTRIBUTES = UPDATABLE_ATTRIBUTES + ['time_constraints']
 
 
 class Alarm(base.Resource):
