@@ -135,14 +135,15 @@ class AlarmManager(base.Manager):
             updated_tcs = [dict(tc) for tc in existing_tcs]
             for tc in new_tcs:
                 for i, old_tc in enumerate(updated_tcs):
-                    if old_tc['name'] == tc['name']:  # if names match, merge
+                    # if names match, merge
+                    if old_tc['name'] == tc.get('name'):
                         utils.merge_nested_dict(updated_tcs[i], tc)
                         break
                 else:
                     updated_tcs.append(tc)
         tcs_to_remove = kwargs.get('remove_time_constraints', [])
         for tc in updated_tcs:
-            if tc['name'] in tcs_to_remove:
+            if tc.get('name') in tcs_to_remove:
                 updated_tcs.remove(tc)
         return updated_tcs
 

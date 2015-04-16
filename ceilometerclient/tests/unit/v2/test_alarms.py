@@ -529,6 +529,23 @@ class AlarmTimeConstraintTest(testtools.TestCase):
         ]
         self.http_client.assert_called(*expect)
 
+    def test_update_time_constraint_no_name(self):
+        updated_constraint = {
+            'start': '0 23 * * *',
+            'duration': 500
+        }
+        kwargs = dict(time_constraints=[updated_constraint])
+        self.mgr.update(alarm_id='alarm-id', **kwargs)
+        body = copy.deepcopy(AN_ALARM)
+        body[u'time_constraints'].append({
+            'start': '0 23 * * *',
+            'duration': 500,
+        })
+        expect = [
+            'PUT', '/v2/alarms/alarm-id', body
+        ]
+        self.http_client.assert_called(*expect)
+
     def test_remove(self):
         kwargs = dict(remove_time_constraints=['cons2'])
         self.mgr.update(alarm_id='alarm-id', **kwargs)
