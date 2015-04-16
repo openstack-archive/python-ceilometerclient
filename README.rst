@@ -5,8 +5,16 @@ This is a client library for Ceilometer built on the Ceilometer API. It
 provides a Python API (the ``ceilometerclient`` module) and a command-line tool
 (``ceilometer``).
 
-Development takes place via the usual OpenStack processes as outlined in the
-`developer guide <http://docs.openstack.org/infra/manual/developers.html>`_.  The master
-repository is in `Git <http://git.openstack.org/cgit/openstack/python-ceilometerclient>`_.
+* `PyPi`_ - package installation
+* `Online Documentation`_
+* `Launchpad project`_ - release management
+* `Blueprints`_ - feature specifications
+* `Bugs`_ - issue tracking
+* `Source`_
 
-See release notes and more at `<http://docs.openstack.org/developer/python-ceilometerclient/>`_.
+.. _PyPi: https://pypi.python.org/pypi/python-ceilometerclient
+.. _Online Documentation: http://docs.openstack.org/developer/python-ceilometerclient
+.. _Launchpad project: https://launchpad.net/python-ceilometerclient
+.. _Blueprints: https://blueprints.launchpad.net/python-ceilometerclient
+.. _Bugs: https://bugs.launchpad.net/python-ceilometerclient
+.. _Source: https://git.openstack.org/cgit/openstack/python-ceilometerclient
