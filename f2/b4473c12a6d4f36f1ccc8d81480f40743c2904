@@ -1,0 +1,11 @@
+Verified+2: Jenkins
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Workflow+1: Julien Danjou <julien@danjou.info>
+Code-Review+2: gordon chung <gord@live.ca>
+Code-Review+1: ZhiQiang Fan <aji.zqfan@gmail.com>
+Code-Review+1: Chris Dent <chdent@redhat.com>
+Submitted-by: Jenkins
+Submitted-at: Mon, 20 Apr 2015 17:38:27 +0000
+Reviewed-on: https://review.openstack.org/174363
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/stable/kilo
