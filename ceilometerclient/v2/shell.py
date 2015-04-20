@@ -181,10 +181,22 @@ def do_sample_show(cc, args):
     utils.print_dict(data, wrap=72)
 
 
-@utils.arg('--project-id', metavar='<PROJECT_ID>',
+def _restore_shadowed_arg(shadowed, observed):
+    def wrapper(func):
+        @functools.wraps(func)
+        def wrapped(cc, args):
+            v = getattr(args, observed, None)
+            setattr(args, shadowed, v)
+            return func(cc, args)
+        return wrapped
+    return wrapper
+
+
+@utils.arg('--project-id', metavar='<SAMPLE_PROJECT_ID>',
+           dest='sample_project_id',
            help='Tenant to associate with sample '
                 '(only settable by admin users).')
-@utils.arg('--user-id', metavar='<USER_ID>',
+@utils.arg('--user-id', metavar='<SAMPLE_USER_ID>',
            help='User to associate with sample '
                 '(only settable by admin users).')
 @utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>', required=True,
@@ -202,12 +214,15 @@ def do_sample_show(cc, args):
                 'key-value pairs e.g. {"key":"value"}.')
 @utils.arg('--timestamp', metavar='<TIMESTAMP>',
            help='The sample timestamp.')
+@_restore_shadowed_arg('project_id', 'sample_project_id')
 def do_sample_create(cc, args={}):
     """Create a sample."""
-    arg_to_field_mapping = {'meter_name': 'counter_name',
-                            'meter_unit': 'counter_unit',
-                            'meter_type': 'counter_type',
-                            'sample_volume': 'counter_volume'}
+    arg_to_field_mapping = {
+        'meter_name': 'counter_name',
+        'meter_unit': 'counter_unit',
+        'meter_type': 'counter_type',
+        'sample_volume': 'counter_volume',
+    }
     fields = {}
     for var in vars(args).items():
         k, v = var[0], var[1]
@@ -397,10 +412,11 @@ def common_alarm_arguments(create=False):
     def _wrapper(func):
         @utils.arg('--name', metavar='<NAME>', required=create,
                    help='Name of the alarm (must be unique per tenant).')
-        @utils.arg('--project-id', metavar='<PROJECT_ID>',
+        @utils.arg('--project-id', metavar='<ALARM_PROJECT_ID>',
+                   dest='alarm_project_id',
                    help='Tenant to associate with alarm '
                    '(only settable by admin users).')
-        @utils.arg('--user-id', metavar='<USER_ID>',
+        @utils.arg('--user-id', metavar='<ALARM_USER_ID>',
                    help='User to associate with alarm '
                    '(only settable by admin users).')
         @utils.arg('--description', metavar='<DESCRIPTION>',
@@ -559,6 +575,7 @@ def common_alarm_gnocchi_resources_arguments(create=False):
            default=False,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
 def do_alarm_create(cc, args={}):
     """Create a new alarm (Deprecated). Use alarm-threshold-create instead."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -639,6 +656,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
            default=False,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
 def do_alarm_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -665,6 +683,7 @@ def do_alarm_threshold_create(cc, args={}):
            default=False,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
 def do_alarm_combination_create(cc, args={}):
     """Create a new alarm based on state of other alarms."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -706,6 +725,7 @@ def do_alarm_combination_create(cc, args={}):
            metavar='{True|False}', type=strutils.bool_from_string,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
 def do_alarm_update(cc, args={}):
     """Update an existing alarm (Deprecated)."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -757,6 +777,7 @@ def do_alarm_update(cc, args={}):
            metavar='{True|False}', type=strutils.bool_from_string,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
 def do_alarm_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -875,6 +896,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
            metavar='{True|False}', type=strutils.bool_from_string,
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
 def do_alarm_combination_update(cc, args={}):
     """Update an existing alarm based on state of other alarms."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
