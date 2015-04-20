@@ -42,9 +42,6 @@ class ClientTest(utils.BaseTestCase):
 
         return client.get_client(api_version, **env)
 
-    def setUp(self):
-        super(ClientTest, self).setUp()
-
     def test_client_version(self):
         c1 = self.create_client(env=FAKE_ENV, api_version=1)
         self.assertIsInstance(c1, v1client.Client)
@@ -94,7 +91,7 @@ class ClientTest(utils.BaseTestCase):
             'project_domain_id': None,
         }
         with mock.patch('ceilometerclient.client.AuthPlugin') as auth_plugin:
-            self.create_client(env, api_version=2)
+            self.create_client(env, api_version=2, endpoint='http://no.where')
             auth_plugin.assert_called_with(**expected)
 
     def test_client_with_auth_plugin(self):
@@ -149,3 +146,13 @@ class ClientTest(utils.BaseTestCase):
         client = self.create_client(env)
         self.assertEqual(('/path/to/cert', '/path/to/keycert'),
                          client.client.cert)
+
+
+class ClientTest2(ClientTest):
+    @staticmethod
+    def create_client(env, api_version=2, endpoint=None, exclude=[]):
+        env = dict((k, v) for k, v in env.items()
+                   if k not in exclude)
+
+        # Run the same tests with direct instantiation of the Client
+        return client.Client(api_version, endpoint, **env)
