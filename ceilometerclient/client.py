@@ -148,7 +148,8 @@ class AuthPlugin(auth.BaseAuthPlugin):
                  'service_type', 'endpoint_type', 'cacert',
                  'auth_url', 'insecure', 'cert_file', 'key_file',
                  'cert', 'key', 'tenant_name', 'project_name',
-                 'project_id', 'user_domain_id', 'user_domain_name',
+                 'project_id', 'project_domain_id', 'project_domain_name',
+                 'user_id', 'user_domain_id', 'user_domain_name',
                  'password', 'username', 'endpoint']
 
     def __init__(self, auth_system=None, **kwargs):
