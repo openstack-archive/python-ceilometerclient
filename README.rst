@@ -10,3 +10,8 @@ Development takes place via the usual OpenStack processes as outlined in the
 repository is in `Git <http://git.openstack.org/cgit/openstack/python-ceilometerclient>`_.
 
 See release notes and more at `<http://docs.openstack.org/developer/python-ceilometerclient/>`_.
+
+* License: Apache License, Version 2.0
+* Documentation: http://docs.openstack.org/developer/python-ceilometerclient
+* Source: http://git.openstack.org/cgit/openstack/python-ceilometerclient
+* Bugs: http://bugs.launchpad.net/python-ceilometerclient
