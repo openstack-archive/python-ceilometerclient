@@ -197,6 +197,7 @@ def _restore_shadowed_arg(shadowed, observed):
            help='Tenant to associate with sample '
                 '(only settable by admin users).')
 @utils.arg('--user-id', metavar='<SAMPLE_USER_ID>',
+           dest='sample_user_id',
            help='User to associate with sample '
                 '(only settable by admin users).')
 @utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>', required=True,
@@ -215,6 +216,7 @@ def _restore_shadowed_arg(shadowed, observed):
 @utils.arg('--timestamp', metavar='<TIMESTAMP>',
            help='The sample timestamp.')
 @_restore_shadowed_arg('project_id', 'sample_project_id')
+@_restore_shadowed_arg('user_id', 'sample_user_id')
 def do_sample_create(cc, args={}):
     """Create a sample."""
     arg_to_field_mapping = {
@@ -417,6 +419,7 @@ def common_alarm_arguments(create=False):
                    help='Tenant to associate with alarm '
                    '(only settable by admin users).')
         @utils.arg('--user-id', metavar='<ALARM_USER_ID>',
+                   dest='alarm_user_id',
                    help='User to associate with alarm '
                    '(only settable by admin users).')
         @utils.arg('--description', metavar='<DESCRIPTION>',
@@ -576,6 +579,7 @@ def common_alarm_gnocchi_resources_arguments(create=False):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_create(cc, args={}):
     """Create a new alarm (Deprecated). Use alarm-threshold-create instead."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -657,6 +661,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -684,6 +689,7 @@ def do_alarm_threshold_create(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_create(cc, args={}):
     """Create a new alarm based on state of other alarms."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -726,6 +732,7 @@ def do_alarm_combination_create(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_update(cc, args={}):
     """Update an existing alarm (Deprecated)."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -778,6 +785,7 @@ def do_alarm_update(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -897,6 +905,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
            help=('True if actions should be repeatedly notified '
                  'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_update(cc, args={}):
     """Update an existing alarm based on state of other alarms."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
