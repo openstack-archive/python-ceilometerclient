@@ -1047,7 +1047,7 @@ def do_event_list(cc, args={}):
 def do_event_show(cc, args={}):
     """Show a particular event."""
     event = cc.events.get(args.message_id)
-    fields = ['event_type', 'generated', 'traits']
+    fields = ['event_type', 'generated', 'traits', 'raw']
     data = dict([(f, getattr(event, f, '')) for f in fields])
     utils.print_dict(data, wrap=72)
 
