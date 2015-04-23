@@ -23,6 +23,7 @@ import functools
 import json
 
 from oslo.serialization import jsonutils
+from oslo.utils import encodeutils
 from oslo.utils import strutils
 import six
 
@@ -1044,12 +1045,26 @@ def do_event_list(cc, args={}):
 
 @utils.arg('message_id', metavar='<message_id>', action=NotEmptyAction,
            help='The ID of the event. Should be a UUID.')
+@utils.arg('-f', '--field', choices=['event_type', 'generated', 'traits'],
+           help='The field from the event that should be displayed',
+           required=False)
 def do_event_show(cc, args={}):
     """Show a particular event."""
     event = cc.events.get(args.message_id)
-    fields = ['event_type', 'generated', 'traits']
-    data = dict([(f, getattr(event, f, '')) for f in fields])
-    utils.print_dict(data, wrap=72)
+    if args.field:
+        data = getattr(event, args.field)
+        print_event_field_value(data)
+    else:
+        fields = ['event_type', 'generated', 'traits']
+        data = dict([(f, getattr(event, f, '')) for f in fields])
+        utils.print_dict(data, wrap=72)
+
+
+def print_event_field_value(value):
+    if six.PY3:
+        print(encodeutils.safe_encode(value).decode())
+    else:
+        print(encodeutils.safe_encode(value))
 
 
 def do_event_type_list(cc, args={}):
