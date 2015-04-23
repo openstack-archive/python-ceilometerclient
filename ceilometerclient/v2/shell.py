@@ -21,6 +21,7 @@
 import argparse
 import functools
 import json
+import sys
 
 from oslo.serialization import jsonutils
 from oslo.utils import strutils
@@ -49,6 +50,15 @@ OPERATORS_STRING = dict(gt='>', ge='>=',
 ORDER_DIRECTIONS = ['asc', 'desc']
 COMPLEX_OPERATORS = ['and', 'or']
 SIMPLE_OPERATORS = ["=", "!=", "<", "<=", '>', '>=']
+
+_EVENT_SHOW_FIELDS = ['event_type', 'generated', 'traits', 'raw']
+_SAMPLE_SHOW_FIELDS = ['id', 'meter', 'volume', 'type', 'unit', 'source',
+                       'resource_id', 'user_id', 'project_id', 'timestamp',
+                       'recorded_at', 'metadata']
+_GENERIC_ALARM_SHOW_FIELDS = ['name', 'description', 'type', 'state',
+                              'severity', 'enabled', 'alarm_id', 'user_id',
+                              'project_id', 'alarm_actions', 'ok_actions',
+                              'insufficient_data_actions', 'repeat_actions']
 
 
 class NotEmptyAction(argparse.Action):
@@ -168,18 +178,21 @@ def _do_sample_list(cc, args):
 
 @utils.arg('sample_id', metavar='<SAMPLE_ID>', action=NotEmptyAction,
            help='ID (aka message ID) of the sample to show.')
-def do_sample_show(cc, args):
+@utils.arg('-f', '--field', choices=_SAMPLE_SHOW_FIELDS,
+           help='The field from the sample that should be displayed')
+def do_sample_show(cc, args, out_file=sys.stdout):
     '''Show an sample.'''
     sample = cc.new_samples.get(args.sample_id)
 
     if sample is None:
         raise exc.CommandError('Sample not found: %s' % args.sample_id)
 
-    fields = ['id', 'meter', 'volume', 'type', 'unit', 'source',
-              'resource_id', 'user_id', 'project_id',
-              'timestamp', 'recorded_at', 'metadata']
-    data = dict((f, getattr(sample, f, '')) for f in fields)
-    utils.print_dict(data, wrap=72)
+    if args.field:
+        data = getattr(sample, args.field)
+        utils.print_field_value(data, out_file)
+    else:
+        data = dict((f, getattr(sample, f, '')) for f in _SAMPLE_SHOW_FIELDS)
+        utils.print_dict(data, wrap=72)
 
 
 def _restore_shadowed_arg(shadowed, observed):
@@ -384,11 +397,8 @@ def time_constraints_formatter_full(alarm):
 
 
 def _display_alarm(alarm):
-    fields = ['name', 'description', 'type',
-              'state', 'severity', 'enabled', 'alarm_id', 'user_id',
-              'project_id', 'alarm_actions', 'ok_actions',
-              'insufficient_data_actions', 'repeat_actions']
-    data = dict([(f, getattr(alarm, f, '')) for f in fields])
+    data = dict([(f, getattr(alarm, f, ''))
+                 for f in _GENERIC_ALARM_SHOW_FIELDS])
     data.update(alarm.rule)
     if alarm.type == 'threshold':
         data['query'] = alarm_query_formater(alarm)
@@ -402,11 +412,17 @@ def _display_alarm(alarm):
            dest='alarm_id_deprecated')
 @utils.arg('alarm_id', metavar='<ALARM_ID>', nargs='?',
            action=NotEmptyAction, help='ID of the alarm to show.')
-def do_alarm_show(cc, args={}):
+@utils.arg('-f', '--field', choices=_GENERIC_ALARM_SHOW_FIELDS,
+           help='The field from the alarm that should be displayed')
+def do_alarm_show(cc, args={}, out_file=sys.stdout):
     """Show an alarm."""
     alarm = cc.alarms.get(args.alarm_id)
     if alarm is None:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
+
+    if args.field:
+        data = getattr(alarm, args.field)
+        utils.print_field_value(data, out_file)
     else:
         _display_alarm(alarm)
 
@@ -1044,12 +1060,17 @@ def do_event_list(cc, args={}):
 
 @utils.arg('message_id', metavar='<message_id>', action=NotEmptyAction,
            help='The ID of the event. Should be a UUID.')
-def do_event_show(cc, args={}):
+@utils.arg('-f', '--field', choices=_EVENT_SHOW_FIELDS,
+           help='The field from the event that should be displayed')
+def do_event_show(cc, args={}, out_file=sys.stdout):
     """Show a particular event."""
     event = cc.events.get(args.message_id)
-    fields = ['event_type', 'generated', 'traits', 'raw']
-    data = dict([(f, getattr(event, f, '')) for f in fields])
-    utils.print_dict(data, wrap=72)
+    if args.field:
+        data = getattr(event, args.field)
+        utils.print_field_value(data, out_file)
+    else:
+        data = dict([(f, getattr(event, f, '')) for f in _EVENT_SHOW_FIELDS])
+        utils.print_dict(data, wrap=72)
 
 
 def do_event_type_list(cc, args={}):

@@ -197,6 +197,15 @@ def merge_nested_dict(dest, source, depth=0):
             dest[key] = value
 
 
+def print_field_value(value, out_file=sys.stdout):
+    if isinstance(value, dict):
+        value = jsonutils.dumps(value)
+    if six.PY3:
+        print(encodeutils.safe_encode(str(value)).decode(), file=out_file)
+    else:
+        print(encodeutils.safe_encode(str(value)), file=out_file)
+
+
 def exit(msg=''):
     if msg:
         print(msg, file=sys.stderr)

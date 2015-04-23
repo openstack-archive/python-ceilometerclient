@@ -15,6 +15,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import datetime
 import re
 import sys
 
@@ -22,6 +23,7 @@ import mock
 import six
 from testtools import matchers
 
+from ceilometerclient.common import utils as print_utils
 from ceilometerclient import exc
 from ceilometerclient import shell as base_shell
 from ceilometerclient.tests.unit import test_shell
@@ -475,6 +477,7 @@ class ShellSampleShowCommandTest(utils.BaseTestCase):
         self.cc = mock.Mock()
         self.cc.new_samples = mock.Mock()
         self.args = mock.Mock()
+        self.args.field = None
         self.args.sample_id = "98b5f258-635e-11e4-8bdd-0025647390c1"
 
     @mock.patch('sys.stdout', new=six.StringIO())
@@ -1224,3 +1227,172 @@ class ShellCapabilityShowTest(utils.BaseTestCase):
 | storage       | "storage:production_ready": true |
 +---------------+----------------------------------+
 ''', sys.stdout.getvalue())
+
+
+class EntityShowTest(utils.BaseTestCase):
+    """Helper class for testing the showing of an entity
+
+    This class requires the definition of the following instance
+    variables:
+    * entity_id - id of the desired entity.
+    * entity - class simulating the entity.
+    * mock_client - a class simulating the ceilometer client.
+    * show_function - the "show" function for the given entity.
+    """
+
+    def _do_show_entity(self, field, mock_get_function):
+        # set arguments
+        out_file = six.StringIO()
+        mock_get_function.return_value = self.entity
+        args = mock.Mock(message_id=self.entity_id, field=field)
+
+        # execute command
+        self.show_function(self.mock_client, args, out_file)
+
+        # Get result
+        return out_file.getvalue()
+
+    def do_test_show_field_from_entity(self, field, mock_get_function):
+        output = self._do_show_entity(field, mock_get_function)
+        expected_field_value = self.get_serialized_field(self.entity, field)
+        self.assertEqual(str(expected_field_value) + '\n', output)
+
+    def get_serialized_field(self, entity, field):
+        attribute = getattr(entity, field)
+        output = six.StringIO()
+        print_utils.print_field_value(attribute, out_file=output)
+        value = output.getvalue()
+        # print will append a newline.
+        return value[:-1] if value and value[-1] == '\n' else value
+
+
+class EventShowTest(EntityShowTest):
+
+    def setUp(self):
+        super(EventShowTest, self).setUp()
+        self.entity_id = 'event-id-1'
+        self.entity = mock.Mock(event_type='fake_event',
+                                generated=str(datetime.datetime.now()),
+                                traits=([{"fake_trait_key":
+                                          "fake_trait_value"}]),
+                                raw=[{"fake_raw_key": "fake_raw_value"}])
+        self.mock_client = mock.MagicMock()
+        self.show_function = ceilometer_shell.do_event_show
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_show_event_displays_correct_info(self):
+        # set arguments
+        self.mock_client.events.get.return_value = self.entity
+        args = mock.Mock(message_id=self.entity_id, field=None)
+
+        # execute command
+        self.show_function(self.mock_client, args)
+        output = sys.stdout.getvalue()
+
+        # test that all attributes are in the output
+        for field in ceilometer_shell._EVENT_SHOW_FIELDS:
+            attribute = self.get_serialized_field(self.entity, field)
+            self.assertIn(attribute, output)
+
+    def test_show_specific_fields(self):
+        # Test that every attribute is accesible from the
+        # command and properly printed.
+        for field in ceilometer_shell._EVENT_SHOW_FIELDS:
+            self.do_test_show_field_from_entity(field,
+                                                self.mock_client.events.get)
+
+
+class SampleShowTest(EntityShowTest):
+
+    def setUp(self):
+        super(SampleShowTest, self).setUp()
+        self.entity_id = 'sample-id-1'
+        self.entity = mock.Mock(
+            id=self.entity_id,
+            meter='image',
+            volume='1.0',
+            type='gauge',
+            unit='image',
+            source='opensatck',
+            resource_id='resource-id-1',
+            user_id='user-id-1',
+            project_id='project-id-1',
+            timestamp=str(datetime.datetime.now()),
+            recorded_at=str(datetime.datetime.now()),
+            metadata=[{"fake_metadata_key": "fake_metadata_value"}])
+        self.mock_client = mock.MagicMock()
+        self.show_function = ceilometer_shell.do_sample_show
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_show_sample_displays_correct_info(self):
+        # set arguments
+        self.mock_client.new_samples.get.return_value = self.entity
+        args = mock.Mock(message_id=self.entity_id, field=None)
+
+        # execute command
+        self.show_function(self.mock_client, args)
+        output = sys.stdout.getvalue()
+
+        # test that all attributes are in the output
+        for field in ceilometer_shell._SAMPLE_SHOW_FIELDS:
+            attribute = self.get_serialized_field(self.entity, field)
+            self.assertIn(attribute, output)
+
+    def test_show_specific_fields(self):
+        # Test that every attribute is accesible from the
+        # command and properly printed.
+        for field in ceilometer_shell._SAMPLE_SHOW_FIELDS:
+            self.do_test_show_field_from_entity(
+                field, self.mock_client.new_samples.get)
+
+
+class AlarmShowTest(EntityShowTest):
+
+    def setUp(self):
+        super(AlarmShowTest, self).setUp()
+        self.entity_id = 'alarm-id-1'
+
+        # A usual Mock object is not used here since Mock has an attribute
+        # called 'name'. So this works also for convenience
+        class MockedAlarm(object):
+            name = 'alarm-name'
+            description = "This is a fake alarm"
+            type = 'threshold'
+            state = 'some-state'
+            severity = 'low'
+            enabled = 'True'
+            alarm_id = 'alarm-id-1'
+            user_id = 'user-id-1'
+            project_id = 'project-id-1'
+            alarm_actions = []
+            ok_actions = []
+            insufficient_data_actions = []
+            repeat_actions = []
+            rule = {'query': {}}
+            time_constraints = ''
+        self.entity = MockedAlarm()
+
+        self.mock_client = mock.MagicMock()
+        self.show_function = ceilometer_shell.do_alarm_show
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_show_alarm_displays_correct_info(self):
+        # set arguments
+        self.mock_client.alarms.get.return_value = self.entity
+        args = mock.Mock(message_id=self.entity_id, field=None)
+
+        # execute command
+        self.show_function(self.mock_client, args)
+        output = sys.stdout.getvalue()
+
+        # test that all attributes are in the output
+        for field in ceilometer_shell._GENERIC_ALARM_SHOW_FIELDS:
+            attribute = self.get_serialized_field(self.entity, field)
+            self.assertIn(attribute, output)
+
+    def test_show_specific_fields(self):
+        # Test that every attribute is accesible from the
+        # command and properly printed.
+        for field in ceilometer_shell._GENERIC_ALARM_SHOW_FIELDS:
+            self.do_test_show_field_from_entity(
+                field, self.mock_client.alarms.get)
