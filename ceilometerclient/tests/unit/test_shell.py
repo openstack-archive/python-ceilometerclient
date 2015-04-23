@@ -10,6 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import datetime
 import re
 import sys
 
@@ -239,3 +240,59 @@ class ShellEndpointTest(ShellTestBase):
         self._test_endpoint_and_token('--os-auth-token', '--os-endpoint')
         self._test_endpoint_and_token('--os-token', '--ceilometer-url')
         self._test_endpoint_and_token('--os-token', '--os-endpoint')
+
+
+class EventCliTest(ShellTestBase):
+
+    def setUp(self):
+        super(EventCliTest, self).setUp()
+        self.make_env(FAKE_V2_ENV)
+        self.event_id = 'event-id-1'
+        self.event = mock.Mock(event_type='fake_event',
+                               generated=str(datetime.datetime.now()),
+                               traits=('[{"fake_trait_key" : '
+                                       '"fake_trait_value"}]'))
+
+        self.patcher = mock.patch('ceilometerclient.v2.client.Client')
+        self.mock_client_class = self.patcher.start()
+        self.mock_client = mock.MagicMock()
+        self.mock_client_class.return_value = self.mock_client
+
+    def tearDown(self):
+        self.patcher.stop()
+        super(EventCliTest, self).tearDown()
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_show_event_displays_correct_info(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id]
+        ceilometer_shell.main(args)
+        output = sys.stdout.getvalue()
+        self.assertIn(self.event.event_type, output)
+        self.assertIn(self.event.generated, output)
+        self.assertIn(self.event.traits, output)
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_get_event_type_only_from_event(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id, '--field', 'event_type']
+        ceilometer_shell.main(args)
+        self.assertEqual(self.event.event_type + '\n', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_get_generated_time_only_from_event(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id, '--field', 'generated']
+        ceilometer_shell.main(args)
+        self.assertEqual(self.event.generated + '\n', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_get_traits_only_from_event(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id, '--field', 'traits']
+        ceilometer_shell.main(args)
+        self.assertEqual(self.event.traits + '\n', sys.stdout.getvalue())
