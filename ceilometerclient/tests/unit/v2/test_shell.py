@@ -15,6 +15,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import datetime
 import re
 import sys
 
@@ -1121,6 +1122,77 @@ class ShellEventListCommandTest(utils.BaseTestCase):
 +--------------------------------------+-------------------------------\
 +----------------------------+
 ''', sys.stdout.getvalue())
+
+
+class EventShowTest(test_shell.ShellTestBase):
+
+    def setUp(self):
+        super(EventShowTest, self).setUp()
+        self.make_env(test_shell.FAKE_V2_ENV)
+        self.event_id = 'event-id-1'
+        self.event = mock.Mock(event_type='fake_event',
+                               generated=str(datetime.datetime.now()),
+                               traits=('[{"fake_trait_key" : '
+                                       '"fake_trait_value"}]'),
+                               raw=('[{"fake_trait_key" : "fake_trait_value",'
+                                    '"fake_extra_key": "fake_extra_value"}]'))
+
+        self.patcher = mock.patch('ceilometerclient.v2.client.Client')
+        self.mock_client_class = self.patcher.start()
+        self.mock_client = mock.MagicMock()
+        self.mock_client_class.return_value = self.mock_client
+
+    def tearDown(self):
+        self.patcher.stop()
+        super(EventShowTest, self).tearDown()
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_show_event_displays_correct_info(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id]
+        base_shell.main(args)
+
+        output = sys.stdout.getvalue()
+        self.assertIn(self.event.event_type, output)
+        self.assertIn(self.event.generated, output)
+        self.assertIn(self.event.traits, output)
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_get_event_type_only_from_event(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id, '--field', 'event_type']
+        base_shell.main(args)
+
+        self.assertEqual(self.event.event_type + '\n', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_get_generated_time_only_from_event(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id, '--field', 'generated']
+        base_shell.main(args)
+
+        self.assertEqual(self.event.generated + '\n', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_get_traits_only_from_event(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id, '--field', 'traits']
+        base_shell.main(args)
+
+        self.assertEqual(self.event.traits + '\n', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_get_raw_only_from_event(self):
+        self.mock_client.events.get.return_value = self.event
+
+        args = ['event-show', self.event_id, '--field', 'raw']
+        base_shell.main(args)
+
+        self.assertEqual(self.event.raw + '\n', sys.stdout.getvalue())
 
 
 class ShellShadowedArgsTest(test_shell.ShellTestBase):
