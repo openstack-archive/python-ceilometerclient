@@ -197,6 +197,18 @@ def merge_nested_dict(dest, source, depth=0):
             dest[key] = value
 
 
+def print_field_value(value, out_file=sys.stdout):
+    if isinstance(value, dict) or isinstance(value, list):
+        value = jsonutils.dumps(value)
+
+    # This part was based on how openstack.common.cliutils prints the resulting
+    # strings for the print_dict and print_list functions
+    if six.PY3:
+        print(encodeutils.safe_encode(str(value)).decode(), file=out_file)
+    else:
+        print(encodeutils.safe_encode(str(value)), file=out_file)
+
+
 def exit(msg=''):
     if msg:
         print(msg, file=sys.stderr)
