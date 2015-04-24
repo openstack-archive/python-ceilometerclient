@@ -1033,7 +1033,6 @@ class ShellEventListCommandTest(utils.BaseTestCase):
 
     EVENTS = [
         {
-            "traits": [],
             "generated": "2015-01-12T04:03:25.741471",
             "message_id": "fb2bef58-88af-4380-8698-e0f18fcf452d",
             "event_type": "compute.instance.create.start",
@@ -1044,7 +1043,6 @@ class ShellEventListCommandTest(utils.BaseTestCase):
             }],
         },
         {
-            "traits": [],
             "generated": "2015-01-12T04:03:28.452495",
             "message_id": "9b20509a-576b-4995-acfa-1a24ee5cf49f",
             "event_type": "compute.instance.create.end",
