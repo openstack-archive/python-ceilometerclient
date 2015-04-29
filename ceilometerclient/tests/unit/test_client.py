@@ -12,10 +12,15 @@
 
 import types
 
+from keystoneclient.auth.identity import v2 as v2_auth
+from keystoneclient.auth.identity import v3 as v3_auth
+from keystoneclient import exceptions as ks_exc
 from keystoneclient import session as ks_session
 import mock
 
 from ceilometerclient import client
+from ceilometerclient import exc
+from ceilometerclient.openstack.common.apiclient import exceptions
 from ceilometerclient.tests.unit import fakes
 from ceilometerclient.tests.unit import utils
 from ceilometerclient.v1 import client as v1client
@@ -179,3 +184,149 @@ class ClientTest2(ClientTest):
 
         # Run the same tests with direct instantiation of the Client
         return client.Client(api_version, endpoint, **env)
+
+
+class ClientAuthTest(utils.BaseTestCase):
+
+    @staticmethod
+    def create_client(env, api_version=2, endpoint=None, exclude=[]):
+        env = dict((k, v) for k, v in env.items()
+                   if k not in exclude)
+
+        return client.get_client(api_version, **env)
+
+    @mock.patch('keystoneclient.discover.Discover')
+    @mock.patch('keystoneclient.session.Session')
+    def test_discover_auth_versions(self, session, discover_mock):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+
+        mock_session_instance = mock.MagicMock()
+        session.return_value = mock_session_instance
+
+        client = self.create_client(env)
+        client.auth_plugin.opts.pop('token', None)
+        client.auth_plugin._do_authenticate(mock.MagicMock())
+
+        discover_mock.assert_called(auth_url='http://no.where',
+                                    session=mock_session_instance)
+        self.assertIsInstance(mock_session_instance.auth, v3_auth.Password)
+
+    @mock.patch('keystoneclient.discover.Discover')
+    @mock.patch('keystoneclient.session.Session')
+    def test_discover_auth_versions_v2_only(self, session, discover):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+        env.pop('user_domain_name', None)
+        env.pop('user_domain_id', None)
+        env.pop('project_domain_name', None)
+        env.pop('project_domain_id', None)
+
+        session_instance_mock = mock.MagicMock()
+        session.return_value = session_instance_mock
+
+        discover_instance_mock = mock.MagicMock()
+        discover_instance_mock.url_for.side_effect = (lambda v: v
+                                                      if v == '2.0' else None)
+        discover.return_value = discover_instance_mock
+
+        client = self.create_client(env)
+        client.auth_plugin.opts.pop('token', None)
+        client.auth_plugin._do_authenticate(mock.MagicMock())
+
+        discover.assert_called(auth_url='http://no.where',
+                               session=session_instance_mock)
+        self.assertIsInstance(session_instance_mock.auth, v2_auth.Password)
+
+    @mock.patch('keystoneclient.discover.Discover')
+    @mock.patch('keystoneclient.session.Session')
+    def test_discover_auth_versions_raise_discovery_failure(self,
+                                                            session,
+                                                            discover):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+
+        session_instance_mock = mock.MagicMock()
+        session.return_value = session_instance_mock
+
+        discover_instance_mock = mock.MagicMock()
+        discover_instance_mock.url_for.side_effect = (lambda v: v
+                                                      if v == '2.0' else None)
+        discover.side_effect = ks_exc.DiscoveryFailure
+
+        client = self.create_client(env)
+        client.auth_plugin.opts.pop('token', None)
+
+        self.assertRaises(ks_exc.DiscoveryFailure,
+                          client.auth_plugin._do_authenticate,
+                          mock.Mock())
+        discover.assert_called(auth_url='http://no.where',
+                               session=session_instance_mock)
+
+    @mock.patch('keystoneclient.discover.Discover')
+    @mock.patch('keystoneclient.session.Session')
+    def test_discover_auth_versions_raise_command_err(self, session, discover):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+
+        session_instance_mock = mock.MagicMock()
+        session.return_value = session_instance_mock
+
+        discover.side_effect = exceptions.ClientException
+
+        client = self.create_client(env)
+        client.auth_plugin.opts.pop('token', None)
+
+        self.assertRaises(exc.CommandError,
+                          client.auth_plugin._do_authenticate,
+                          mock.Mock())
+
+    @mock.patch('ceilometerclient.client._get_keystone_session')
+    def test_get_endpoint(self, session):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+        env.pop('endpoint', None)
+
+        session_instance_mock = mock.MagicMock()
+        session.return_value = session_instance_mock
+
+        client = self.create_client(env)
+        client.auth_plugin.opts.pop('token', None)
+        client.auth_plugin.opts.pop('endpoint')
+        client.auth_plugin._do_authenticate(mock.MagicMock())
+        session_instance_mock.get_endpoint.assert_called_with(
+            region_name=None, interface='publicURL', service_type='metering')
+
+    @mock.patch('ceilometerclient.client._get_keystone_session')
+    def test_get_different_endpoint_type(self, session):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+        env.pop('endpoint', None)
+        env['endpoint_type'] = 'internal'
+
+        session_instance_mock = mock.MagicMock()
+        session.return_value = session_instance_mock
+
+        client = self.create_client(env)
+        client.auth_plugin.opts.pop('token', None)
+        client.auth_plugin.opts.pop('endpoint')
+        client.auth_plugin._do_authenticate(mock.MagicMock())
+        session_instance_mock.get_endpoint.assert_called_with(
+            region_name=None, interface='internal', service_type='metering')
+
+    @mock.patch('ceilometerclient.client._get_keystone_session')
+    def test_get_sufficient_options_missing(self, session):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+        env.pop('password', None)
+        env.pop('endpoint', None)
+        env.pop('auth_token', None)
+        env.pop('tenant_name', None)
+        env.pop('username', None)
+
+        session_instance_mock = mock.MagicMock()
+        session.return_value = session_instance_mock
+        client = self.create_client(env)
+        client.auth_plugin.opts.pop('endpoint', None)
+        self.assertRaises(exceptions.AuthPluginOptionsMissing,
+                          client.auth_plugin.sufficient_options)

@@ -39,15 +39,6 @@ FAKE_V3_ENV = {'OS_USERNAME': 'username',
 
 class ShellTestBase(utils.BaseTestCase):
 
-    # Patch os.environ to avoid required auth info.
-    def make_env(self, env_version, exclude=None):
-        env = dict((k, v) for k, v in env_version.items() if k != exclude)
-        self.useFixture(fixtures.MonkeyPatch('os.environ', env))
-
-
-class ShellHelpTest(ShellTestBase):
-    RE_OPTIONS = re.DOTALL | re.MULTILINE
-
     @mock.patch('sys.stdout', new=six.StringIO())
     @mock.patch.object(ks_session, 'Session', mock.MagicMock())
     @mock.patch.object(v2client.client.HTTPClient,
@@ -61,6 +52,15 @@ class ShellHelpTest(ShellTestBase):
             self.assertEqual(exc_value.code, 0)
 
         return sys.stdout.getvalue()
+
+    # Patch os.environ to avoid required auth info.
+    def make_env(self, env_version, exclude=None):
+        env = dict((k, v) for k, v in env_version.items() if k != exclude)
+        self.useFixture(fixtures.MonkeyPatch('os.environ', env))
+
+
+class ShellHelpTest(ShellTestBase):
+    RE_OPTIONS = re.DOTALL | re.MULTILINE
 
     def test_help_unknown_command(self):
         self.assertRaises(exc.CommandError, self.shell, 'help foofoo')
@@ -96,6 +96,18 @@ class ShellHelpTest(ShellTestBase):
         standalone_shell = ceilometer_shell.CeilometerShell()
         parser = standalone_shell.get_base_parser()
         self.assertEqual(600, parser.get_default('timeout'))
+
+
+class ShellBashCompletionTest(ShellTestBase):
+
+    def test_bash_completion(self):
+        completion_commands = self.shell("bash-completion")
+        options = completion_commands.split(' ')
+        self.assertNotIn('bash-completion', options)
+        self.assertNotIn('bash_completion', options)
+        for option in options:
+            self.assertThat(option,
+                            matchers.MatchesRegex(r'[a-z0-9-]'))
 
 
 class ShellKeystoneV2Test(ShellTestBase):
@@ -177,7 +189,7 @@ class ShellTimeoutTest(ShellTestBase):
         self._test_timeout('0', expected_msg)
 
     @mock.patch.object(ks_session, 'Session')
-    def test_timeout_kesytone_session(self, mocked_session):
+    def test_timeout_keystone_session(self, mocked_session):
         mocked_session.side_effect = exc.HTTPUnauthorized("FAIL")
         self.make_env(FAKE_V2_ENV)
         args = ['--debug', '--timeout', '5', 'alarm-list']
