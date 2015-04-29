@@ -998,7 +998,6 @@ def do_alarm_history(cc, args={}):
 def do_resource_list(cc, args={}):
     """List the resources."""
     resources = cc.resources.list(q=options.cli_to_array(args.query))
-
     field_labels = ['Resource ID', 'Source', 'User ID', 'Project ID']
     fields = ['resource_id', 'source', 'user_id', 'project_id']
     utils.print_list(resources, fields, field_labels,
