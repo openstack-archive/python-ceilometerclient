@@ -41,10 +41,11 @@ def _discover_auth_versions(session, auth_url):
         url_parts = urlparse.urlparse(auth_url)
         (scheme, netloc, path, params, query, fragment) = url_parts
         path = path.lower()
+
         if path.startswith('/v3'):
             v3_auth_url = auth_url
         elif path.startswith('/v2'):
-            v2_auth_url = auth_url
+                v2_auth_url = auth_url
         else:
             raise exc.CommandError('Unable to determine the Keystone '
                                    'version to authenticate with '
