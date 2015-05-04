@@ -78,6 +78,7 @@ DELTA_ALARM_RULE = {u'comparison_operator': u'lt',
 DELTA_ALARM_TC = [{u'name': u'cons1',
                   u'duration': 500}]
 DELTA_ALARM['time_constraints'] = DELTA_ALARM_TC
+DELTA_ALARM['user_id'] = u'new-user-id'
 UPDATED_ALARM = copy.deepcopy(AN_ALARM)
 UPDATED_ALARM.update(DELTA_ALARM)
 UPDATED_ALARM['threshold_rule'].update(DELTA_ALARM_RULE)
@@ -90,7 +91,7 @@ UPDATED_ALARM['time_constraints'] = [{u'name': u'cons1',
 DELTA_ALARM['threshold_rule'] = DELTA_ALARM_RULE
 UPDATE_ALARM = copy.deepcopy(UPDATED_ALARM)
 UPDATE_ALARM['remove_time_constraints'] = 'cons2'
-del UPDATE_ALARM['user_id']
+UPDATE_ALARM['user_id'] = u'new-user-id'
 del UPDATE_ALARM['project_id']
 del UPDATE_ALARM['name']
 del UPDATE_ALARM['alarm_id']
@@ -128,11 +129,12 @@ DELTA_LEGACY_ALARM = {u'alarm_actions': ['url1', 'url2'],
                       u'threshold': 42.1}
 DELTA_LEGACY_ALARM['time_constraints'] = [{u'name': u'cons1',
                                            u'duration': 500}]
+DELTA_LEGACY_ALARM['user_id'] = u'new-user-id'
 DELTA_LEGACY_ALARM['remove_time_constraints'] = 'cons2'
 UPDATED_LEGACY_ALARM = copy.deepcopy(AN_LEGACY_ALARM)
 UPDATED_LEGACY_ALARM.update(DELTA_LEGACY_ALARM)
 UPDATE_LEGACY_ALARM = copy.deepcopy(UPDATED_LEGACY_ALARM)
-del UPDATE_LEGACY_ALARM['user_id']
+UPDATE_LEGACY_ALARM['user_id'] = u'new-user-id'
 del UPDATE_LEGACY_ALARM['project_id']
 del UPDATE_LEGACY_ALARM['name']
 del UPDATE_LEGACY_ALARM['alarm_id']
