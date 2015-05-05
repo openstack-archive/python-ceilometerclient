@@ -170,16 +170,17 @@ def _do_sample_list(cc, args):
            help='ID (aka message ID) of the sample to show.')
 def do_sample_show(cc, args):
     '''Show an sample.'''
-    sample = cc.new_samples.get(args.sample_id)
-
-    if sample is None:
+    try:
+        sample = cc.new_samples.get(args.sample_id)
+    except exc.HTTPNotFound:
         raise exc.CommandError('Sample not found: %s' % args.sample_id)
 
-    fields = ['id', 'meter', 'volume', 'type', 'unit', 'source',
-              'resource_id', 'user_id', 'project_id',
-              'timestamp', 'recorded_at', 'metadata']
-    data = dict((f, getattr(sample, f, '')) for f in fields)
-    utils.print_dict(data, wrap=72)
+    else:
+        fields = ['id', 'meter', 'volume', 'type', 'unit', 'source',
+                  'resource_id', 'user_id', 'project_id',
+                  'timestamp', 'recorded_at', 'metadata']
+        data = dict((f, getattr(sample, f, '')) for f in fields)
+        utils.print_dict(data, wrap=72)
 
 
 def _restore_shadowed_arg(shadowed, observed):
@@ -405,6 +406,8 @@ def _display_alarm(alarm):
 def do_alarm_show(cc, args={}):
     """Show an alarm."""
     alarm = cc.alarms.get(args.alarm_id)
+    # alarm.get actually catches the HTTPNotFound exception and turns the
+    # result into None if the alarm wasn't found.
     if alarm is None:
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
     else:
@@ -1046,10 +1049,14 @@ def do_event_list(cc, args={}):
            help='The ID of the event. Should be a UUID.')
 def do_event_show(cc, args={}):
     """Show a particular event."""
-    event = cc.events.get(args.message_id)
-    fields = ['event_type', 'generated', 'traits', 'raw']
-    data = dict([(f, getattr(event, f, '')) for f in fields])
-    utils.print_dict(data, wrap=72)
+    try:
+        event = cc.events.get(args.message_id)
+    except exc.HTTPNotFound:
+        raise exc.CommandError('Event not found: %s' % args.message_id)
+    else:
+        fields = ['event_type', 'generated', 'traits', 'raw']
+        data = dict([(f, getattr(event, f, '')) for f in fields])
+        utils.print_dict(data, wrap=72)
 
 
 def do_event_type_list(cc, args={}):

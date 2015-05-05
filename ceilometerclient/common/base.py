@@ -21,6 +21,7 @@ import copy
 
 from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import base
+from ceilometerclient.openstack.common.apiclient import exceptions
 
 # Python 2.4 compat
 try:
@@ -65,8 +66,12 @@ class Manager(object):
 
     def _list(self, url, response_key=None, obj_class=None, body=None,
               expect_single=False):
-        resp = self.api.get(url)
-        if not resp.content:
+        resp = None
+        try:
+            resp = self.api.get(url)
+            if not resp.content:
+                raise exc.HTTPNotFound
+        except exceptions.NotFound:
             raise exc.HTTPNotFound
         body = resp.json()
 
