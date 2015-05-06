@@ -19,7 +19,7 @@ import sys
 import textwrap
 import uuid
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from oslo_utils import encodeutils
 from oslo_utils import importutils
 import prettytable

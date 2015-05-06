@@ -22,7 +22,7 @@ import argparse
 import functools
 import json
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import six
 
