@@ -11,6 +11,7 @@
 #    under the License.
 
 from ceilometerclient.tests.functional import base
+import re
 
 
 class SimpleReadOnlyCeilometerClientTest(base.ClientTestBase):
@@ -22,13 +23,49 @@ class SimpleReadOnlyCeilometerClientTest(base.ClientTestBase):
     """
 
     def test_ceilometer_meter_list(self):
-        self.ceilometer('meter-list')
+        result = self.ceilometer('meter-list')
+        meters = self.parser.listing(result)
+        self.assertTableStruct(meters, ['Name', 'Type', 'Unit',
+                                        'Resource ID', 'Project ID'])
 
     def test_ceilometer_resource_list(self):
-        self.ceilometer('resource-list')
+        result = self.ceilometer('resource-list')
+        resources = self.parser.listing(result)
+        self.assertTableStruct(resources, ['Resource ID', 'Source',
+                                           'User ID', 'Project ID'])
 
-    def test_ceilometermeter_alarm_list(self):
-        self.ceilometer('alarm-list')
+    def test_ceilometer_alarm_list(self):
+        result = self.ceilometer('alarm-list')
+        alarm = self.parser.listing(result)
+        self.assertTableStruct(alarm, ['Alarm ID', 'Name', 'State',
+                                       'Enabled', 'Continuous'])
+
+    def test_admin_help(self):
+        help_text = self.ceilometer('help')
+        lines = help_text.split('\n')
+        self.assertFirstLineStartsWith(lines, 'usage: ceilometer')
+
+        commands = []
+        cmds_start = lines.index('Positional arguments:')
+        cmds_end = lines.index('Optional arguments:')
+        command_pattern = re.compile('^ {4}([a-z0-9\-\_]+)')
+        for line in lines[cmds_start:cmds_end]:
+            match = command_pattern.match(line)
+            if match:
+                commands.append(match.group(1))
+        commands = set(commands)
+        wanted_commands = set(('alarm-combination-create', 'alarm-create',
+                               'help', 'alarm-delete', 'event-list'))
+        self.assertFalse(wanted_commands - commands)
+
+    def test_ceilometer_bash_completion(self):
+        self.ceilometer('bash-completion')
+
+    # Optional arguments
 
     def test_ceilometer_version(self):
-        self.ceilometer('', flags='--version')
+        version = self.ceilometer('', flags='--version', merge_stderr=True)
+        self.assertTrue(re.search('^[0-9.]+', version))
+
+    def test_ceilometer_debug_list(self):
+        self.ceilometer('meter-list', flags='--debug')
