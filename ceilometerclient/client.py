@@ -257,10 +257,10 @@ def _adjust_kwargs(kwargs):
         if insecure:
             verify = False
         else:
-            verify = kwargs.get('cacert') or True
+            verify = client_kwargs.get('cacert') or True
 
-    cert = kwargs.get('cert_file')
-    key = kwargs.get('key_file')
+    cert = client_kwargs.get('cert_file')
+    key = client_kwargs.get('key_file')
     if cert and key:
         cert = cert, key
 
