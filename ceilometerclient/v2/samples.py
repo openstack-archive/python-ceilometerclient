@@ -56,6 +56,26 @@ class OldSampleManager(base.Manager):
         if body:
             return [OldSample(self, b) for b in body]
 
+    def create_list(self, sample_list=None, **kwargs):
+        sample_dict = {}
+
+        for sample_body in sample_list:
+            sample = dict((key, value) for (key, value) in sample_body.items()
+                          if key in CREATION_ATTRIBUTES)
+            sample_dict.setdefault(
+                sample_body["counter_name"], []
+            ).append(sample)
+
+        sample_return_list = []
+
+        for (counter_name, sample_body) in sample_dict.items():
+            url = self._path(counter_name=counter_name)
+            body = self.api.post(url, json=sample_body).json()
+
+            if body:
+                sample_return_list.extend([OldSample(self, b) for b in body])
+        return sample_return_list
+
 
 class Sample(base.Resource):
     """Represents API v2 Sample object.
