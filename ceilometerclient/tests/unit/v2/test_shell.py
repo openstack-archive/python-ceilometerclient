@@ -15,6 +15,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import json
 import re
 import sys
 
@@ -562,6 +563,59 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 | user_id           | 21b442b8101d407d8242b6610e0ed0eb            |
 | volume            | 1.0                                         |
 +-------------------+---------------------------------------------+
+''', sys.stdout.getvalue())
+
+
+class ShellSampleCreateListCommandTest(utils.BaseTestCase):
+
+    SAMPLE = {
+        u'counter_name': u'image',
+        u'user_id': u'21b442b8101d407d8242b6610e0ed0eb',
+        u'resource_id': u'0564c64c-3545-4e34-abfb-9d18e5f2f2f9',
+        u'timestamp': u'2015-05-19T12:00:08.368574',
+        u'source': u'384260c6987b451d8290e66e1f108082: openstack',
+        u'counter_unit': u'image',
+        u'counter_volume': 1.0,
+        u'project_id': u'384260c6987b451d8290e66e1f108082',
+        u'resource_metadata': {},
+        u'counter_type': u'cumulative'
+    }
+
+    def setUp(self):
+        super(ShellSampleCreateListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.samples = mock.Mock()
+        self.cc.samples.create_list = mock.Mock()
+        self.args = mock.Mock()
+        self.samples = [self.SAMPLE] * 5
+        self.args.samples_list = json.dumps(self.samples)
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_sample_create_list(self):
+        ret_samples = [samples.OldSample(mock.Mock(),
+                                         sample) for sample in self.samples]
+        self.cc.samples.create_list.return_value = ret_samples
+        ceilometer_shell.do_sample_create_list(self.cc, self.args)
+        self.cc.samples.create_list.assert_called_with(self.samples)
+        self.assertEqual('''\
++--------------------------------------+-------+------------+--------+-------\
++----------------------------+
+| Resource ID                          | Name  | Type       | Volume | Unit  \
+| Timestamp                  |
++--------------------------------------+-------+------------+--------+-------\
++----------------------------+
+| 0564c64c-3545-4e34-abfb-9d18e5f2f2f9 | image | cumulative | 1.0    | image \
+| 2015-05-19T12:00:08.368574 |
+| 0564c64c-3545-4e34-abfb-9d18e5f2f2f9 | image | cumulative | 1.0    | image \
+| 2015-05-19T12:00:08.368574 |
+| 0564c64c-3545-4e34-abfb-9d18e5f2f2f9 | image | cumulative | 1.0    | image \
+| 2015-05-19T12:00:08.368574 |
+| 0564c64c-3545-4e34-abfb-9d18e5f2f2f9 | image | cumulative | 1.0    | image \
+| 2015-05-19T12:00:08.368574 |
+| 0564c64c-3545-4e34-abfb-9d18e5f2f2f9 | image | cumulative | 1.0    | image \
+| 2015-05-19T12:00:08.368574 |
++--------------------------------------+-------+------------+--------+-------\
++----------------------------+
 ''', sys.stdout.getvalue())
 
 
