@@ -258,6 +258,19 @@ def do_meter_list(cc, args={}):
                      sortby=0)
 
 
+@utils.arg('samples_list', metavar='<SAMPLES_LIST>', action=NotEmptyAction,
+           help='Json array with samples to create.')
+def do_sample_create_list(cc, args={}):
+    """Create a sample list."""
+    sample_list_array = json.loads(args.samples_list)
+    samples = cc.samples.create_list(sample_list_array)
+    field_labels = ['Resource ID', 'Name', 'Type', 'Volume', 'Unit',
+                    'Timestamp']
+    fields = ['resource_id', 'counter_name', 'counter_type',
+              'counter_volume', 'counter_unit', 'timestamp']
+    utils.print_list(samples, fields, field_labels, sortby=None)
+
+
 def _display_alarm_list(alarms, sortby=None):
     # omit action initially to keep output width sane
     # (can switch over to vertical formatting when available from CLIFF)
