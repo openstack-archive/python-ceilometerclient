@@ -20,8 +20,8 @@ import textwrap
 import uuid
 
 from oslo.serialization import jsonutils
-from oslo.utils import encodeutils
-from oslo.utils import importutils
+from oslo_utils import encodeutils
+from oslo_utils import importutils
 import prettytable
 import six
 
