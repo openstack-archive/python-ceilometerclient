@@ -28,10 +28,14 @@ from ceilometerclient.tests.unit import test_shell
 from ceilometerclient.tests.unit import utils
 from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import capabilities
+from ceilometerclient.v2 import event_types
 from ceilometerclient.v2 import events
+from ceilometerclient.v2 import meters
 from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import shell as ceilometer_shell
 from ceilometerclient.v2 import statistics
+from ceilometerclient.v2 import trait_descriptions
+from ceilometerclient.v2 import traits
 
 
 class ShellAlarmStateCommandsTest(utils.BaseTestCase):
@@ -505,6 +509,13 @@ class ShellSampleShowCommandTest(utils.BaseTestCase):
 +-------------+--------------------------------------+
 ''', sys.stdout.getvalue())
 
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_sample_show_raises_command_err(self):
+        self.cc.new_samples.get.return_value = None
+
+        self.assertRaises(exc.CommandError, ceilometer_shell.do_sample_show,
+                          self.cc, self.args)
+
 
 class ShellSampleCreateCommandTest(utils.BaseTestCase):
 
@@ -523,8 +534,8 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
         u'counter_unit': u'instance',
         u'counter_volume': 1.0,
         u'project_id': u'384260c6987b451d8290e66e1f108082',
-        u'resource_metadata': {},
-        u'counter_type': u'gauge'
+        u'counter_type': u'gauge',
+        u'resource_metadata': {u'display_name': u'test_name'}
     }]
 
     def setUp(self):
@@ -554,7 +565,7 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 | name              | instance                                    |
 | project_id        | 384260c6987b451d8290e66e1f108082            |
 | resource_id       | 0564c64c-3545-4e34-abfb-9d18e5f2f2f9        |
-| resource_metadata | {}                                          |
+| resource_metadata | {"display_name": "test_name"}               |
 | source            | 384260c6987b451d8290e66e1f108082: openstack |
 | timestamp         | 2014-01-10T03: 05: 33.951170                |
 | type              | gauge                                       |
@@ -614,6 +625,14 @@ class ShellQuerySamplesCommandTest(utils.BaseTestCase):
 +--------------------------------------+----------+-------+--------+---------\
 -+----------------------------+
 ''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_query_raises_command_error(self):
+        self.cc.query_samples.query.side_effect = exc.HTTPNotFound
+
+        self.assertRaises(exc.CommandError,
+                          ceilometer_shell.do_query_samples,
+                          self.cc, self.args)
 
 
 class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
@@ -719,6 +738,13 @@ class ShellQueryAlarmsCommandTest(utils.BaseTestCase):
 -----------------------------------------------+------------------+
 ''', sys.stdout.getvalue())
 
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_query_raises_command_err(self):
+        self.cc.query_alarms.query.side_effect = exc.HTTPNotFound
+        self.assertRaises(exc.CommandError,
+                          ceilometer_shell.do_query_alarms,
+                          self.cc, self.args)
+
 
 class ShellQueryAlarmHistoryCommandTest(utils.BaseTestCase):
 
@@ -771,6 +797,13 @@ rule change | {"threshold": 42.0, "evaluation_periods": 4} | 2014-03-11T16:0\
 ------------+----------------------------------------------+----------------\
 ------------+
 ''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_query_raises_command_err(self):
+        self.cc.query_alarm_history.query.side_effect = exc.HTTPNotFound
+        self.assertRaises(exc.CommandError,
+                          ceilometer_shell.do_query_alarm_history,
+                          self.cc, self.args)
 
 
 class ShellStatisticsTest(utils.BaseTestCase):
@@ -1221,4 +1254,134 @@ class ShellCapabilityShowTest(utils.BaseTestCase):
 | event_storage | "storage:production_ready": true |
 | storage       | "storage:production_ready": true |
 +---------------+----------------------------------+
+''', sys.stdout.getvalue())
+
+
+class ShellMeterListCommandTest(utils.BaseTestCase):
+
+    METER = {
+        "name": 'image',
+        "resource_id": "resource-id",
+        "meter": "image",
+        "project_id": "project",
+        "type": "gauge",
+        "unit": "image",
+    }
+
+    def setUp(self):
+        super(ShellMeterListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.meters.list = mock.Mock()
+        self.args = mock.MagicMock()
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_meter_list(self):
+        meter = meters.Meter(mock.Mock(), self.METER)
+        self.cc.meters.list.return_value = [meter]
+
+        ceilometer_shell.do_meter_list(self.cc, self.args)
+        self.cc.meters.list.assert_called_once_with(q=[])
+
+        self.assertEqual('''\
++-------+-------+-------+-------------+---------+------------+
+| Name  | Type  | Unit  | Resource ID | User ID | Project ID |
++-------+-------+-------+-------------+---------+------------+
+| image | gauge | image | resource-id |         | project    |
++-------+-------+-------+-------------+---------+------------+
+''', sys.stdout.getvalue())
+
+
+class ShellEventTypeListCommandTest(utils.BaseTestCase):
+
+    EVENT_TYPE = {
+        "event_type": "test_event"
+    }
+
+    def setUp(self):
+        super(ShellEventTypeListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.event_types.list = mock.Mock()
+        self.args = mock.Mock()
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_sample_show(self):
+        event_type = event_types.EventType(mock.Mock(), self.EVENT_TYPE)
+        self.cc.event_types.list.return_value = [event_type]
+
+        ceilometer_shell.do_event_type_list(self.cc, self.args)
+        self.cc.event_types.list.assert_called_once_with()
+
+        self.assertEqual('''\
++------------+
+| Event Type |
++------------+
+| test_event |
++------------+
+''', sys.stdout.getvalue())
+
+
+class ShellTraitsListCommandTest(utils.BaseTestCase):
+
+    TRAIT = {
+        "name": "test",
+        "value": "test",
+        "type": "string",
+    }
+
+    def setUp(self):
+        super(ShellTraitsListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.traits.list = mock.Mock()
+        self.args = mock.Mock()
+        self.args.event_type = "test"
+        self.args.trait_name = "test"
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_trait_list(self):
+        trait = traits.Trait(mock.Mock(), self.TRAIT)
+        self.cc.traits.list.return_value = [trait]
+
+        ceilometer_shell.do_trait_list(self.cc, self.args)
+        self.cc.traits.list.assert_called_once_with(self.args.event_type,
+                                                    self.args.trait_name)
+
+        self.assertEqual('''\
++------------+-------+-----------+
+| Trait Name | Value | Data Type |
++------------+-------+-----------+
+| test       | test  | string    |
++------------+-------+-----------+
+''', sys.stdout.getvalue())
+
+
+class ShellTraitsDescriptionListCommandTest(utils.BaseTestCase):
+
+    TRAIT_DESCRIPTION = {
+        "name": "test",
+        "type": "string",
+    }
+
+    def setUp(self):
+        super(ShellTraitsDescriptionListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.trait_descriptions.list = mock.Mock()
+        self.args = mock.Mock()
+        self.args.event_type = "test"
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_traits_description_list(self):
+        trait_desc = trait_descriptions.TraitDescription(
+            mock.Mock(), self.TRAIT_DESCRIPTION)
+        self.cc.trait_descriptions.list.return_value = [trait_desc]
+
+        ceilometer_shell.do_trait_description_list(self.cc, self.args)
+        self.cc.trait_descriptions.list.assert_called_once_with(
+            self.args.event_type)
+
+        self.assertEqual('''\
++------------+-----------+
+| Trait Name | Data Type |
++------------+-----------+
+| test       | string    |
++------------+-----------+
 ''', sys.stdout.getvalue())
