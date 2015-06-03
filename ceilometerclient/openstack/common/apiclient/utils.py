@@ -24,7 +24,7 @@
 #
 ########################################################################
 
-from oslo.utils import encodeutils
+from oslo_utils import encodeutils
 import six
 
 from ceilometerclient.openstack.common._i18n import _
