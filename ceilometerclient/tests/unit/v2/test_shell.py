@@ -511,7 +511,7 @@ class ShellSampleShowCommandTest(utils.BaseTestCase):
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_sample_show_raises_command_err(self):
-        self.cc.new_samples.get.return_value = None
+        self.cc.new_samples.get.side_effect = exc.HTTPNotFound
 
         self.assertRaises(exc.CommandError, ceilometer_shell.do_sample_show,
                           self.cc, self.args)
