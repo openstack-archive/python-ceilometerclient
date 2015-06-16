@@ -237,3 +237,17 @@ class CliTest(utils.BaseTestCase):
                            'type': 'datetime',
                            'value': '2014-03-11T16:02:58'}],
                          ar)
+
+    def test_with_whitespace(self):
+        ar = options.cli_to_array('start_timestamp= 2015-01-01T00:00:00;'
+                                  ' end_timestamp =2015-06-20T14:01:59 ')
+
+        self.assertEqual([{'field': 'start_timestamp',
+                           'op': 'eq',
+                           'type': '',
+                           'value': '2015-01-01T00:00:00'},
+                          {'field': 'end_timestamp',
+                           'op': 'eq',
+                           'type': '',
+                           'value': '2015-06-20T14:01:59'}],
+                         ar)

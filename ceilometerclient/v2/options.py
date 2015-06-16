@@ -99,7 +99,7 @@ def cli_to_array(cli_query):
         if not len(value):
             _value_error('value')
 
-        return field, operator, value
+        return field.strip(), operator, value.strip()
 
     def split_by_data_type(query_value):
         frags = DATA_TYPE_RE.match(query_value)
