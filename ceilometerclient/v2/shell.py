@@ -231,7 +231,12 @@ def do_sample_create(cc, args={}):
         k, v = var[0], var[1]
         if v is not None:
             if k == 'resource_metadata':
-                fields[k] = json.loads(v)
+                try:
+                    fields[k] = json.loads(v)
+                except ValueError:
+                    msg = ('Invalid resource metadata, it should be a json'
+                           ' string, like: \'{"foo":"bar"}\'')
+                    raise exc.CommandError(msg)
             else:
                 fields[arg_to_field_mapping.get(k, k)] = v
     sample = cc.samples.create(**fields)

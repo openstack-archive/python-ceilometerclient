@@ -576,6 +576,16 @@ class ShellSampleCreateCommandTest(utils.BaseTestCase):
 +-------------------+---------------------------------------------+
 ''', sys.stdout.getvalue())
 
+    def test_sample_create_with_invalid_resource_metadata(self):
+        self.args.resource_metadata = 'foo=bar'
+        with mock.patch('ceilometerclient.exc.CommandError') as e:
+            e.return_value = exc.BaseException()
+            self.assertRaises(exc.BaseException,
+                              ceilometer_shell.do_sample_create,
+                              self.cc, self.args)
+            e.assert_called_with('Invalid resource metadata, it should be a'
+                                 ' json string, like: \'{"foo":"bar"}\'')
+
 
 class ShellSampleCreateListCommandTest(utils.BaseTestCase):
 
