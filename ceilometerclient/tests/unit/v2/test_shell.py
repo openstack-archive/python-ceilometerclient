@@ -80,6 +80,7 @@ class ShellAlarmHistoryCommandTest(utils.BaseTestCase):
                    '"ok_actions": [], '
                    '"project_id": "57d04f24d0824b78b1ea9bcecedbda8f", '
                    '"type": "combination", '
+                   '"severity": "low", '
                    '"description": "Combined state of alarms '
                    '062cc907-3a9f-4867-ab3b-fa83212b39f7"}')
     ALARM_HISTORY = [{'on_behalf_of': '57d04f24d0824b78b1ea9bcecedbda8f',
