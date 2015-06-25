@@ -18,8 +18,9 @@ import six
 from ceilometerclient.common import base
 
 
-def _get_opt_path(simple_params=[], **kwargs):
+def _get_opt_path(simple_params=None, **kwargs):
     l = []
+    simple_params = simple_params or []
     # get simple paramters
     for key in simple_params:
         val = kwargs.get(key)
