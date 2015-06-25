@@ -54,7 +54,9 @@ GET_SAMPLE = {
 }
 
 METER_URL = '/v2/meters/instance'
+METER_URL_DIRECT = '/v2/meters/instance?direct=True'
 SECOND_METER_URL = '/v2/meters/image'
+SECOND_METER_URL_DIRECT = '/v2/meters/image?direct=True'
 SAMPLE_URL = '/v2/samples'
 QUERIES = ('q.field=resource_id&q.field=source&q.op=&q.op='
            '&q.type=&q.type=&q.value=foo&q.value=bar')
@@ -71,11 +73,23 @@ OLD_SAMPLE_FIXTURES = {
             [CREATE_SAMPLE],
         ),
     },
+    METER_URL_DIRECT: {
+        'POST': (
+            {},
+            [CREATE_SAMPLE],
+        )
+    },
     SECOND_METER_URL: {
         'POST': (
             {},
             [CREATE_LIST_SAMPLE] * 10,
         ),
+    },
+    SECOND_METER_URL_DIRECT: {
+        'POST': (
+            {},
+            [CREATE_LIST_SAMPLE] * 10,
+        )
     },
     '%s?%s' % (METER_URL, QUERIES): {
         'GET': (
@@ -156,11 +170,28 @@ class OldSampleManagerTest(utils.BaseTestCase):
         self.http_client.assert_called(*expect, body=[CREATE_SAMPLE])
         self.assertIsNotNone(sample)
 
+    def test_create_directly(self):
+        sample = self.mgr.create(direct=True, **CREATE_SAMPLE)
+        expect = [
+            'POST', '/v2/meters/instance?direct=True'
+        ]
+        self.http_client.assert_called(*expect, body=[CREATE_SAMPLE])
+        self.assertIsNotNone(sample)
+
     def test_create_list(self):
         test_samples = [CREATE_LIST_SAMPLE] * 10
         samples = self.mgr.create_list(test_samples)
         expect = [
             'POST', '/v2/meters/image'
+        ]
+        self.http_client.assert_called(*expect, body=test_samples)
+        self.assertEqual(10, len(samples))
+
+    def test_create_list_directly(self):
+        test_samples = [CREATE_LIST_SAMPLE] * 10
+        samples = self.mgr.create_list(test_samples, direct=True)
+        expect = [
+            'POST', '/v2/meters/image?direct=True'
         ]
         self.http_client.assert_called(*expect, body=test_samples)
         self.assertEqual(10, len(samples))
