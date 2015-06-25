@@ -617,7 +617,8 @@ class ShellSampleCreateListCommandTest(utils.BaseTestCase):
                                          sample) for sample in self.samples]
         self.cc.samples.create_list.return_value = ret_samples
         ceilometer_shell.do_sample_create_list(self.cc, self.args)
-        self.cc.samples.create_list.assert_called_with(self.samples)
+        self.cc.samples.create_list.assert_called_with(self.samples,
+                                                       direct=mock.ANY)
         self.assertEqual('''\
 +--------------------------------------+-------+------------+--------+-------\
 +----------------------------+

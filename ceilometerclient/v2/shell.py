@@ -216,6 +216,8 @@ def _restore_shadowed_arg(shadowed, observed):
                 'key-value pairs e.g. {"key":"value"}.')
 @utils.arg('--timestamp', metavar='<TIMESTAMP>',
            help='The sample timestamp.')
+@utils.arg('--direct', metavar='<DIRECT>', default=False,
+           help='Post sample to storage directly.')
 @_restore_shadowed_arg('project_id', 'sample_project_id')
 @_restore_shadowed_arg('user_id', 'sample_user_id')
 def do_sample_create(cc, args={}):
@@ -265,10 +267,12 @@ def do_meter_list(cc, args={}):
 
 @utils.arg('samples_list', metavar='<SAMPLES_LIST>', action=NotEmptyAction,
            help='Json array with samples to create.')
+@utils.arg('--direct', metavar='<DIRECT>', default=False,
+           help='Post samples to storage directly.')
 def do_sample_create_list(cc, args={}):
     """Create a sample list."""
     sample_list_array = json.loads(args.samples_list)
-    samples = cc.samples.create_list(sample_list_array)
+    samples = cc.samples.create_list(sample_list_array, direct=args.direct)
     field_labels = ['Resource ID', 'Name', 'Type', 'Volume', 'Unit',
                     'Timestamp']
     fields = ['resource_id', 'counter_name', 'counter_type',

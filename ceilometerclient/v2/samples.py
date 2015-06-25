@@ -49,15 +49,18 @@ class OldSampleManager(base.Manager):
         return self._list(options.build_url(path, q, params))
 
     def create(self, **kwargs):
+        direct = kwargs.pop('direct', False)
         new = dict((key, value) for (key, value) in kwargs.items()
                    if key in CREATION_ATTRIBUTES)
-        url = self._path(counter_name=kwargs['counter_name'])
+        url = self._path(counter_name=kwargs['counter_name'])+(
+            '?direct=%s' % (str(direct)) if direct else '')
         body = self.api.post(url, json=[new]).json()
         if body:
             return [OldSample(self, b) for b in body]
 
     def create_list(self, sample_list=None, **kwargs):
         sample_dict = {}
+        direct = kwargs.pop('direct', False)
 
         for sample_body in sample_list:
             sample = dict((key, value) for (key, value) in sample_body.items()
@@ -69,7 +72,8 @@ class OldSampleManager(base.Manager):
         sample_return_list = []
 
         for (counter_name, sample_body) in sample_dict.items():
-            url = self._path(counter_name=counter_name)
+            url = self._path(counter_name=kwargs['counter_name'])+(
+                '?direct=%s' % (str(direct)) if direct else '')
             body = self.api.post(url, json=sample_body).json()
 
             if body:
