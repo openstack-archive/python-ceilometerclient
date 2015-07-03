@@ -353,7 +353,7 @@ def alarm_change_detail_formatter(change):
     if change.type == 'state transition':
         fields.append('state: %s' % detail['state'])
     elif change.type == 'creation' or change.type == 'deletion':
-        for k in ['name', 'description', 'type', 'rule']:
+        for k in ['name', 'description', 'type', 'rule', 'severity']:
             if k == 'rule':
                 fields.append('rule: %s' % _display_rule(detail['type'],
                                                          detail[k]))
