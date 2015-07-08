@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: gordon chung <gord@live.ca>
+Code-Review+2: Chris Dent <chdent@redhat.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 08 Jul 2015 16:18:52 +0000
+Reviewed-on: https://review.openstack.org/197272
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
