@@ -169,7 +169,7 @@ def _do_sample_list(cc, args):
 @utils.arg('sample_id', metavar='<SAMPLE_ID>', action=NotEmptyAction,
            help='ID (aka message ID) of the sample to show.')
 def do_sample_show(cc, args):
-    '''Show an sample.'''
+    '''Show a sample.'''
     try:
         sample = cc.new_samples.get(args.sample_id)
     except exc.HTTPNotFound:
