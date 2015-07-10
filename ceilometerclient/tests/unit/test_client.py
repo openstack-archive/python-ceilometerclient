@@ -208,8 +208,11 @@ class ClientAuthTest(utils.BaseTestCase):
         client.auth_plugin.opts.pop('token', None)
         client.auth_plugin._do_authenticate(mock.MagicMock())
 
-        discover_mock.assert_called(auth_url='http://no.where',
-                                    session=mock_session_instance)
+        self.assertEqual([mock.call(auth_url='http://no.where',
+                                    session=mock_session_instance)],
+                         discover_mock.call_args_list)
+        # discover_mock.assert_called(auth_url='http://no.where',
+        #                             session=mock_session_instance)
         self.assertIsInstance(mock_session_instance.auth, v3_auth.Password)
 
     @mock.patch('keystoneclient.discover.Discover')
@@ -233,9 +236,10 @@ class ClientAuthTest(utils.BaseTestCase):
         client = self.create_client(env)
         client.auth_plugin.opts.pop('token', None)
         client.auth_plugin._do_authenticate(mock.MagicMock())
+        self.assertEqual([mock.call(auth_url='http://no.where',
+                                    session=session_instance_mock)],
+                         discover.call_args_list)
 
-        discover.assert_called(auth_url='http://no.where',
-                               session=session_instance_mock)
         self.assertIsInstance(session_instance_mock.auth, v2_auth.Password)
 
     @mock.patch('keystoneclient.discover.Discover')
@@ -260,8 +264,9 @@ class ClientAuthTest(utils.BaseTestCase):
         self.assertRaises(ks_exc.DiscoveryFailure,
                           client.auth_plugin._do_authenticate,
                           mock.Mock())
-        discover.assert_called(auth_url='http://no.where',
-                               session=session_instance_mock)
+        self.assertEqual([mock.call(auth_url='http://no.where',
+                                    session=session_instance_mock)],
+                         discover.call_args_list)
 
     @mock.patch('keystoneclient.discover.Discover')
     @mock.patch('keystoneclient.session.Session')
