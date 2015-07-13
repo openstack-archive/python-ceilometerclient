@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: gordon chung <gord@live.ca>
+Submitted-by: Jenkins
+Submitted-at: Mon, 13 Jul 2015 22:16:32 +0000
+Reviewed-on: https://review.openstack.org/201199
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/stable/kilo
