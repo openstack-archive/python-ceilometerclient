@@ -641,6 +641,159 @@ class ShellSampleCreateListCommandTest(utils.BaseTestCase):
 ''', sys.stdout.getvalue())
 
 
+class ShellQueryStatisticsTest(utils.BaseTestCase):
+    def setUp(self):
+        super(ShellQueryStatisticsTest, self).setUp()
+        self.cc = mock.Mock()
+        self.displays = {
+            'duration': 'Duration',
+            'duration_end': 'Duration End',
+            'duration_start': 'Duration Start',
+            'period': 'Period',
+            'period_end': 'Period End',
+            'period_start': 'Period Start',
+            'groupby': 'Group By',
+            'avg': 'Avg',
+            'count': 'Count',
+            'max': 'Max',
+            'min': 'Min',
+            'sum': 'Sum',
+            'stddev': 'Standard deviation',
+            'cardinality': 'Cardinality'
+        }
+        self.args = mock.Mock()
+        self.args.filter = None
+        self.args.aggregate = []
+        self.args.groupby = None
+        self.args.query = None
+
+    def test_query_statistics_simple(self):
+        samples = [
+            {u'count': 135,
+             u'duration_start': u'2013-02-04T10:51:42',
+             u'min': 1.0,
+             u'max': 1.0,
+             u'duration_end':
+             u'2013-02-05T15:46:09',
+             u'duration': 1734.0,
+             u'avg': 1.0,
+             u'sum': 135.0},
+        ]
+        fields = [
+            'period',
+            'period_start',
+            'period_end',
+            'max',
+            'min',
+            'avg',
+            'sum',
+            'count',
+            'duration',
+            'duration_start',
+            'duration_end',
+        ]
+        statistics_ret = [
+            statistics.Statistics(mock.Mock(), sample) for sample in samples
+        ]
+        self.cc.query_statistics.query.return_value = statistics_ret
+        with mock.patch('ceilometerclient.v2.shell.utils.print_list') as pmock:
+            ceilometer_shell.do_query_statistics(self.cc, self.args)
+            pmock.assert_called_with(
+                statistics_ret,
+                fields,
+                [self.displays[f] for f in fields]
+            )
+
+    def test_query_statistics_groupby(self):
+        samples = [
+            {u'count': 135,
+             u'duration_start': u'2013-02-04T10:51:42',
+             u'min': 1.0,
+             u'max': 1.0,
+             u'duration_end':
+             u'2013-02-05T15:46:09',
+             u'duration': 1734.0,
+             u'avg': 1.0,
+             u'sum': 135.0,
+             u'groupby': {u'resource_id': u'foo'}
+             },
+            {u'count': 12,
+             u'duration_start': u'2013-02-04T10:51:42',
+             u'min': 1.0,
+             u'max': 1.0,
+             u'duration_end':
+             u'2013-02-05T15:46:09',
+             u'duration': 1734.0,
+             u'avg': 1.0,
+             u'sum': 12.0,
+             u'groupby': {u'resource_id': u'bar'}
+             },
+        ]
+        fields = [
+            'period',
+            'period_start',
+            'period_end',
+            'groupby',
+            'max',
+            'min',
+            'avg',
+            'sum',
+            'count',
+            'duration',
+            'duration_start',
+            'duration_end',
+        ]
+        self.args.groupby = 'resource_id'
+        statistics_ret = [
+            statistics.Statistics(mock.Mock(), sample) for sample in samples
+        ]
+        self.cc.query_statistics.query.return_value = statistics_ret
+        with mock.patch('ceilometerclient.v2.shell.utils.print_list') as pmock:
+            ceilometer_shell.do_query_statistics(self.cc, self.args)
+            pmock.assert_called_with(
+                statistics_ret,
+                fields,
+                [self.displays[f] for f in fields],
+            )
+
+    def test_query_statistics_aggregates(self):
+        samples = [
+            {u'aggregate': {u'cardinality/resource_id': 4.0, u'count': 2.0},
+             u'count': 2,
+             u'duration': 0.442451,
+             u'duration_end': u'2014-03-12T14:00:21.774154',
+             u'duration_start': u'2014-03-12T14:00:21.331703',
+             u'groupby': None,
+             u'period': 0,
+             u'period_end': u'2014-03-12T14:00:21.774154',
+             u'period_start': u'2014-03-12T14:00:21.331703',
+             u'unit': u'instance',
+             },
+        ]
+        fields = [
+            'period',
+            'period_start',
+            'period_end',
+            'count',
+            'cardinality/resource_id',
+            'duration',
+            'duration_start',
+            'duration_end',
+        ]
+        self.args.aggregate = ['count', 'cardinality<-resource_id']
+        statistics_ret = [
+            statistics.Statistics(mock.Mock(), sample) for sample in samples
+        ]
+        self.cc.query_statistics.query.return_value = statistics_ret
+        with mock.patch('ceilometerclient.v2.shell.utils.print_list') as pmock:
+            ceilometer_shell.do_query_statistics(self.cc, self.args)
+            pmock.assert_called_with(
+                statistics_ret,
+                fields,
+                [self.displays.get(f, f) for f in fields],
+            )
+
+
 class ShellQuerySamplesCommandTest(utils.BaseTestCase):
 
     SAMPLE = [{u'id': u'b55d1526-9929-11e3-a3f6-02163e5df1e6',

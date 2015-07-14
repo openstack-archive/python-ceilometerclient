@@ -15,22 +15,22 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import six
+
 from ceilometerclient.common import base
 from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import samples
+from ceilometerclient.v2 import statistics
 
 
 class QueryManager(base.Manager):
     path_suffix = None
 
-    def query(self, filter=None, orderby=None, limit=None):
+    def _make_query(self, **kwargs):
         query = {}
-        if filter:
-            query["filter"] = filter
-        if orderby:
-            query["orderby"] = orderby
-        if limit:
-            query["limit"] = limit
+        for key, value in six.iteritems(kwargs):
+            if value:
+                query[key] = value
 
         url = '/v2/query%s' % self.path_suffix
 
@@ -42,16 +42,32 @@ class QueryManager(base.Manager):
             return []
 
 
-class QuerySamplesManager(QueryManager):
+class QueryStatisticsManager(QueryManager):
+    path_suffix = '/statistics'
+    resource_class = statistics.Statistics
+
+    def query(self, filter=None, period=None, groupby=None, aggregate=None):
+        if isinstance(groupby, six.string_types):
+            groupby = [groupby]
+        return self._make_query(filter=filter, period=period, groupby=groupby,
+                         aggregate=aggregate)
+
+
+class QueryStandardManager(QueryManager):
+    def query(self, filter=None, orderby=None, limit=None):
+        return self._make_query(filter=filter, orderby=orderby, limit=limit)
+
+
+class QuerySamplesManager(QueryStandardManager):
     resource_class = samples.Sample
     path_suffix = '/samples'
 
 
-class QueryAlarmsManager(QueryManager):
+class QueryAlarmsManager(QueryStandardManager):
     resource_class = alarms.Alarm
     path_suffix = '/alarms'
 
 
-class QueryAlarmHistoryManager(QueryManager):
+class QueryAlarmHistoryManager(QueryStandardManager):
     resource_class = alarms.AlarmChange
     path_suffix = '/alarms/history'
