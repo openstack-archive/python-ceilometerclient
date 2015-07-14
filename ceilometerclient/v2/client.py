@@ -81,4 +81,8 @@ class Client(object):
             self.http_client)
         self.query_alarm_history = query.QueryAlarmHistoryManager(
             self.http_client)
+        self.query_statistics = query.QueryStatisticsManager(
+            self.http_client
+        )
+
         self.capabilities = capabilities.CapabilitiesManager(self.http_client)

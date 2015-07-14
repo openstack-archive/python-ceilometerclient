@@ -1111,6 +1111,54 @@ def do_trait_list(cc, args={}):
            help=('{complex_op: [{simple_op: {field_name: value}}]} '
                  'The complex_op is one of: ' + str(COMPLEX_OPERATORS) + ', '
                  'simple_op is one of: ' + str(SIMPLE_OPERATORS) + '.'))
+@utils.arg('-g', '--groupby', metavar='<FIELD>', help='Fields for group by.')
+@utils.arg('-p', '--period', metavar='<PERIOD>',
+           help='Period in seconds over which to group samples.')
+@utils.arg('-a', '--aggregate', metavar='<FUNC>[<-<PARAM>]', action='append',
+           default=[], help=('Function for data aggregation. '
+                             'Available aggregates are: '
+                             '%s.' % ", ".join(AGGREGATES.keys())))
+def do_query_statistics(cc, args):
+    """Query statistics."""
+    aggregates = []
+    for a in args.aggregate:
+        aggregates.append(dict(zip(('func', 'param'), a.split("<-"))))
+    fields = {'filter': args.filter,
+              'period': args.period,
+              'groupby': args.groupby,
+              'aggregate': aggregates}
+    statistics = cc.query_statistics.query(**fields)
+
+    fields_display = {'duration': 'Duration',
+                      'duration_end': 'Duration End',
+                      'duration_start': 'Duration Start',
+                      'period': 'Period',
+                      'period_end': 'Period End',
+                      'period_start': 'Period Start',
+                      'groupby': 'Group By'}
+    fields_display.update(AGGREGATES)
+    fields = ['period', 'period_start', 'period_end']
+    if args.groupby:
+        fields.append('groupby')
+    if args.aggregate:
+        for a in aggregates:
+            if 'param' in a:
+                fields.append("%(func)s/%(param)s" % a)
+            else:
+                fields.append(a['func'])
+        for stat in statistics:
+            stat.__dict__.update(stat.aggregate)
+    else:
+        fields.extend(['max', 'min', 'avg', 'sum', 'count'])
+    fields.extend(['duration', 'duration_start', 'duration_end'])
+    cols = [fields_display.get(f, f) for f in fields]
+    utils.print_list(statistics, fields, cols)
+
+
+@utils.arg('-f', '--filter', metavar='<FILTER>',
+           help=('{complex_op: [{simple_op: {field_name: value}}]} '
+                 'The complex_op is one of: ' + str(COMPLEX_OPERATORS) + ', '
+                 'simple_op is one of: ' + str(SIMPLE_OPERATORS) + '.'))
 @utils.arg('-o', '--orderby', metavar='<ORDERBY>',
            help=('[{field_name: direction}, {field_name: direction}] '
                  'The direction is one of: ' + str(ORDER_DIRECTIONS) + '.'))
