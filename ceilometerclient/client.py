@@ -160,38 +160,46 @@ class AuthPlugin(auth.BaseAuthPlugin):
         token = self.opts.get('token') or self.opts.get('auth_token')
         endpoint = self.opts.get('endpoint')
         if not (token and endpoint):
-            project_id = (self.opts.get('project_id') or
-                          self.opts.get('tenant_id'))
-            project_name = (self.opts.get('project_name') or
-                            self.opts.get('tenant_name'))
-            ks_kwargs = {
-                'username': self.opts.get('username'),
-                'password': self.opts.get('password'),
-                'user_id': self.opts.get('user_id'),
-                'user_domain_id': self.opts.get('user_domain_id'),
-                'user_domain_name': self.opts.get('user_domain_name'),
-                'project_id': project_id,
-                'project_name': project_name,
-                'project_domain_name': self.opts.get('project_domain_name'),
-                'project_domain_id': self.opts.get('project_domain_id'),
-                'auth_url': self.opts.get('auth_url'),
-                'cacert': self.opts.get('cacert'),
-                'cert': self.opts.get('cert'),
-                'key': self.opts.get('key'),
-                'insecure': strutils.bool_from_string(
-                    self.opts.get('insecure')),
-                'endpoint_type': self.opts.get('endpoint_type'),
-                'region_name': self.opts.get('region_name'),
-                'timeout': http_client.timeout,
-            }
-
-            # retrieve session
+            ks_kwargs = self._get_ks_kwargs(http_timeout=http_client.timeout)
             ks_session = _get_keystone_session(**ks_kwargs)
             token = lambda: ks_session.get_token()
             endpoint = (self.opts.get('endpoint') or
                         _get_endpoint(ks_session, **ks_kwargs))
         self.opts['token'] = token
         self.opts['endpoint'] = endpoint
+
+    def _get_ks_kwargs(self, http_timeout):
+        project_id = (self.opts.get('project_id') or
+                      self.opts.get('tenant_id'))
+        project_name = (self.opts.get('project_name') or
+                        self.opts.get('tenant_name'))
+        ks_kwargs = {
+            'username': self.opts.get('username'),
+            'password': self.opts.get('password'),
+            'user_id': self.opts.get('user_id'),
+            'user_domain_id': self.opts.get('user_domain_id'),
+            'user_domain_name': self.opts.get('user_domain_name'),
+            'project_id': project_id,
+            'project_name': project_name,
+            'project_domain_name': self.opts.get('project_domain_name'),
+            'project_domain_id': self.opts.get('project_domain_id'),
+            'auth_url': self.opts.get('auth_url'),
+            'cacert': self.opts.get('cacert'),
+            'cert': self.opts.get('cert'),
+            'key': self.opts.get('key'),
+            'insecure': strutils.bool_from_string(
+                self.opts.get('insecure')),
+            'endpoint_type': self.opts.get('endpoint_type'),
+            'region_name': self.opts.get('region_name'),
+            'timeout': http_timeout,
+        }
+        return ks_kwargs
+
+    def redirect_to_aodh_endpoint(self, http_timeout):
+        ks_kwargs = self._get_ks_kwargs(http_timeout)
+        ks_session = _get_keystone_session(**ks_kwargs)
+        ks_kwargs.update(service_type='alarming')
+        self.opts['endpoint'] = _get_endpoint(ks_session, **ks_kwargs)
 
     def token_and_endpoint(self, endpoint_type, service_type):
         token = self.opts.get('token')

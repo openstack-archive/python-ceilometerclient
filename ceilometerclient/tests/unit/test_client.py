@@ -31,8 +31,8 @@ FAKE_ENV = {
     'password': 'password',
     'tenant_name': 'tenant_name',
     'auth_url': 'http://no.where',
+    'auth_plugin': mock.Mock(),
     'ceilometer_url': 'http://no.where',
-    'auth_plugin': 'fake_auth',
     'token': '1234',
     'user_domain_name': 'default',
     'project_domain_name': 'default',
@@ -40,13 +40,19 @@ FAKE_ENV = {
 
 
 class ClientTest(utils.BaseTestCase):
-
     @staticmethod
     def create_client(env, api_version=2, endpoint=None, exclude=[]):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
-
-        return client.get_client(api_version, **env)
+        if not env.get('auth_plugin'):
+            with mock.patch('ceilometerclient.client.AuthPlugin.'
+                            'redirect_to_aodh_endpoint') as redirect_aodh:
+                redirect_aodh.side_effect = ks_exc.EndpointNotFound
+                return client.get_client(api_version, **env)
+        else:
+            env['auth_plugin'].redirect_to_aodh_endpoint.side_effect = \
+                ks_exc.EndpointNotFound
+            return client.get_client(api_version, **env)
 
     def test_client_version(self):
         c1 = self.create_client(env=FAKE_ENV, api_version=1)
@@ -102,10 +108,6 @@ class ClientTest(utils.BaseTestCase):
             self.create_client(env, api_version=2, endpoint='http://no.where')
             auth_plugin.assert_called_with(**expected)
 
-    def test_client_with_auth_plugin(self):
-        c = self.create_client(FAKE_ENV, api_version=2)
-        self.assertIsInstance(c.auth_plugin, str)
-
     def test_v2_client_timeout_invalid_value(self):
         env = FAKE_ENV.copy()
         env['timeout'] = 'abc'
@@ -117,7 +119,7 @@ class ClientTest(utils.BaseTestCase):
         env = FAKE_ENV.copy()
         env['timeout'] = timeout
         expected = {
-            'auth_plugin': 'fake_auth',
+            'auth_plugin': mock.ANY,
             'timeout': expected_value,
             'original_ip': None,
             'http': None,
@@ -181,9 +183,44 @@ class ClientTest2(ClientTest):
     def create_client(env, api_version=2, endpoint=None, exclude=[]):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
+        if not env.get('auth_plugin'):
+            with mock.patch('ceilometerclient.client.AuthPlugin.'
+                            'redirect_to_aodh_endpoint') as redirect_aodh:
+                redirect_aodh.side_effect = ks_exc.EndpointNotFound
+                return client.Client(api_version, endpoint, **env)
+        else:
+            env['auth_plugin'].redirect_to_aodh_endpoint.side_effect = \
+                ks_exc.EndpointNotFound
+            return client.Client(api_version, endpoint, **env)
 
-        # Run the same tests with direct instantiation of the Client
-        return client.Client(api_version, endpoint, **env)
+
+class ClientTestWithAodh(ClientTest):
+    @staticmethod
+    def create_client(env, api_version=2, endpoint=None, exclude=[]):
+        env = dict((k, v) for k, v in env.items()
+                   if k not in exclude)
+        if not env.get('auth_plugin'):
+            with mock.patch('ceilometerclient.client.AuthPlugin.'
+                            'redirect_to_aodh_endpoint'):
+                return client.get_client(api_version, **env)
+        else:
+            env['auth_plugin'].redirect_to_aodh_endpoint = mock.MagicMock()
+            return client.get_client(api_version, **env)
+
+    @mock.patch('keystoneclient.v2_0.client', fakes.FakeKeystone)
+    def test_client_without_auth_plugin(self):
+        env = FAKE_ENV.copy()
+        del env['auth_plugin']
+        c = self.create_client(env, api_version=2, endpoint='fake_endpoint')
+        self.assertIsInstance(c.alarm_auth_plugin, client.AuthPlugin)
+
+    def test_v2_client_insecure(self):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin')
+        env['insecure'] = 'True'
+        client = self.create_client(env)
+        self.assertIn('insecure', client.alarm_auth_plugin.opts)
+        self.assertEqual('True', client.alarm_auth_plugin.opts['insecure'])
 
 
 class ClientAuthTest(utils.BaseTestCase):
@@ -209,10 +246,10 @@ class ClientAuthTest(utils.BaseTestCase):
         client.auth_plugin._do_authenticate(mock.MagicMock())
 
         self.assertEqual([mock.call(auth_url='http://no.where',
+                                    session=mock_session_instance),
+                          mock.call(auth_url='http://no.where',
                                     session=mock_session_instance)],
                          discover_mock.call_args_list)
-        # discover_mock.assert_called(auth_url='http://no.where',
-        #                             session=mock_session_instance)
         self.assertIsInstance(mock_session_instance.auth, v3_auth.Password)
 
     @mock.patch('keystoneclient.discover.Discover')
@@ -237,6 +274,8 @@ class ClientAuthTest(utils.BaseTestCase):
         client.auth_plugin.opts.pop('token', None)
         client.auth_plugin._do_authenticate(mock.MagicMock())
         self.assertEqual([mock.call(auth_url='http://no.where',
+                                    session=session_instance_mock),
+                          mock.call(auth_url='http://no.where',
                                     session=session_instance_mock)],
                          discover.call_args_list)
 
@@ -257,14 +296,20 @@ class ClientAuthTest(utils.BaseTestCase):
         discover_instance_mock.url_for.side_effect = (lambda v: v
                                                       if v == '2.0' else None)
         discover.side_effect = ks_exc.DiscoveryFailure
-
+        self.assertRaises(ks_exc.DiscoveryFailure, self.create_client, env)
+        discover.side_effect = mock.MagicMock()
         client = self.create_client(env)
+        discover.side_effect = ks_exc.DiscoveryFailure
         client.auth_plugin.opts.pop('token', None)
 
         self.assertRaises(ks_exc.DiscoveryFailure,
                           client.auth_plugin._do_authenticate,
                           mock.Mock())
         self.assertEqual([mock.call(auth_url='http://no.where',
+                                    session=session_instance_mock),
+                          mock.call(auth_url='http://no.where',
+                                    session=session_instance_mock),
+                          mock.call(auth_url='http://no.where',
                                     session=session_instance_mock)],
                          discover.call_args_list)
 
@@ -279,7 +324,13 @@ class ClientAuthTest(utils.BaseTestCase):
 
         discover.side_effect = exceptions.ClientException
 
-        client = self.create_client(env)
+        # the redirect_to_aodh_endpoint method will raise CommandError if
+        # didn't specify keystone api version
+        self.assertRaises(exc.CommandError, self.create_client, env)
+        with mock.patch('ceilomet'
+                        'erclient.client.AuthPlugin.'
+                        'redirect_to_aodh_endpoint'):
+            client = self.create_client(env)
         client.auth_plugin.opts.pop('token', None)
 
         self.assertRaises(exc.CommandError,
@@ -301,6 +352,19 @@ class ClientAuthTest(utils.BaseTestCase):
         client.auth_plugin._do_authenticate(mock.MagicMock())
         session_instance_mock.get_endpoint.assert_called_with(
             region_name=None, interface='publicURL', service_type='metering')
+
+    @mock.patch('ceilometerclient.client._get_keystone_session')
+    def test_get_aodh_endpoint(self, session):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+        env.pop('endpoint', None)
+
+        session_instance_mock = mock.MagicMock()
+        session.return_value = session_instance_mock
+
+        self.create_client(env)
+        session_instance_mock.get_endpoint.assert_called_with(
+            region_name=None, interface='publicURL', service_type='alarming')
 
     @mock.patch('ceilometerclient.client._get_keystone_session')
     def test_get_different_endpoint_type(self, session):
