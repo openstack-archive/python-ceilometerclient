@@ -70,9 +70,16 @@ class AlarmChange(base.Resource):
 class AlarmManager(base.Manager):
     resource_class = Alarm
 
-    @staticmethod
-    def _path(id=None):
-        return '/v2/alarms/%s' % id if id else '/v2/alarms'
+    def __init__(self, api, aodh_enabled=False):
+        self.aodh_enabled = aodh_enabled
+        super(AlarmManager, self).__init__(api)
+
+    def _path(self, id=None):
+        if self.aodh_enabled:
+            # TODO(liusheng) use aodh's patch
+            return '/v2/alarms/%s' % id if id else '/v2/alarms'
+        else:
+            return '/v2/alarms/%s' % id if id else '/v2/alarms'
 
     def list(self, q=None):
         return self._list(options.build_url(self._path(), q))
