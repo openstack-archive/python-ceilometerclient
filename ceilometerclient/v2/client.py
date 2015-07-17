@@ -14,6 +14,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import copy
 
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.openstack.common.apiclient import client
@@ -28,6 +29,7 @@ from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import statistics
 from ceilometerclient.v2 import trait_descriptions
 from ceilometerclient.v2 import traits
+from keystoneclient import exceptions
 
 
 class Client(object):
@@ -63,12 +65,13 @@ class Client(object):
         )
 
         self.http_client = client.BaseClient(self.client)
+        self.alarm_client, aodh_enabled = self._get_alarm_client(**kwargs)
         self.meters = meters.MeterManager(self.http_client)
         self.samples = samples.OldSampleManager(self.http_client)
         self.new_samples = samples.SampleManager(self.http_client)
         self.statistics = statistics.StatisticsManager(self.http_client)
         self.resources = resources.ResourceManager(self.http_client)
-        self.alarms = alarms.AlarmManager(self.http_client)
+        self.alarms = alarms.AlarmManager(self.alarm_client, aodh_enabled)
         self.events = events.EventManager(self.http_client)
         self.event_types = event_types.EventTypeManager(self.http_client)
         self.traits = traits.TraitManager(self.http_client)
@@ -77,8 +80,30 @@ class Client(object):
 
         self.query_samples = query.QuerySamplesManager(
             self.http_client)
-        self.query_alarms = query.QueryAlarmsManager(
-            self.http_client)
+        self.query_alarms = query.QueryAlarmsManager(self.http_client)
         self.query_alarm_history = query.QueryAlarmHistoryManager(
             self.http_client)
         self.capabilities = capabilities.CapabilitiesManager(self.http_client)
+
+    def _get_alarm_client(self, **kwargs):
+        """ Get client for alarm manager that redirect to aodh."""
+        self.alarm_auth_plugin = copy.deepcopy(self.auth_plugin)
+        try:
+            self.alarm_auth_plugin.redirect_to_aodh_endpoint(kwargs.get('timeout'))
+        except exceptions.EndpointNotFound:
+            return self.http_client, False
+        alarm_client = client.HTTPClient(
+            auth_plugin=self.alarm_auth_plugin,
+            region_name=kwargs.get('region_name'),
+            endpoint_type=kwargs.get('endpoint_type'),
+            original_ip=kwargs.get('original_ip'),
+            verify=kwargs.get('verify'),
+            cert=kwargs.get('cert'),
+            timeout=kwargs.get('timeout'),
+            timings=kwargs.get('timings'),
+            keyring_saver=kwargs.get('keyring_saver'),
+            debug=kwargs.get('debug'),
+            user_agent=kwargs.get('user_agent'),
+            http=kwargs.get('http')
+        )
+        return client.BaseClient(alarm_client), True

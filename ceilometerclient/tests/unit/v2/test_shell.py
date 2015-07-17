@@ -15,6 +15,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import contextlib
 import json
 import re
 import sys
@@ -37,7 +38,7 @@ from ceilometerclient.v2 import shell as ceilometer_shell
 from ceilometerclient.v2 import statistics
 from ceilometerclient.v2 import trait_descriptions
 from ceilometerclient.v2 import traits
-
+from keystoneclient import exceptions
 
 class ShellAlarmStateCommandsTest(utils.BaseTestCase):
 
@@ -1230,7 +1231,11 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
             '--project-id', 'the-project-id-i-want-to-set',
             '--user-id', 'the-user-id-i-want-to-set',
             '--name', 'project-id-test'] + args
-        with mock.patch.object(alarms.AlarmManager, method) as mocked:
+        with contextlib.nested(
+            mock.patch.object(alarms.AlarmManager, method),
+            mock.patch('ceilometerclient.client.AuthPlugin.'
+                'redirect_to_aodh_endpoint')) as (mocked, redirect_aodh):
+            redirect_aodh.site_effect = exceptions.EndpointNotFound
             base_shell.main(cli_args)
         args, kwargs = mocked.call_args
         self.assertEqual('the-project-id-i-want-to-set',
@@ -1272,7 +1277,10 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
             '--meter-unit', 'ns',
             '--sample-volume', '10086',
         ]
-        base_shell.main(cli_args)
+        with mock.patch('ceilometerclient.client.AuthPlugin.'
+                        'redirect_to_aodh_endpoint') as redirect_aodh:
+            redirect_aodh.site_effect = exceptions.EndpointNotFound
+            base_shell.main(cli_args)
         args, kwargs = mocked.call_args
         self.assertEqual('the-project-id-i-want-to-set',
                          kwargs.get('project_id'))
