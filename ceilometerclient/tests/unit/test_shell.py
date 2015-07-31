@@ -144,7 +144,7 @@ class ShellKeystoneV3Test(ShellTestBase):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env(FAKE_V3_ENV)
         args = ['--debug', 'event-list']
-        self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
+        self.assertRaises(exc.HTTPUnauthorized, ceilometer_shell.main, args)
 
     @mock.patch.object(ks_session, 'Session')
     def test_dash_d_switch_raises_error(self, mock_ksclient):
