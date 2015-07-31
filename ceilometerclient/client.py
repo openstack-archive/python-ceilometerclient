@@ -283,8 +283,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
         """
         has_token = self.opts.get('token') or self.opts.get('auth_token')
         no_auth = has_token and self.opts.get('endpoint')
-        has_tenant = self.opts.get('tenant_id') or self.opts.get('tenant_name')
-        has_credential = (self.opts.get('username') and has_tenant
+        has_credential = (self.opts.get('username')
                           and self.opts.get('password')
                           and self.opts.get('auth_url'))
         missing = not (no_auth or has_credential)

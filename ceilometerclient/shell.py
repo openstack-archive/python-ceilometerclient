@@ -228,12 +228,6 @@ class CeilometerShell(object):
                                        "--os-user-domain-id or via "
                                        "env[OS_USER_DOMAIN_ID]")
 
-            if not (self.auth_plugin.opts['tenant_id']
-                    or self.auth_plugin.opts['tenant_name']):
-                raise exc.CommandError("You must provide a tenant_id via "
-                                       "either --os-tenant-id or via "
-                                       "env[OS_TENANT_ID]")
-
             if not self.auth_plugin.opts['auth_url']:
                 raise exc.CommandError("You must provide an auth url via "
                                        "either --os-auth-url or via "
