@@ -140,7 +140,8 @@ class ShellKeystoneV2Test(ShellTestBase):
 class ShellKeystoneV3Test(ShellTestBase):
 
     @mock.patch.object(ks_session, 'Session')
-    def test_debug_switch_raises_error(self, mock_ksclient):
+    @mock.patch('ceilometerclient.client.AuthPlugin.redirect_to_aodh_endpoint')
+    def test_debug_switch_raises_error(self, aodh_redirect, mock_ksclient):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
         self.make_env(FAKE_V3_ENV)
         args = ['--debug', 'event-list']
