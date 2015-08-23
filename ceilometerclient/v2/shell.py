@@ -482,6 +482,11 @@ def common_alarm_arguments(create=False):
                          'name=<CONSTRAINT_NAME>;start=<CRON>;'
                          'duration=<SECONDS>;[description=<DESCRIPTION>;'
                          '[timezone=<IANA Timezone>]]'))
+        @utils.arg('--repeat-actions', dest='repeat_actions',
+                   metavar='{True|False}', type=strutils.bool_from_string,
+                   default=False,
+                   help=('True if actions should be repeatedly notified '
+                         'while alarm remains in target state.'))
         @functools.wraps(func)
         def _wrapped(*args, **kwargs):
             return func(*args, **kwargs)
@@ -509,11 +514,6 @@ def common_alarm_gnocchi_arguments(rule_namespace, create=False):
                    dest=rule_namespace + '/threshold',
                    required=create,
                    help='Threshold to evaluate against.')
-        @utils.arg('--repeat-actions', dest='repeat_actions',
-                   metavar='{True|False}', type=strutils.bool_from_string,
-                   default=False,
-                   help=('True if actions should be repeatedly notified '
-                         'while alarm remains in target state.'))
         @functools.wraps(func)
         def _wrapped(*args, **kwargs):
             return func(*args, **kwargs)
@@ -598,11 +598,6 @@ def common_alarm_gnocchi_resources_arguments(create=False):
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
                  'additionally to the meter_name.'))
-@utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=strutils.bool_from_string,
-           default=False,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_create(cc, args={}):
@@ -680,11 +675,6 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
            dest='threshold_rule/query',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
-@utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=strutils.bool_from_string,
-           default=False,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_threshold_create(cc, args={}):
@@ -708,11 +698,6 @@ def do_alarm_threshold_create(cc, args={}):
            dest='combination_rule/operator',
            help='Operator to compare with, one of: ' + str(
                ALARM_COMBINATION_OPERATORS) + '.')
-@utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=strutils.bool_from_string,
-           default=False,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_create(cc, args={}):
@@ -752,10 +737,6 @@ def do_alarm_combination_create(cc, args={}):
            metavar='<Matching Metadata>', action='append', default=None,
            help=('A meter should match this resource metadata (key=value) '
                  'additionally to the meter_name.'))
-@utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=strutils.bool_from_string,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_update(cc, args={}):
@@ -805,10 +786,6 @@ def do_alarm_update(cc, args={}):
            dest='threshold_rule/query',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
-@utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=strutils.bool_from_string,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_threshold_update(cc, args={}):
@@ -925,10 +902,6 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
            dest='combination_rule/operator',
            help='Operator to compare with, one of: ' + str(
                ALARM_COMBINATION_OPERATORS) + '.')
-@utils.arg('--repeat-actions', dest='repeat_actions',
-           metavar='{True|False}', type=strutils.bool_from_string,
-           help=('True if actions should be repeatedly notified '
-                 'while alarm remains in target state.'))
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_update(cc, args={}):
