@@ -371,6 +371,15 @@ class ClientAuthTest(utils.BaseTestCase):
         session_instance_mock.get_endpoint.assert_called_with(
             region_name=None, interface='publicURL', service_type='alarming')
 
+    def test_get_aodh_endpoint_without_auth_url(self):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+        env.pop('endpoint', None)
+        env.pop('auth_url', None)
+        client = self.create_client(env, endpoint='fake_endpoint')
+        self.assertEqual(client.alarm_auth_plugin.opts,
+                         client.auth_plugin.opts)
+
     @mock.patch('ceilometerclient.client._get_keystone_session')
     @mock.patch('ceilometerclient.client._get_token_auth_ks_session')
     def test_get_different_endpoint_type(self, token_session, session):

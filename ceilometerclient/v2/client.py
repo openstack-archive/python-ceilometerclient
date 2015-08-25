@@ -87,14 +87,25 @@ class Client(object):
 
     def _get_alarm_client(self, **kwargs):
         """Get client for alarm manager that redirect to aodh."""
+
         self.alarm_auth_plugin = copy.deepcopy(self.auth_plugin)
-        try:
-            # NOTE(liusheng): Getting the aodh's endpoint to rewrite
-            # the endpoint of alarm auth_plugin.
-            self.alarm_auth_plugin.redirect_to_aodh_endpoint(
-                kwargs.get('timeout'))
-        except exceptions.EndpointNotFound:
+        aodh_endpoint = kwargs.get('aodh_endpoint')
+        if aodh_endpoint:
+            self.alarm_auth_plugin.opts['endpoint'] = aodh_endpoint
+        elif not kwargs.get('auth_url'):
+            # Users may just provided ceilometer endpoint and token, and no
+            # auth_url, in this case, we need 'aodh_endpoint' also provided,
+            # otherwise we cannot get aodh endpoint from keystone, and assume
+            # aodh is unavailable.
             return self.http_client, False
+        else:
+            try:
+                # NOTE(liusheng): Getting the aodh's endpoint to rewrite
+                # the endpoint of alarm auth_plugin.
+                self.alarm_auth_plugin.redirect_to_aodh_endpoint(
+                    kwargs.get('timeout'))
+            except exceptions.EndpointNotFound:
+                return self.http_client, False
         alarm_client = client.HTTPClient(
             auth_plugin=self.alarm_auth_plugin,
             region_name=kwargs.get('region_name'),
