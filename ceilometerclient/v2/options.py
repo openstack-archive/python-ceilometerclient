@@ -67,7 +67,7 @@ def build_url(path, q, params=None):
     return path
 
 
-def cli_to_array(cli_query):
+def cli_to_array(cli_query, add_type=True):
     """Convert CLI list of queries to the Python API format.
 
     This will convert the following:
@@ -121,9 +121,11 @@ def cli_to_array(cli_query):
         value_frags = split_by_data_type(query[2])
         if not value_frags:
             opt['value'] = query[2]
-            opt['type'] = ''
+            if add_type:
+                opt['type'] = ''
         else:
             opt['type'] = value_frags[0]
-            opt['value'] = value_frags[1]
+            if add_type:
+                opt['value'] = value_frags[1]
         opts.append(opt)
     return opts
