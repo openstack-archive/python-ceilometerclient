@@ -19,7 +19,7 @@ import ceilometerclient.v2.resources
 
 
 fixtures = {
-    '/v2/resources': {
+    '/v2/resources?meter_links=0': {
         'GET': (
             {},
             [
@@ -38,7 +38,7 @@ fixtures = {
             ]
         ),
     },
-    '/v2/resources?q.field=resource_id&q.op=&q.type=&q.value=a':
+    '/v2/resources?q.field=resource_id&q.op=&q.type=&q.value=a&meter_links=0':
     {
         'GET': (
             {},
@@ -78,7 +78,7 @@ class ResourceManagerTest(utils.BaseTestCase):
     def test_list_all(self):
         resources = list(self.mgr.list())
         expect = [
-            'GET', '/v2/resources'
+            'GET', '/v2/resources?meter_links=0'
         ]
         self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 2)
@@ -100,7 +100,7 @@ class ResourceManagerTest(utils.BaseTestCase):
                                           ]))
         expect = [
             'GET', '/v2/resources?q.field=resource_id&q.op='
-            '&q.type=&q.value=a'
+            '&q.type=&q.value=a&meter_links=0'
         ]
         self.http_client.assert_called(*expect)
         self.assertEqual(len(resources), 1)
