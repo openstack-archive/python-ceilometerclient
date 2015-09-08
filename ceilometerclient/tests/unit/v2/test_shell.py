@@ -32,6 +32,7 @@ from ceilometerclient.v2 import capabilities
 from ceilometerclient.v2 import event_types
 from ceilometerclient.v2 import events
 from ceilometerclient.v2 import meters
+from ceilometerclient.v2 import resources
 from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import shell as ceilometer_shell
 from ceilometerclient.v2 import statistics
@@ -1160,6 +1161,7 @@ class ShellEventListCommandTest(utils.BaseTestCase):
         self.args = mock.Mock()
         self.args.query = None
         self.args.no_traits = None
+        self.args.limit = None
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_event_list(self):
@@ -1346,6 +1348,7 @@ class ShellMeterListCommandTest(utils.BaseTestCase):
         self.cc = mock.Mock()
         self.cc.meters.list = mock.Mock()
         self.args = mock.MagicMock()
+        self.args.limit = None
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_meter_list(self):
@@ -1353,7 +1356,7 @@ class ShellMeterListCommandTest(utils.BaseTestCase):
         self.cc.meters.list.return_value = [meter]
 
         ceilometer_shell.do_meter_list(self.cc, self.args)
-        self.cc.meters.list.assert_called_once_with(q=[])
+        self.cc.meters.list.assert_called_once_with(q=[], limit=None)
 
         self.assertEqual('''\
 +-------+-------+-------+-------------+---------+------------+
@@ -1361,6 +1364,39 @@ class ShellMeterListCommandTest(utils.BaseTestCase):
 +-------+-------+-------+-------------+---------+------------+
 | image | gauge | image | resource-id |         | project    |
 +-------+-------+-------+-------------+---------+------------+
+''', sys.stdout.getvalue())
+
+
+class ShellResourceListCommandTest(utils.BaseTestCase):
+
+    RESOURCE = {
+        "source": "openstack",
+        "resource_id": "resource-id",
+        "project_id": "project",
+        "user_id": "user"
+    }
+
+    def setUp(self):
+        super(ShellResourceListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.resources.list = mock.Mock()
+        self.args = mock.MagicMock()
+        self.args.limit = None
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_resource_list(self):
+        resource = resources.Resource(mock.Mock(), self.RESOURCE)
+        self.cc.resources.list.return_value = [resource]
+
+        ceilometer_shell.do_resource_list(self.cc, self.args)
+        self.cc.resources.list.assert_called_once_with(q=[], limit=None)
+
+        self.assertEqual('''\
++-------------+-----------+---------+------------+
+| Resource ID | Source    | User ID | Project ID |
++-------------+-----------+---------+------------+
+| resource-id | openstack | user    | project    |
++-------------+-----------+---------+------------+
 ''', sys.stdout.getvalue())
 
 

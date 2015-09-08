@@ -254,9 +254,12 @@ def do_sample_create(cc, args={}):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
+@utils.arg('-l', '--limit', metavar='<NUMBER>',
+           help='Maximum number of meters to return.')
 def do_meter_list(cc, args={}):
     """List the user's meters."""
-    meters = cc.meters.list(q=options.cli_to_array(args.query))
+    meters = cc.meters.list(q=options.cli_to_array(args.query),
+                            limit=args.limit)
     field_labels = ['Name', 'Type', 'Unit', 'Resource ID', 'User ID',
                     'Project ID']
     fields = ['name', 'type', 'unit', 'resource_id', 'user_id',
@@ -1019,9 +1022,12 @@ def do_alarm_history(cc, args={}):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
+@utils.arg('-l', '--limit', metavar='<NUMBER>',
+           help='Maximum number of resources to return.')
 def do_resource_list(cc, args={}):
     """List the resources."""
-    resources = cc.resources.list(q=options.cli_to_array(args.query))
+    resources = cc.resources.list(q=options.cli_to_array(args.query),
+                                  limit=args.limit)
 
     field_labels = ['Resource ID', 'Source', 'User ID', 'Project ID']
     fields = ['resource_id', 'source', 'user_id', 'project_id']
@@ -1050,9 +1056,12 @@ def do_resource_show(cc, args={}):
                 'or datetime.')
 @utils.arg('--no-traits', dest='no_traits', action='store_true',
            help='If specified, traits will not be printed.')
+@utils.arg('-l', '--limit', metavar='<NUMBER>',
+           help='Maximum number of events to return.')
 def do_event_list(cc, args={}):
     """List events."""
-    events = cc.events.list(q=options.cli_to_array(args.query))
+    events = cc.events.list(q=options.cli_to_array(args.query),
+                            limit=args.limit)
     field_labels = ['Message ID', 'Event Type', 'Generated', 'Traits']
     fields = ['message_id', 'event_type', 'generated', 'traits']
     if args.no_traits:
