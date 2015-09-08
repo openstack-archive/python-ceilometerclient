@@ -25,6 +25,7 @@ class Meter(base.Resource):
 class MeterManager(base.Manager):
     resource_class = Meter
 
-    def list(self, q=None):
+    def list(self, q=None, limit=None):
         path = '/v2/meters'
-        return self._list(options.build_url(path, q))
+        params = ['limit=%s' % limit] if limit else None
+        return self._list(options.build_url(path, q, params))
