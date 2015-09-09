@@ -30,9 +30,10 @@ class Resource(base.Resource):
 class ResourceManager(base.Manager):
     resource_class = Resource
 
-    def list(self, q=None):
+    def list(self, q=None, links=None):
         path = '/v2/resources'
-        return self._list(options.build_url(path, q))
+        params = ['meter_links=%d' % (1 if links else 0)]
+        return self._list(options.build_url(path, q, params))
 
     def get(self, resource_id):
         path = '/v2/resources/%s' % resource_id
