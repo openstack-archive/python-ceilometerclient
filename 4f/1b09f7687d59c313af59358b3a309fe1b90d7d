@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: ZhiQiang Fan <aji.zqfan@gmail.com>
+Code-Review+2: liusheng <liusheng2048@gmail.com>
+Workflow+1: liusheng <liusheng2048@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 09 Sep 2015 10:15:46 +0000
+Reviewed-on: https://review.openstack.org/221348
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
