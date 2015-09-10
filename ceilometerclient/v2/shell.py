@@ -196,11 +196,11 @@ def _restore_shadowed_arg(shadowed, observed):
 @utils.arg('--project-id', metavar='<SAMPLE_PROJECT_ID>',
            dest='sample_project_id',
            help='Tenant to associate with sample '
-                '(only settable by admin users).')
+                '(only configurable by admin users).')
 @utils.arg('--user-id', metavar='<SAMPLE_USER_ID>',
            dest='sample_user_id',
            help='User to associate with sample '
-                '(only settable by admin users).')
+                '(only configurable by admin users).')
 @utils.arg('-r', '--resource-id', metavar='<RESOURCE_ID>', required=True,
            help='ID of the resource.')
 @utils.arg('-m', '--meter-name', metavar='<METER_NAME>', required=True,
@@ -445,11 +445,11 @@ def common_alarm_arguments(create=False):
         @utils.arg('--project-id', metavar='<ALARM_PROJECT_ID>',
                    dest='alarm_project_id',
                    help='Tenant to associate with alarm '
-                   '(only settable by admin users).')
+                   '(only configurable by admin users).')
         @utils.arg('--user-id', metavar='<ALARM_USER_ID>',
                    dest='alarm_user_id',
                    help='User to associate with alarm '
-                   '(only settable by admin users).')
+                   '(only configurable by admin users).')
         @utils.arg('--description', metavar='<DESCRIPTION>',
                    help='Free text description of the alarm.')
         @utils.arg('--state', metavar='<STATE>',
