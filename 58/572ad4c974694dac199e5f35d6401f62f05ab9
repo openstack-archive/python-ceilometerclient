@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: gordon chung <gord@live.ca>
+Submitted-by: Jenkins
+Submitted-at: Mon, 21 Sep 2015 22:52:31 +0000
+Reviewed-on: https://review.openstack.org/226023
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/stable/liberty
