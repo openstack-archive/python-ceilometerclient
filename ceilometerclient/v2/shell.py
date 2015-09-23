@@ -299,11 +299,12 @@ def _display_alarm_list(alarms, sortby=None):
 
 def _display_rule(type, rule):
     if type == 'threshold':
-        return ('%(meter_name)s %(comparison_operator)s '
+        return ('%(statistic)s(%(meter_name)s) %(comparison_operator)s '
                 '%(threshold)s during %(evaluation_periods)s x %(period)ss' %
                 {
                     'meter_name': rule['meter_name'],
                     'threshold': rule['threshold'],
+                    'statistic': rule['statistic'],
                     'evaluation_periods': rule['evaluation_periods'],
                     'period': rule['period'],
                     'comparison_operator': OPERATORS_STRING.get(
