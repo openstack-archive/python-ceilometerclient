@@ -23,7 +23,7 @@ from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import client as api_client
 from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.tests.unit import utils
-from ceilometerclient.v2 import client as v2client
+from ceilometerclient import client
 
 FAKE_V2_ENV = {'OS_USERNAME': 'username',
                'OS_PASSWORD': 'password',
@@ -41,7 +41,7 @@ class ShellTestBase(utils.BaseTestCase):
 
     @mock.patch('sys.stdout', new=six.StringIO())
     @mock.patch.object(ks_session, 'Session', mock.MagicMock())
-    @mock.patch.object(v2client.client.HTTPClient,
+    @mock.patch.object(client.client.HTTPClient,
                        'client_request', mock.MagicMock())
     def shell(self, argstr):
         try:
