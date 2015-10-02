@@ -366,7 +366,7 @@ def alarm_change_detail_formatter(change):
                 fields.append('rule: %s' % _display_rule(detail['type'],
                                                          detail[k]))
             else:
-                fields.append('%s: %s' % (k, detail[k]))
+                fields.append('%s: %s' % (k, detail.get(k, 'N/A')))
         if 'time_constraints' in detail:
             fields.append('time_constraints: %s' %
                           _display_time_constraints_brief(
