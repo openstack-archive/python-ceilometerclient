@@ -15,40 +15,40 @@
 
 
 from ceilometerclient import client as ceiloclient
-from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.v1 import meters
 
 
 class Client(object):
     """Client for the Ceilometer v1 API.
 
-    :param string endpoint: A user-supplied endpoint URL for the ceilometer
-                            service.
-    :param function token: Provides token for authentication.
-    :param integer timeout: Allows customization of the timeout for client
-                            http requests. (optional)
+    :param session: a keystoneauth/keystoneclient session object
+    :type session: keystoneclient.session.Session
+    :param str service_type: The default service_type for URL discovery
+    :param str service_name: The default service_name for URL discovery
+    :param str interface: The default interface for URL discovery
+                          (Default: public)
+    :param str region_name: The default region_name for URL discovery
+    :param str endpoint_override: Always use this endpoint URL for requests
+    :param for this ceiloclient
+    :param auth: An auth plugin to use instead of the session one
+    :type auth: keystoneclient.auth.base.BaseAuthPlugin
+    :param str user_agent: The User-Agent string to set
+                           (Default is python-ceilometer-client)
+    :param int connect_retries: the maximum number of retries that should be
+                                attempted for connection errors
+    :param logger: A logging object
+    :type logger: logging.Logger
     """
 
     def __init__(self, *args, **kwargs):
         """Initialize a new client for the Ceilometer v1 API."""
-        self.auth_plugin = kwargs.get('auth_plugin') \
-            or ceiloclient.get_auth_plugin(*args, **kwargs)
-        self.client = client.HTTPClient(
-            auth_plugin=self.auth_plugin,
-            region_name=kwargs.get('region_name'),
-            endpoint_type=kwargs.get('endpoint_type'),
-            original_ip=kwargs.get('original_ip'),
-            verify=kwargs.get('verify'),
-            cert=kwargs.get('cert'),
-            timeout=kwargs.get('timeout'),
-            timings=kwargs.get('timings'),
-            keyring_saver=kwargs.get('keyring_saver'),
-            debug=kwargs.get('debug'),
-            user_agent=kwargs.get('user_agent'),
-            http=kwargs.get('http')
-        )
 
-        self.http_client = client.BaseClient(self.client)
+        if not kwargs.get('auth_plugin'):
+            kwargs['auth_plugin'] = ceiloclient.get_auth_plugin(*args,
+                                                                **kwargs)
+        self.auth_plugin = kwargs.get('auth_plugin')
+
+        self.http_client = ceiloclient._construct_http_client(**kwargs)
         self.meters = meters.MeterManager(self.http_client)
         self.samples = meters.SampleManager(self.http_client)
         self.users = meters.UserManager(self.http_client)
