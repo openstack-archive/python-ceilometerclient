@@ -17,7 +17,6 @@
 import copy
 
 from ceilometerclient import client as ceiloclient
-from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import capabilities
 from ceilometerclient.v2 import event_types
@@ -35,36 +34,34 @@ from keystoneclient import exceptions
 class Client(object):
     """Client for the Ceilometer v2 API.
 
-    :param endpoint: A user-supplied endpoint URL for the ceilometer
-                            service.
-    :type endpoint: string
-    :param token: Provides token for authentication.
-    :type token: function
-    :param timeout: Allows customization of the timeout for client
-                    http requests. (optional)
-    :type timeout: integer
+    :param session: a keystoneauth/keystoneclient session object
+    :type session: keystoneclient.session.Session
+    :param str service_type: The default service_type for URL discovery
+    :param str service_name: The default service_name for URL discovery
+    :param str interface: The default interface for URL discovery
+                          (Default: public)
+    :param str region_name: The default region_name for URL discovery
+    :param str endpoint_override: Always use this endpoint URL for requests
+    :param for this ceiloclient
+    :param auth: An auth plugin to use instead of the session one
+    :type auth: keystoneclient.auth.base.BaseAuthPlugin
+    :param str user_agent: The User-Agent string to set
+                           (Default is python-ceilometer-client)
+    :param int connect_retries: the maximum number of retries that should be
+                                attempted for connection errors
+    :param logger: A logging object
+    :type logger: logging.Logger
     """
 
     def __init__(self, *args, **kwargs):
         """Initialize a new client for the Ceilometer v2 API."""
-        self.auth_plugin = kwargs.get('auth_plugin') \
-            or ceiloclient.get_auth_plugin(*args, **kwargs)
-        self.client = client.HTTPClient(
-            auth_plugin=self.auth_plugin,
-            region_name=kwargs.get('region_name'),
-            endpoint_type=kwargs.get('endpoint_type'),
-            original_ip=kwargs.get('original_ip'),
-            verify=kwargs.get('verify'),
-            cert=kwargs.get('cert'),
-            timeout=kwargs.get('timeout'),
-            timings=kwargs.get('timings'),
-            keyring_saver=kwargs.get('keyring_saver'),
-            debug=kwargs.get('debug'),
-            user_agent=kwargs.get('user_agent'),
-            http=kwargs.get('http')
-        )
 
-        self.http_client = client.BaseClient(self.client)
+        if not kwargs.get('auth_plugin'):
+            kwargs['auth_plugin'] = ceiloclient.get_auth_plugin(*args,
+                                                                **kwargs)
+        self.auth_plugin = kwargs.get('auth_plugin')
+
+        self.http_client = ceiloclient._construct_http_client(**kwargs)
         self.alarm_client, aodh_enabled = self._get_alarm_client(**kwargs)
         self.meters = meters.MeterManager(self.http_client)
         self.samples = samples.OldSampleManager(self.http_client)
@@ -87,37 +84,33 @@ class Client(object):
 
     def _get_alarm_client(self, **kwargs):
         """Get client for alarm manager that redirect to aodh."""
-
-        self.alarm_auth_plugin = copy.deepcopy(self.auth_plugin)
+        kwargs = copy.deepcopy(kwargs)
+        self.alarm_auth_plugin = kwargs.get('auth_plugin')
         aodh_endpoint = kwargs.get('aodh_endpoint')
-        if aodh_endpoint:
-            self.alarm_auth_plugin.opts['endpoint'] = aodh_endpoint
-        elif not kwargs.get('auth_url'):
-            # Users may just provided ceilometer endpoint and token, and no
-            # auth_url, in this case, we need 'aodh_endpoint' also provided,
-            # otherwise we cannot get aodh endpoint from keystone, and assume
-            # aodh is unavailable.
-            return self.http_client, False
+        if kwargs.get('session') is not None:
+            if aodh_endpoint:
+                kwargs['endpoint_override'] = aodh_endpoint
+            else:
+                kwargs["service_type"] = "alarming"
+                try:
+                    return ceiloclient._construct_http_client(**kwargs), True
+                except exceptions.EndpointNotFound:
+                    return self.http_client, False
         else:
-            try:
-                # NOTE(liusheng): Getting the aodh's endpoint to rewrite
-                # the endpoint of alarm auth_plugin.
-                self.alarm_auth_plugin.redirect_to_aodh_endpoint(
-                    kwargs.get('timeout'))
-            except exceptions.EndpointNotFound:
+            if aodh_endpoint:
+                kwargs["auth_plugin"].opts['endpoint'] = aodh_endpoint
+            elif not kwargs.get('auth_url'):
+                # Users may just provided ceilometer endpoint and token, and no
+                # auth_url, in this case, we need 'aodh_endpoint' also
+                # provided, otherwise we cannot get aodh endpoint from
+                # keystone, and assume aodh is unavailable.
                 return self.http_client, False
-        alarm_client = client.HTTPClient(
-            auth_plugin=self.alarm_auth_plugin,
-            region_name=kwargs.get('region_name'),
-            endpoint_type=kwargs.get('endpoint_type'),
-            original_ip=kwargs.get('original_ip'),
-            verify=kwargs.get('verify'),
-            cert=kwargs.get('cert'),
-            timeout=kwargs.get('timeout'),
-            timings=kwargs.get('timings'),
-            keyring_saver=kwargs.get('keyring_saver'),
-            debug=kwargs.get('debug'),
-            user_agent=kwargs.get('user_agent'),
-            http=kwargs.get('http')
-        )
-        return client.BaseClient(alarm_client), True
+            else:
+                try:
+                    # NOTE(liusheng): Getting the aodh's endpoint to rewrite
+                    # the endpoint of alarm auth_plugin.
+                    kwargs["auth_plugin"].redirect_to_aodh_endpoint(
+                        kwargs.get('timeout'))
+                except exceptions.EndpointNotFound:
+                    return self.http_client, False
+        return ceiloclient._construct_http_client(**kwargs), True
