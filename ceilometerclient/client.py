@@ -10,6 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import contextlib
+import time
+
+from keystoneclient import adapter
 from keystoneclient.auth.identity import v2 as v2_auth
 from keystoneclient.auth.identity import v3 as v3_auth
 from keystoneclient import discover
@@ -21,6 +25,7 @@ import six.moves.urllib.parse as urlparse
 from ceilometerclient.common import utils
 from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import auth
+from ceilometerclient.openstack.common.apiclient import client
 from ceilometerclient.openstack.common.apiclient import exceptions
 
 
@@ -365,6 +370,23 @@ def get_client(version, **kwargs):
     :param api_version: the API version to use ('1' or '2')
     :param kwargs: keyword args containing credentials, either:
 
+            * session: a keystoneauth/keystoneclient session object
+            * service_type: The default service_type for URL discovery
+            * service_name: The default service_name for URL discovery
+            * interface: The default interface for URL discovery
+              (Default: public)
+            * region_name: The default region_name for URL discovery
+            * endpoint_override: Always use this endpoint URL for requests
+              for this ceiloclient
+            * auth: An auth plugin to use instead of the session one
+            * user_agent: The User-Agent string to set
+              (Default is python-ceilometer-client)
+            * connect_retries: the maximum number of retries that should be
+              attempted for connection errors
+            * logger: A logging object
+
+            or (DEPRECATED):
+
             * os_auth_token: (DEPRECATED) pre-existing token to re-use,
                              use os_token instead
             * os_token: pre-existing token to re-use
@@ -372,7 +394,7 @@ def get_client(version, **kwargs):
                               use os_endpoint instead
             * os_endpoint: Ceilometer API endpoint
 
-            or:
+            or (DEPRECATED):
 
             * os_username: name of user
             * os_password: user's password
@@ -415,3 +437,87 @@ def get_auth_plugin(endpoint, **kwargs):
         project_domain_id=kwargs.get('project_domain_id')
     )
     return auth_plugin
+
+
+LEGACY_OPTS = ('auth_plugin', 'auth_url', 'token', 'insecure',  'cacert',
+               'tenant_id', 'project_id', 'username', 'password',
+               'project_name', 'tenant_name',
+               'user_domain_name', 'user_domain_id',
+               'project_domain_name', 'project_domain_id',
+               'key_file', 'cert_file', 'verify', 'timeout', 'cert')
+
+
+def _construct_http_client(**kwargs):
+    kwargs = kwargs.copy()
+    if kwargs.get('session') is not None:
+        # Drop legacy options
+        for opt in LEGACY_OPTS:
+            kwargs.pop(opt, None)
+
+        return SessionClient(
+            session=kwargs.pop('session'),
+            service_type=kwargs.pop('service_type', 'metering'),
+            interface=(kwargs.pop('interface', None) or
+                       kwargs.pop('endpoint_type', 'publicURL')),
+            region_name=kwargs.pop('region_name', None),
+            user_agent=kwargs.pop('user_agent', 'python-ceilometerclient'),
+            auth=kwargs.get('auth', None),
+            timings=kwargs.pop('timings', None),
+            **kwargs)
+    else:
+        return client.BaseClient(client.HTTPClient(
+            auth_plugin=kwargs.get('auth_plugin'),
+            region_name=kwargs.get('region_name'),
+            endpoint_type=kwargs.get('endpoint_type'),
+            original_ip=kwargs.get('original_ip'),
+            verify=kwargs.get('verify'),
+            cert=kwargs.get('cert'),
+            timeout=kwargs.get('timeout'),
+            timings=kwargs.get('timings'),
+            keyring_saver=kwargs.get('keyring_saver'),
+            debug=kwargs.get('debug'),
+            user_agent=kwargs.get('user_agent'),
+            http=kwargs.get('http')
+        ))
+
+
+@contextlib.contextmanager
+def record_time(times, enabled, *args):
+    """Record the time of a specific action.
+    :param times: A list of tuples holds time data.
+    :type times: list
+    :param enabled: Whether timing is enabled.
+    :type enabled: bool
+    :param *args: Other data to be stored besides time data, these args
+                  will be joined to a string.
+    """
+    if not enabled:
+        yield
+    else:
+        start = time.time()
+        yield
+        end = time.time()
+        times.append((' '.join(args), start, end))
+
+
+class SessionClient(adapter.LegacyJsonAdapter):
+    def __init__(self, *args, **kwargs):
+        self.times = []
+        self.timings = kwargs.pop('timings', False)
+        super(SessionClient, self).__init__(*args, **kwargs)
+
+    def request(self, url, method, **kwargs):
+        self.session.request(url, method)
+        kwargs.setdefault('headers', kwargs.get('headers', {}))
+        # NOTE(sileht): The standard call raises errors from
+        # keystoneauth, where we need to raise the gnocchiclient errors.
+        raise_exc = kwargs.pop('raise_exc', True)
+        with record_time(self.times, self.timings, method, url):
+            resp, body = super(SessionClient, self).request(url,
+                                                            method,
+                                                            raise_exc=False,
+                                                            **kwargs)
+
+        if raise_exc and resp.status_code >= 400:
+            raise exc.from_response(resp, body)
+        return resp
