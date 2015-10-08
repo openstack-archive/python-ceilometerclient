@@ -1,7 +1,7 @@
 Python bindings to the Ceilometer API
 =====================================
 
-This is a client library for Ceilometer built on the Ceilometer API. It
+BLAH This is a client library for Ceilometer built on the Ceilometer API. It
 provides a Python API (the ``ceilometerclient`` module) and a command-line tool
 (``ceilometer``).
 
