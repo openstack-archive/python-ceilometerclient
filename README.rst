@@ -1,6 +1,14 @@
 Python bindings to the Ceilometer API
 =====================================
 
+.. image:: https://img.shields.io/pypi/v/python-ceilometerclient.svg
+    :target: https://pypi.python.org/pypi/python-ceilometerclient/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/dm/python-ceilometerclient.svg
+    :target: https://pypi.python.org/pypi/python-ceilometerclient/
+    :alt: Downloads
+
 This is a client library for Ceilometer built on the Ceilometer API. It
 provides a Python API (the ``ceilometerclient`` module) and a command-line tool
 (``ceilometer``).
