@@ -1171,9 +1171,9 @@ def do_query_samples(cc, args):
     except exc.HTTPNotFound:
         raise exc.CommandError('Samples not found')
     else:
-        field_labels = ['Resource ID', 'Meter', 'Type', 'Volume', 'Unit',
-                        'Timestamp']
-        fields = ['resource_id', 'meter', 'type',
+        field_labels = ['ID', 'Resource ID', 'Meter', 'Type', 'Volume',
+                        'Unit', 'Timestamp']
+        fields = ['id', 'resource_id', 'meter', 'type',
                   'volume', 'unit', 'timestamp']
         utils.print_list(samples, fields, field_labels,
                          sortby=None)
