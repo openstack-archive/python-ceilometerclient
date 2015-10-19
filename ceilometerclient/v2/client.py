@@ -42,7 +42,7 @@ class Client(object):
                           (Default: public)
     :param str region_name: The default region_name for URL discovery
     :param str endpoint_override: Always use this endpoint URL for requests
-    :param for this ceiloclient
+                                  for this ceiloclient
     :param auth: An auth plugin to use instead of the session one
     :type auth: keystoneclient.auth.base.BaseAuthPlugin
     :param str user_agent: The User-Agent string to set
