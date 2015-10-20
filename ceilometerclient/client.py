@@ -374,15 +374,15 @@ def get_client(version, **kwargs):
             * service_type: The default service_type for URL discovery
             * service_name: The default service_name for URL discovery
             * interface: The default interface for URL discovery
-              (Default: public)
+                         (Default: public)
             * region_name: The default region_name for URL discovery
             * endpoint_override: Always use this endpoint URL for requests
-              for this ceiloclient
+                                 for this ceiloclient
             * auth: An auth plugin to use instead of the session one
             * user_agent: The User-Agent string to set
-              (Default is python-ceilometer-client)
+                          (Default is python-ceilometer-client)
             * connect_retries: the maximum number of retries that should be
-              attempted for connection errors
+                               attempted for connection errors
             * logger: A logging object
 
             or (DEPRECATED):
@@ -489,8 +489,8 @@ def record_time(times, enabled, *args):
     :type times: list
     :param enabled: Whether timing is enabled.
     :type enabled: bool
-    :param *args: Other data to be stored besides time data, these args
-                  will be joined to a string.
+    :param args: Other data to be stored besides time data, these args
+                 will be joined to a string.
     """
     if not enabled:
         yield
