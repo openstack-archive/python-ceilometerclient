@@ -54,6 +54,26 @@ class ClientTest(utils.BaseTestCase):
                 ks_exc.EndpointNotFound
             return client.get_client(api_version, **env)
 
+    def test_client_v2_with_session(self):
+        resp = mock.Mock(status_code=200, text=b'')
+        resp.json.return_value = []
+        session = mock.Mock()
+        session.request.return_value = resp
+        c = client.get_client(2, session=session)
+        c.resources.list()
+        self.assertTrue(session.request.called)
+        self.assertTrue(resp.json.called)
+
+    def test_client_v1_with_session(self):
+        resp = mock.Mock(status_code=200, text=b'')
+        resp.json.return_value = {'resources': []}
+        session = mock.Mock()
+        session.request.return_value = resp
+        c = client.get_client(1, session=session)
+        c.resources.list()
+        self.assertTrue(session.request.called)
+        self.assertTrue(resp.json.called)
+
     def test_client_version(self):
         c1 = self.create_client(env=FAKE_ENV, api_version=1)
         self.assertIsInstance(c1, v1client.Client)
@@ -144,7 +164,7 @@ class ClientTest(utils.BaseTestCase):
         self._test_v2_client_timeout_integer(30, 30)
 
     @mock.patch.object(ks_session, 'Session')
-    def test_v2_client_timeout_keystone_seesion(self, mocked_session):
+    def test_v2_client_timeout_keystone_session(self, mocked_session):
         mocked_session.side_effect = RuntimeError('Stop!')
         env = FAKE_ENV.copy()
         env['timeout'] = 5
@@ -159,7 +179,8 @@ class ClientTest(utils.BaseTestCase):
         env = FAKE_ENV.copy()
         env['cacert'] = '/path/to/cacert'
         client = self.create_client(env)
-        self.assertEqual('/path/to/cacert', client.client.verify)
+        self.assertEqual('/path/to/cacert',
+                         client.http_client.http_client.verify)
 
     def test_v2_client_certfile_and_keyfile(self):
         env = FAKE_ENV.copy()
@@ -167,7 +188,7 @@ class ClientTest(utils.BaseTestCase):
         env['key_file'] = '/path/to/keycert'
         client = self.create_client(env)
         self.assertEqual(('/path/to/cert', '/path/to/keycert'),
-                         client.client.cert)
+                         client.http_client.http_client.cert)
 
     def test_v2_client_insecure(self):
         env = FAKE_ENV.copy()
