@@ -23,7 +23,6 @@ from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import exceptions
 from ceilometerclient.tests.unit import fakes
 from ceilometerclient.tests.unit import utils
-from ceilometerclient.v1 import client as v1client
 from ceilometerclient.v2 import client as v2client
 
 FAKE_ENV = {
@@ -64,20 +63,7 @@ class ClientTest(utils.BaseTestCase):
         self.assertTrue(session.request.called)
         self.assertTrue(resp.json.called)
 
-    def test_client_v1_with_session(self):
-        resp = mock.Mock(status_code=200, text=b'')
-        resp.json.return_value = {'resources': []}
-        session = mock.Mock()
-        session.request.return_value = resp
-        c = client.get_client(1, session=session)
-        c.resources.list()
-        self.assertTrue(session.request.called)
-        self.assertTrue(resp.json.called)
-
     def test_client_version(self):
-        c1 = self.create_client(env=FAKE_ENV, api_version=1)
-        self.assertIsInstance(c1, v1client.Client)
-
         c2 = self.create_client(env=FAKE_ENV, api_version=2)
         self.assertIsInstance(c2, v2client.Client)
 
