@@ -16,8 +16,6 @@ execfile(os.path.join("..", "ext", "gen_ref.py"))
 project = 'python-ceilometerclient'
 
 gen_ref("", "Client Reference", ["client", "exc"])
-gen_ref("v1", "Version 1 API Reference",
-        ["meters"])
 gen_ref("v2", "Version 2 API Reference",
         ["meters", "samples", "statistics", "resources", "query", "alarms",
          "events", "event_types", "traits", "trait_descriptions"])
