@@ -22,7 +22,6 @@ Contents:
    shell
    api
    ref/index
-   ref/v1/index
    ref/v2/index
 
 Contributing

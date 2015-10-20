@@ -14,7 +14,7 @@ First create a client instance with your credentials::
     >>> import ceilometerclient.client
     >>> cclient = ceilometerclient.client.get_client(VERSION, os_username=USERNAME, os_password=PASSWORD, os_tenant_name=PROJECT_NAME, os_auth_url=AUTH_URL)
 
-Here ``VERSION`` can be: ``1`` and ``2``.
+Here ``VERSION`` should be: ``2``.
 
 Then call methods on its managers::
 
@@ -44,5 +44,4 @@ For more information, see the reference:
    :maxdepth: 2
 
    ref/index
-   ref/v1/index
    ref/v2/index
