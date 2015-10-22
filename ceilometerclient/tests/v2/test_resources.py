@@ -38,6 +38,25 @@ fixtures = {
             ]
         ),
     },
+    '/v2/resources?meter_links=0': {
+        'GET': (
+            {},
+            [
+                {
+                    'resource_id': 'c',
+                    'project_id': 'project_blah',
+                    'user_id': 'fred',
+                    'metadata': {'zxc_id': 'blah'},
+                },
+                {
+                    'resource_id': 'd',
+                    'project_id': 'bury_the_ditch',
+                    'user_id': 'jack',
+                    'metadata': {'zxc_id': 'foobar'},
+                },
+            ]
+        ),
+    },
     '/v2/resources?q.field=resource_id&q.op=&q.type=&q.value=a&meter_links=1':
     {
         'GET': (
@@ -84,6 +103,16 @@ class ResourceManagerTest(utils.BaseTestCase):
         self.assertEqual(len(resources), 2)
         self.assertEqual(resources[0].resource_id, 'a')
         self.assertEqual(resources[1].resource_id, 'b')
+
+    def test_list_all_with_links_disabled(self):
+        resources = list(self.mgr.list(links=False))
+        expect = [
+            'GET', '/v2/resources?meter_links=0'
+        ]
+        self.http_client.assert_called(*expect)
+        self.assertEqual(len(resources), 2)
+        self.assertEqual(resources[0].resource_id, 'c')
+        self.assertEqual(resources[1].resource_id, 'd')
 
     def test_list_one(self):
         resource = self.mgr.get(resource_id='a')
