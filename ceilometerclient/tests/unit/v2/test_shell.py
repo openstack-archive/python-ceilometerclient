@@ -1382,6 +1382,7 @@ class ShellResourceListCommandTest(utils.BaseTestCase):
         self.cc.resources.list = mock.Mock()
         self.args = mock.MagicMock()
         self.args.limit = None
+        self.args.meter_links = None
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_resource_list(self):
@@ -1389,8 +1390,27 @@ class ShellResourceListCommandTest(utils.BaseTestCase):
         self.cc.resources.list.return_value = [resource]
 
         ceilometer_shell.do_resource_list(self.cc, self.args)
-        self.cc.resources.list.assert_called_once_with(q=[], limit=None)
+        self.cc.resources.list.assert_called_once_with(q=[],
+                                                       links=None,
+                                                       limit=None)
 
+        self.assertEqual('''\
++-------------+-----------+---------+------------+
+| Resource ID | Source    | User ID | Project ID |
++-------------+-----------+---------+------------+
+| resource-id | openstack | user    | project    |
++-------------+-----------+---------+------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_resource_list_with_links(self):
+        self.args.meter_links = True
+        resource = resources.Resource(mock.Mock(), self.RESOURCE)
+        self.cc.resources.list.return_value = [resource]
+        ceilometer_shell.do_resource_list(self.cc, self.args)
+        self.cc.resources.list.assert_called_once_with(q=[],
+                                                       links=True,
+                                                       limit=None)
         self.assertEqual('''\
 +-------------+-----------+---------+------------+
 | Resource ID | Source    | User ID | Project ID |
