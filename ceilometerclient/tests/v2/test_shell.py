@@ -1181,3 +1181,21 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
                          kwargs.get('project_id'))
         self.assertEqual('the-user-id-i-want-to-set',
                          kwargs.get('user_id'))
+
+
+class ShellResourceListCommandTest(utils.BaseTestCase):
+
+    def setUp(self):
+        super(ShellResourceListCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.resources = mock.Mock()
+        self.args = mock.Mock()
+        self.args.query = None
+        self.args.no_meter_links = True
+
+    def test_resource_list_with_no_links(self):
+        self.cc.resources.list.return_value = []
+        ceilometer_shell.do_resource_list(self.cc, self.args)
+        self.cc.resources.list.assert_called_once_with(
+            q=None,
+            links=False)
