@@ -994,9 +994,12 @@ def do_alarm_history(cc, args={}):
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
+@utils.arg('--no-meter-links', dest='no_meter_links', action='store_true',
+           help='If specified, meter links will not be generated.')
 def do_resource_list(cc, args={}):
     """List the resources."""
-    resources = cc.resources.list(q=options.cli_to_array(args.query))
+    resources = cc.resources.list(q=options.cli_to_array(args.query),
+                                  links=not args.no_meter_links)
 
     field_labels = ['Resource ID', 'Source', 'User ID', 'Project ID']
     fields = ['resource_id', 'source', 'user_id', 'project_id']
