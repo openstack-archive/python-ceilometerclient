@@ -25,6 +25,7 @@ import json
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import six
+from six import moves
 
 from ceilometerclient.common import utils
 from ceilometerclient import exc
@@ -36,6 +37,11 @@ ALARM_SEVERITY = ['low', 'moderate', 'critical']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
+GNOCCHI_AGGREGATION = ['last', 'min', 'median', 'sum',
+                       'std', 'first', 'mean', 'count',
+                       'moving-average', 'max']
+GNOCCHI_AGGREGATION.extend(['%spct' % num for num in moves.xrange(1, 100)])
+
 AGGREGATES = {'avg': 'Avg',
               'count': 'Count',
               'max': 'Max',
@@ -509,7 +515,7 @@ def common_alarm_gnocchi_arguments(rule_namespace, create=False):
         @utils.arg('--aggregation-method', metavar='<AGGREATION>',
                    dest=rule_namespace + '/aggregation_method',
                    help=('Aggregation method to use, one of: ' +
-                         str(STATISTICS) + '.'))
+                         str(GNOCCHI_AGGREGATION) + '.'))
         @utils.arg('--comparison-operator', metavar='<OPERATOR>',
                    dest=rule_namespace + '/comparison_operator',
                    help=('Operator to compare with, one of: ' +
