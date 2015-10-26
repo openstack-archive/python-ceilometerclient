@@ -36,6 +36,25 @@ ALARM_SEVERITY = ['low', 'moderate', 'critical']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
+GNOCCHI_AGGREGATION = ["22pct", "94pct", "last", "13pct", "15pct",  "30pct",
+                       "5pct", "73pct", "99pct", "7pct", "min", "40pct",
+                       "51pct",  "10pct",  "65pct", "21pct", "72pct", "27pct",
+                       "81pct", "54pct", "59pct", "56pct", "9pct", "31pct",
+                       "48pct", "11pct", "26pct", "20pct", "68pct", "median",
+                       "sum", "67pct", "97pct", "55pct", "69pct", "57pct",
+                       "std", "80pct", "25pct", "49pct", "98pct", "96pct",
+                       "78pct", "first", "2pct", "32pct", "53pct", "28pct",
+                       "88pct", "58pct", "93pct", "83pct", "95pct", "66pct",
+                       "24pct", "85pct", "79pct", "33pct", "16pct", "mean",
+                       "19pct", "63pct", "count", "38pct", "45pct", "36pct",
+                       "92pct", "moving-average", "18pct", "84pct", "29pct",
+                       "35pct", "34pct", "42pct", "62pct", "47pct", "77pct",
+                       "89pct", "90pct", "4pct", "6pct", "3pct", "17pct",
+                       "87pct", "39pct", "75pct", "37pct", "23pct", "44pct",
+                       "60pct", "70pct", "1pct", "64pct", "max", "46pct",
+                       "52pct", "91pct", "14pct", "8pct", "74pct", "61pct",
+                       "86pct", "12pct", "76pct", "43pct", "71pct", "50pct",
+                       "41pct", "82pct"]
 AGGREGATES = {'avg': 'Avg',
               'count': 'Count',
               'max': 'Max',
@@ -509,7 +528,7 @@ def common_alarm_gnocchi_arguments(rule_namespace, create=False):
         @utils.arg('--aggregation-method', metavar='<AGGREATION>',
                    dest=rule_namespace + '/aggregation_method',
                    help=('Aggregation method to use, one of: ' +
-                         str(STATISTICS) + '.'))
+                         str(GNOCCHI_AGGREGATION) + '.'))
         @utils.arg('--comparison-operator', metavar='<OPERATOR>',
                    dest=rule_namespace + '/comparison_operator',
                    help=('Operator to compare with, one of: ' +
