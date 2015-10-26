@@ -36,6 +36,7 @@ ALARM_SEVERITY = ['low', 'moderate', 'critical']
 ALARM_OPERATORS = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
 ALARM_COMBINATION_OPERATORS = ['and', 'or']
 STATISTICS = ['max', 'min', 'avg', 'sum', 'count']
+GNOCCHI_STATISTICS = ['max', 'min', 'sum', 'count']
 AGGREGATES = {'avg': 'Avg',
               'count': 'Count',
               'max': 'Max',
@@ -509,7 +510,7 @@ def common_alarm_gnocchi_arguments(rule_namespace, create=False):
         @utils.arg('--aggregation-method', metavar='<AGGREATION>',
                    dest=rule_namespace + '/aggregation_method',
                    help=('Aggregation method to use, one of: ' +
-                         str(STATISTICS) + '.'))
+                         str(GNOCCHI_STATISTICS) + '.'))
         @utils.arg('--comparison-operator', metavar='<OPERATOR>',
                    dest=rule_namespace + '/comparison_operator',
                    help=('Operator to compare with, one of: ' +
