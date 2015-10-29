@@ -333,8 +333,16 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
 
 class ShellSampleListCommandTest(utils.BaseTestCase):
 
-    METER = 'cpu_util'
+    METER = 'cpu'
+    QUERY = 'cpu_util'
     SAMPLE_VALUES = (
+        ("cpu",
+         "5d9da479-813c-46df-8c3d-cd8c799f54f1",
+         "2015-10-15T05:50:30",
+         "%",
+         0.888888888867,
+         "gauge",
+         "0711f048-7bbf-11e5-b582-0800279435b9"),
         ("cpu_util",
          "5dcf5537-3161-4e25-9235-407e1385bd35",
          "2013-10-15T05:50:30",
@@ -396,35 +404,29 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
         self.args.limit = None
 
     @mock.patch('sys.stdout', new=six.StringIO())
-    def test_old_sample_list(self):
+    def test_sample_list_with_meter(self):
         self.args.meter = self.METER
-        sample_list = [samples.OldSample(mock.Mock(), sample)
-                       for sample in self.OLD_SAMPLES]
-        self.cc.samples.list.return_value = sample_list
+        sample_list = [samples.Sample(mock.Mock(), sample)
+                       for sample in self.SAMPLES
+                       if sample.get('meter') == self.METER]
+        self.cc.new_samples.list.return_value = sample_list
 
         ceilometer_shell.do_sample_list(self.cc, self.args)
-        self.cc.samples.list.assert_called_once_with(
-            meter_name=self.METER,
-            q=None,
+        self.cc.new_samples.list.assert_called_once_with(
+            q=[{'field': 'meter', 'type': '', 'op': 'eq', 'value': 'cpu'}],
             limit=None)
 
         self.assertEqual('''\
-+--------------------------------------+----------+-------+----------------\
-+------+---------------------+
-| Resource ID                          | Name     | Type  | Volume         \
-| Unit | Timestamp           |
-+--------------------------------------+----------+-------+----------------\
-+------+---------------------+
-| 5dcf5537-3161-4e25-9235-407e1385bd35 | cpu_util | gauge | 0.261666666667 \
-| %    | 2013-10-15T05:50:30 |
-| 87d197e9-9cf6-4c25-bc66-1b1f4cedb52f | cpu_util | gauge | 0.261666666667 \
-| %    | 2013-10-15T05:50:29 |
-| 5dcf5537-3161-4e25-9235-407e1385bd35 | cpu_util | gauge | 0.251247920133 \
-| %    | 2013-10-15T05:40:30 |
-| 87d197e9-9cf6-4c25-bc66-1b1f4cedb52f | cpu_util | gauge | 0.26           \
-| %    | 2013-10-15T05:40:29 |
-+--------------------------------------+----------+-------+----------------\
-+------+---------------------+
++--------------------------------------+--------------------------------------\
++------+-------+----------------+------+---------------------+
+| ID                                   | Resource ID                          \
+| Name | Type  | Volume         | Unit | Timestamp           |
++--------------------------------------+--------------------------------------\
++------+-------+----------------+------+---------------------+
+| 0711f048-7bbf-11e5-b582-0800279435b9 | 5d9da479-813c-46df-8c3d-cd8c799f54f1 \
+| cpu  | gauge | 0.888888888867 | %    | 2015-10-15T05:50:30 |
++--------------------------------------+--------------------------------------\
++------+-------+----------------+------+---------------------+
 ''', sys.stdout.getvalue())
 
     @mock.patch('sys.stdout', new=six.StringIO())
@@ -446,6 +448,8 @@ class ShellSampleListCommandTest(utils.BaseTestCase):
 | Name     | Type  | Volume         | Unit | Timestamp           |
 +--------------------------------------+--------------------------------------\
 +----------+-------+----------------+------+---------------------+
+| 0711f048-7bbf-11e5-b582-0800279435b9 | 5d9da479-813c-46df-8c3d-cd8c799f54f1 \
+| cpu      | gauge | 0.888888888867 | %    | 2015-10-15T05:50:30 |
 | 86536501-b2c9-48f6-9c6a-7a5b14ba7482 | 5dcf5537-3161-4e25-9235-407e1385bd35 \
 | cpu_util | gauge | 0.261666666667 | %    | 2013-10-15T05:50:30 |
 | fe2a91ec-602b-4b55-8cba-5302ce3b916e | 87d197e9-9cf6-4c25-bc66-1b1f4cedb52f \

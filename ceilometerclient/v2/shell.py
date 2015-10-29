@@ -136,34 +136,23 @@ def do_statistics(cc, args):
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
            help='Maximum number of samples to return.')
 def do_sample_list(cc, args):
-    """List the samples (return OldSample objects if -m/--meter is set)."""
+    """List the samples."""
+    fields = {}
     if not args.meter:
-        return _do_sample_list(cc, args)
+        fields = {
+            'q': options.cli_to_array(args.query),
+            'limit': args.limit
+        }
     else:
-        return _do_old_sample_list(cc, args)
-
-
-def _do_old_sample_list(cc, args):
-    fields = {'meter_name': args.meter,
-              'q': options.cli_to_array(args.query),
-              'limit': args.limit}
-    try:
-        samples = cc.samples.list(**fields)
-    except exc.HTTPNotFound:
-        raise exc.CommandError('Samples not found: %s' % args.meter)
-    else:
-        field_labels = ['Resource ID', 'Name', 'Type', 'Volume', 'Unit',
-                        'Timestamp']
-        fields = ['resource_id', 'counter_name', 'counter_type',
-                  'counter_volume', 'counter_unit', 'timestamp']
-        utils.print_list(samples, fields, field_labels, sortby=None)
-
-
-def _do_sample_list(cc, args):
-    fields = {
-        'q': options.cli_to_array(args.query),
-        'limit': args.limit
-    }
+        query_with_meter = ''
+        if not args.query:
+            query_with_meter = ''.join(['meter=', args.meter])
+        else:
+            query_with_meter = ''.join(['meter=', args.meter, ';', args.query])
+        fields = {
+            'q': options.cli_to_array(query_with_meter),
+            'limit': args.limit
+        }
     samples = cc.new_samples.list(**fields)
     field_labels = ['ID', 'Resource ID', 'Name', 'Type', 'Volume', 'Unit',
                     'Timestamp']
