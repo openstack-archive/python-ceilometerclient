@@ -528,7 +528,7 @@ def common_alarm_gnocchi_aggregation_by_metrics_arguments(create=False):
     def _wrapper(func):
         @utils.arg('-m', '--metrics', metavar='<METRICS>',
                    dest=('gnocchi_aggregation_by_metrics_threshold_rule/'
-                         'meter_name'),
+                         'metrics'),
                    action='append', required=create,
                    help='Metric to evaluate against.')
         @functools.wraps(func)
