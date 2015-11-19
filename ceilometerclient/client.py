@@ -456,7 +456,7 @@ def _construct_http_client(**kwargs):
 
         return SessionClient(
             session=kwargs.pop('session'),
-            service_type=kwargs.pop('service_type', 'metering'),
+            service_type=kwargs.pop('service_type', 'metering') or 'metering',
             interface=kwargs.pop('interface', kwargs.pop('endpoint_type',
                                                          'publicURL')),
             region_name=kwargs.pop('region_name', None),
@@ -510,7 +510,7 @@ class SessionClient(adapter.LegacyJsonAdapter):
     def request(self, url, method, **kwargs):
         kwargs.setdefault('headers', kwargs.get('headers', {}))
         # NOTE(sileht): The standard call raises errors from
-        # keystoneauth, where we need to raise the gnocchiclient errors.
+        # keystoneauth, where we need to raise the ceilometerclient errors.
         raise_exc = kwargs.pop('raise_exc', True)
         with record_time(self.times, self.timings, method, url):
             resp, body = super(SessionClient, self).request(url,
