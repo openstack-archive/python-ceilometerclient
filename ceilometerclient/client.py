@@ -508,7 +508,6 @@ class SessionClient(adapter.LegacyJsonAdapter):
         super(SessionClient, self).__init__(*args, **kwargs)
 
     def request(self, url, method, **kwargs):
-        self.session.request(url, method)
         kwargs.setdefault('headers', kwargs.get('headers', {}))
         # NOTE(sileht): The standard call raises errors from
         # keystoneauth, where we need to raise the gnocchiclient errors.
