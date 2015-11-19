@@ -457,8 +457,8 @@ def _construct_http_client(**kwargs):
         return SessionClient(
             session=kwargs.pop('session'),
             service_type=kwargs.pop('service_type', 'metering'),
-            interface=(kwargs.pop('interface', None) or
-                       kwargs.pop('endpoint_type', 'publicURL')),
+            interface=kwargs.pop('interface', kwargs.pop('endpoint_type',
+                                                         'publicURL')),
             region_name=kwargs.pop('region_name', None),
             user_agent=kwargs.pop('user_agent', 'python-ceilometerclient'),
             auth=kwargs.get('auth', None),
