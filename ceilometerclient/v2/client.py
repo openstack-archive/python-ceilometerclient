@@ -28,7 +28,8 @@ from ceilometerclient.v2 import samples
 from ceilometerclient.v2 import statistics
 from ceilometerclient.v2 import trait_descriptions
 from ceilometerclient.v2 import traits
-from keystoneclient import exceptions
+from keystoneclient import exceptions as kc_exc
+from keystoneauth1 import exceptions as ka_exc
 
 
 class Client(object):
@@ -94,7 +95,9 @@ class Client(object):
                 kwargs["service_type"] = "alarming"
                 try:
                     return ceiloclient._construct_http_client(**kwargs), True
-                except exceptions.EndpointNotFound:
+                except ka_exc.EndpointNotFound:
+                    return self.http_client, False
+                except kc_exc.EndpointNotFound:
                     return self.http_client, False
         else:
             if aodh_endpoint:
@@ -111,6 +114,8 @@ class Client(object):
                     # the endpoint of alarm auth_plugin.
                     kwargs["auth_plugin"].redirect_to_aodh_endpoint(
                         kwargs.get('timeout'))
-                except exceptions.EndpointNotFound:
+                except ka_exc.EndpointNotFound:
+                    return self.http_client, False
+                except kc_exc.EndpointNotFound:
                     return self.http_client, False
         return ceiloclient._construct_http_client(**kwargs), True
