@@ -12,6 +12,7 @@
 
 import types
 
+from keystoneauth1 import exceptions as ka_exc
 from keystoneclient.auth.identity import v2 as v2_auth
 from keystoneclient.auth.identity import v3 as v3_auth
 from keystoneclient import exceptions as ks_exc
@@ -46,7 +47,7 @@ class ClientTest(utils.BaseTestCase):
         if not env.get('auth_plugin'):
             with mock.patch('ceilometerclient.client.AuthPlugin.'
                             'redirect_to_aodh_endpoint') as redirect_aodh:
-                redirect_aodh.side_effect = ks_exc.EndpointNotFound
+                redirect_aodh.side_effect = ka_exc.EndpointNotFound
                 return client.get_client(api_version, **env)
         else:
             env['auth_plugin'].redirect_to_aodh_endpoint.side_effect = \
