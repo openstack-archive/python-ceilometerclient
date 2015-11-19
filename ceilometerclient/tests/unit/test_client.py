@@ -379,6 +379,17 @@ class ClientAuthTest(utils.BaseTestCase):
         session_instance_mock.get_endpoint.assert_called_with(
             region_name=None, interface='publicURL', service_type='alarming')
 
+    def test_http_client_with_session(self):
+        session = mock.Mock()
+        session.request.return_value = mock.Mock(status_code=404,
+                                                 text=b'')
+
+        env = {"session": session,
+               "service_type": "metering",
+               "user_agent": "python-ceilometerclient"}
+        c = client.SessionClient(**env)
+        self.assertRaises(exc.HTTPException, c.get, "/")
+
     def test_get_aodh_endpoint_without_auth_url(self):
         env = FAKE_ENV.copy()
         env.pop('auth_plugin', None)
