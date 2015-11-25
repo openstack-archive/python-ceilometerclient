@@ -331,7 +331,8 @@ def _adjust_kwargs(kwargs):
     }
 
     client_kwargs.update(kwargs)
-    client_kwargs['token'] = kwargs.get('token') or kwargs.get('auth_token')
+    client_kwargs['token'] = client_kwargs.get('token') \
+        or kwargs.get('auth_token')
 
     timeout = kwargs.get('timeout')
     if timeout is not None:
