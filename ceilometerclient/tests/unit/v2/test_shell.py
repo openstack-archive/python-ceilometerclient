@@ -1264,6 +1264,34 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
         self._test_shadowed_args_alarm('alarm-combination-update',
                                        cli_args, 'update')
 
+    def test_shadowed_args_gnocchi_threshold_alarm(self):
+        cli_args = [
+            '--metric', 'cpu',
+            '--threshold', '80',
+            '--resource-type', 'instance',
+            '--resource-id', 'fb16a05a-669d-414e-8bbe-93aa381df6a8',
+            '--aggregation-method', 'last',
+        ]
+        self._test_shadowed_args_alarm('alarm-gnocchi-resources-'
+                                       '-threshold-create',
+                                       cli_args, 'create')
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-resources-threshold-create',
+                                       cli_args, 'create')
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-metrics-threshold-create',
+                                       cli_args, 'create')
+        cli_args += ['--alarm_id', '437b7ed0-3733-4054-a877-e9a297b8be85']
+        self._test_shadowed_args_alarm('alarm-gnocchi-resources-'
+                                       'threshold-update',
+                                       cli_args, 'create')
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-resources-threshold-update',
+                                       cli_args, 'create')
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-metrics-threshold-update',
+                                       cli_args, 'create')
+
     @mock.patch.object(samples.OldSampleManager, 'create')
     def test_shadowed_args_sample_create(self, mocked):
         self.make_env(test_shell.FAKE_V2_ENV)
