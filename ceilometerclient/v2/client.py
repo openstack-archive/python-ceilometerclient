@@ -94,7 +94,11 @@ class Client(object):
             else:
                 kwargs["service_type"] = "alarming"
                 try:
-                    return ceiloclient._construct_http_client(**kwargs), True
+                    c = ceiloclient._construct_http_client(**kwargs)
+                    # NOTE(sileht): when a keystoneauth1 session object is used
+                    # endpoint looking is done on first request, so do it.
+                    c.get("/")
+                    return c, True
                 except ka_exc.EndpointNotFound:
                     return self.http_client, False
                 except kc_exc.EndpointNotFound:
