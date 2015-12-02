@@ -49,7 +49,7 @@ class ShellTestBase(utils.BaseTestCase):
             _shell.main(argstr.split())
         except SystemExit:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            self.assertEqual(exc_value.code, 0)
+            self.assertEqual(0, exc_value.code)
 
         return sys.stdout.getvalue()
 
