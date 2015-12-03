@@ -103,7 +103,6 @@ class ShellBashCompletionTest(ShellTestBase):
     def test_bash_completion(self):
         completion_commands = self.shell("bash-completion")
         options = completion_commands.split(' ')
-        self.assertNotIn('bash-completion', options)
         self.assertNotIn('bash_completion', options)
         for option in options:
             self.assertThat(option,
