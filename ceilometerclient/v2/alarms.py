@@ -89,11 +89,10 @@ class AlarmManager(base.Manager):
             return None
 
         except exc.HTTPNotFound:
-            # When we try to get deleted alarm HTTPNotFound occurs
-            # or when alarm doesn't exists this exception don't must
-            # go deeper because cleanUp() (method which remove all
-            # created things like instance, alarm, etc.) at scenario
-            # tests doesn't know how to process it
+            # When we try to get a deleted alarm, or
+            # when an alarm doesn't exist, HTTPNotFound exception occurs.
+            # Since scenario tests at the time of cleanUp() will not know
+            # how to handle it, we only return None.
             return None
 
     @classmethod
