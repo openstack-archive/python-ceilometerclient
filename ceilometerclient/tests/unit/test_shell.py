@@ -248,7 +248,7 @@ class ShellEndpointTest(ShellTestBase):
     def _test_endpoint_and_token(self, token_name, endpoint_name, mocked):
         args = ['--debug', token_name, 'fake-token',
                 endpoint_name, 'http://fake-url', 'alarm-list']
-        self.assertEqual(None, ceilometer_shell.main(args))
+        self.assertIsNone(ceilometer_shell.main(args))
         args, kwargs = mocked.call_args
         self.assertEqual('http://fake-url', kwargs.get('endpoint'))
         self.assertEqual('fake-token', kwargs.get('token'))
