@@ -56,6 +56,9 @@ ORDER_DIRECTIONS = ['asc', 'desc']
 COMPLEX_OPERATORS = ['and', 'or']
 SIMPLE_OPERATORS = ["=", "!=", "<", "<=", '>', '>=']
 
+DEFAULT_API_LIMIT = ('<default_api_return_limit>; 100 if parameter was not '
+                     'configured')
+
 
 class NotEmptyAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -134,6 +137,7 @@ def do_statistics(cc, args):
 @utils.arg('-m', '--meter', metavar='<NAME>',
            action=NotEmptyAction, help='Name of meter to show samples for.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
+           default=DEFAULT_API_LIMIT,
            help='Maximum number of samples to return.')
 def do_sample_list(cc, args):
     """List the samples (return OldSample objects if -m/--meter is set)."""
@@ -261,6 +265,7 @@ def do_sample_create(cc, args={}):
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
+           default=DEFAULT_API_LIMIT,
            help='Maximum number of meters to return.')
 def do_meter_list(cc, args={}):
     """List the user's meters."""
@@ -1063,6 +1068,7 @@ def do_alarm_history(cc, args={}):
 @utils.arg('--meter-links', dest='meter_links', action='store_true',
            help='If specified, meter links will be generated.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
+           default=DEFAULT_API_LIMIT,
            help='Maximum number of resources to return.')
 def do_resource_list(cc, args={}):
     """List the resources."""
@@ -1098,6 +1104,7 @@ def do_resource_show(cc, args={}):
 @utils.arg('--no-traits', dest='no_traits', action='store_true',
            help='If specified, traits will not be printed.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
+           default=DEFAULT_API_LIMIT,
            help='Maximum number of events to return.')
 def do_event_list(cc, args={}):
     """List events."""
@@ -1169,6 +1176,7 @@ def do_trait_list(cc, args={}):
            help=('[{field_name: direction}, {field_name: direction}] '
                  'The direction is one of: ' + str(ORDER_DIRECTIONS) + '.'))
 @utils.arg('-l', '--limit', metavar='<LIMIT>',
+           default=DEFAULT_API_LIMIT,
            help='Maximum number of samples to return.')
 def do_query_samples(cc, args):
     """Query samples."""
@@ -1196,6 +1204,7 @@ def do_query_samples(cc, args):
            help=('[{field_name: direction}, {field_name: direction}] '
                  'The direction is one of: ' + str(ORDER_DIRECTIONS) + '.'))
 @utils.arg('-l', '--limit', metavar='<LIMIT>',
+           default=DEFAULT_API_LIMIT,
            help='Maximum number of alarms to return.')
 def do_query_alarms(cc, args):
     """Query Alarms."""
@@ -1218,6 +1227,7 @@ def do_query_alarms(cc, args):
            help=('[{field_name: direction}, {field_name: direction}] '
                  'The direction is one of: ' + str(ORDER_DIRECTIONS) + '.'))
 @utils.arg('-l', '--limit', metavar='<LIMIT>',
+           default=DEFAULT_API_LIMIT,
            help='Maximum number of alarm history items to return.')
 def do_query_alarm_history(cc, args):
     """Query Alarm History."""
