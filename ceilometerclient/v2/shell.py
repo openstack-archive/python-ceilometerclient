@@ -464,7 +464,8 @@ def common_alarm_arguments(create=False):
         @utils.arg('--severity', metavar='<SEVERITY>',
                    help='Severity of the alarm, one of: '
                         + str(ALARM_SEVERITY))
-        @utils.arg('--enabled', type=strutils.bool_from_string,
+        @utils.arg('--enabled',
+                   type=lambda v: strutils.bool_from_string(v, True),
                    metavar='{True|False}',
                    help='True if alarm evaluation/actioning is enabled.')
         @utils.arg('--alarm-action', dest='alarm_actions',
