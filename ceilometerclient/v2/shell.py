@@ -639,6 +639,8 @@ def do_alarm_create(cc, args={}):
 @common_alarm_gnocchi_arguments('gnocchi_resources_threshold_rule',
                                 create=True)
 @common_alarm_gnocchi_resources_arguments(create=True)
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_resources_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -653,6 +655,8 @@ def do_alarm_gnocchi_resources_threshold_create(cc, args={}):
 @common_alarm_gnocchi_arguments(
     'gnocchi_aggregation_by_metrics_threshold_rule', create=True)
 @common_alarm_gnocchi_aggregation_by_metrics_arguments(create=True)
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_metrics_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -667,6 +671,8 @@ def do_alarm_gnocchi_aggregation_by_metrics_threshold_create(cc, args={}):
 @common_alarm_gnocchi_arguments(
     'gnocchi_aggregation_by_resources_threshold_rule', create=True)
 @common_alarm_gnocchi_aggregation_by_resources_arguments(create=True)
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -860,6 +866,8 @@ def do_alarm_threshold_update(cc, args={}):
            metavar='<Constraint names>',
            dest='remove_time_constraints',
            help='Name or list of names of the time constraints to remove.')
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_resources_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -887,6 +895,8 @@ def do_alarm_gnocchi_resources_threshold_update(cc, args={}):
            metavar='<Constraint names>',
            dest='remove_time_constraints',
            help='Name or list of names of the time constraints to remove.')
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_metrics_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
@@ -914,6 +924,8 @@ def do_alarm_gnocchi_aggregation_by_metrics_threshold_update(cc, args={}):
            metavar='<Constraint names>',
            dest='remove_time_constraints',
            help='Name or list of names of the time constraints to remove.')
+@_restore_shadowed_arg('project_id', 'alarm_project_id')
+@_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
