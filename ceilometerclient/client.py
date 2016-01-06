@@ -134,66 +134,6 @@ def _get_keystone_session(**kwargs):
     return ks_session
 
 
-def _get_token_auth_ks_session(**kwargs):
-
-    cacert = kwargs.pop('cacert', None)
-    cert = kwargs.pop('cert', None)
-    key = kwargs.pop('key', None)
-    insecure = kwargs.pop('insecure', False)
-    auth_url = kwargs.pop('auth_url', None)
-    project_id = kwargs.pop('project_id', None)
-    project_name = kwargs.pop('project_name', None)
-    timeout = kwargs.get('timeout')
-    token = kwargs['token']
-
-    if insecure:
-        verify = False
-    else:
-        verify = cacert or True
-
-    if cert and key:
-        # passing cert and key together is deprecated in favour of the
-        # requests lib form of having the cert and key as a tuple
-        cert = (cert, key)
-
-    # create the keystone client session
-    ks_session = session.Session(verify=verify, cert=cert, timeout=timeout)
-    v2_auth_url, v3_auth_url = _discover_auth_versions(ks_session, auth_url)
-
-    user_domain_name = kwargs.pop('user_domain_name', None)
-    user_domain_id = kwargs.pop('user_domain_id', None)
-    project_domain_name = kwargs.pop('project_domain_name', None)
-    project_domain_id = kwargs.pop('project_domain_id', None)
-    auth = None
-
-    use_domain = (user_domain_id or user_domain_name or
-                  project_domain_id or project_domain_name)
-    use_v3 = v3_auth_url and (use_domain or (not v2_auth_url))
-    use_v2 = v2_auth_url and not use_domain
-
-    if use_v3:
-        auth = v3_auth.Token(
-            v3_auth_url,
-            token=token,
-            project_name=project_name,
-            project_id=project_id,
-            project_domain_name=project_domain_name,
-            project_domain_id=project_domain_id)
-    elif use_v2:
-        auth = v2_auth.Token(
-            v2_auth_url,
-            token=token,
-            tenant_id=project_id,
-            tenant_name=project_name)
-    else:
-        raise exc.CommandError('Unable to determine the Keystone version '
-                               'to authenticate with using the given '
-                               'auth_url.')
-
-    ks_session.auth = auth
-    return ks_session
-
-
 def _get_endpoint(ks_session, **kwargs):
     """Get an endpoint using the provided keystone session."""
 
@@ -255,25 +195,11 @@ class AuthPlugin(auth.BaseAuthPlugin):
             'insecure': strutils.bool_from_string(
                 self.opts.get('insecure')),
             'endpoint_type': self.opts.get('endpoint_type'),
+            'service_type': self.opts.get('service_type'),
             'region_name': self.opts.get('region_name'),
             'timeout': http_timeout,
         }
         return ks_kwargs
-
-    def redirect_to_aodh_endpoint(self, http_timeout):
-        ks_kwargs = self._get_ks_kwargs(http_timeout)
-        token = self.opts.get('token') or self.opts.get('auth_token')
-        # NOTE(liusheng): if token provided, we try to get keystone session
-        # with token, else, we get keystone session with user info and
-        # password. And then use the keystone session to get aodh's endpoint.
-        if token:
-            token = token() if callable(token) else token
-            ks_kwargs.update(token=token)
-            ks_session = _get_token_auth_ks_session(**ks_kwargs)
-        else:
-            ks_session = _get_keystone_session(**ks_kwargs)
-        ks_kwargs.update(service_type='alarming')
-        self.opts['endpoint'] = _get_endpoint(ks_session, **ks_kwargs)
 
     def token_and_endpoint(self, endpoint_type, service_type):
         token = self.opts.get('token')
