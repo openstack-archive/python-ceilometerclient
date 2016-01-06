@@ -83,10 +83,21 @@ class Client(object):
             self.alarm_client)
         self.capabilities = capabilities.CapabilitiesManager(self.http_client)
 
-    def _get_alarm_client(self, **kwargs):
+    def _get_alarm_client(self, **ceilo_kwargs):
         """Get client for alarm manager that redirect to aodh."""
-        kwargs = copy.deepcopy(kwargs)
-        self.alarm_auth_plugin = kwargs.get('auth_plugin')
+        # NOTE(sileht): the auth_plugin cannot be copied
+        # because it relies on threading module.
+        # But it can be reused between client.
+        self.alarm_auth_plugin = ceilo_kwargs.get('auth_plugin')
+        if self.alarm_auth_plugin:
+            del ceilo_kwargs['auth_plugin']
+
+        kwargs = copy.deepcopy(ceilo_kwargs)
+
+        if self.alarm_auth_plugin:
+            ceilo_kwargs['auth_plugin'] = self.alarm_auth_plugin
+            kwargs['auth_plugin'] = self.alarm_auth_plugin
+
         aodh_endpoint = kwargs.get('aodh_endpoint')
         if kwargs.get('session') is not None:
             if aodh_endpoint:
