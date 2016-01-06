@@ -331,6 +331,441 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         self.assertEqual(time_constraints, kwargs['time_constraints'])
 
 
+class ShellAlarmGnocchiCommandTest(test_shell.ShellTestBase):
+
+    ALARM_ID = 'b69ecdb9-f19b-4fb5-950f-5eb53938b718'
+    TIME_CONSTRAINTS = [{
+        u'duration': 300,
+        u'start': u'0 11 * * *',
+        u'description': u'desc1',
+        u'name': u'cons1',
+        u'timezone': u''}, {
+        u'duration': 600,
+        u'start': u'0 23 * * *',
+        u'name': u'cons2',
+        u'description': u'desc2',
+        u'timezone': u''}]
+
+    ALARM1 = {
+        u'name': u'name_gnocchi_alarm',
+        u'description': u'description_gnocchi_alarm',
+        u'enabled': True,
+        u'ok_actions': [u'http://something/ok'],
+        u'alarm_actions': [u'http://something/alarm'],
+        u'timestamp': u'2015-12-21T03:10:32.305133',
+        u'state_timestamp': u'2015-12-21T03:10:32.305133',
+        u'gnocchi_resources_threshold_rule': {
+            u'evaluation_periods': 3,
+            u'metric': u'cpu_util',
+            u'resource_id': u'768ff714-8cfb-4db9-9753-d484cb33a1cc',
+            u'threshold': 70.0,
+            u'granularity': 60,
+            u'aggregation_method': u'count',
+            u'comparison_operator': u'le',
+            u'resource_type': u'instance',
+        },
+        u'time_constraints': TIME_CONSTRAINTS,
+        u'alarm_id': ALARM_ID,
+        u'state': u'ok',
+        u'insufficient_data_actions': [u'http://something/insufficient'],
+        u'repeat_actions': True,
+        u'user_id': u'f28735621ee84f329144eb467c91fce6',
+        u'project_id': u'97fcad0402ce4f65ac3bd42a0c6a7e74',
+        u'type': u'gnocchi_resources_threshold',
+        u'severity': u'critical',
+    }
+
+    ALARM2 = {
+        u'name': u'name_gnocchi_alarm',
+        u'description': u'description_gnocchi_alarm',
+        u'enabled': True,
+        u'ok_actions': [u'http://something/ok'],
+        u'alarm_actions': [u'http://something/alarm'],
+        u'timestamp': u'2015-12-21T03:10:32.305133',
+        u'state_timestamp': u'2015-12-21T03:10:32.305133',
+        u'gnocchi_aggregation_by_metrics_threshold_rule': {
+            u'evaluation_periods': 3,
+            u'metrics': [u'b3d9d8ab-05e8-439f-89ad-5e978dd2a5eb',
+                         u'009d4faf-c275-46f0-8f2d-670b15bac2b0'],
+            u'threshold': 70.0,
+            u'granularity': 60,
+            u'aggregation_method': u'count',
+            u'comparison_operator': u'le',
+        },
+        u'time_constraints': TIME_CONSTRAINTS,
+        u'alarm_id': ALARM_ID,
+        u'state': u'ok',
+        u'insufficient_data_actions': [u'http://something/insufficient'],
+        u'repeat_actions': True,
+        u'user_id': u'f28735621ee84f329144eb467c91fce6',
+        u'project_id': u'97fcad0402ce4f65ac3bd42a0c6a7e74',
+        u'type': u'gnocchi_aggregation_by_metrics_threshold',
+        u'severity': u'critical',
+    }
+
+    ALARM3 = {
+        u'name': u'name_gnocchi_alarm',
+        u'description': u'description_gnocchi_alarm',
+        u'enabled': True,
+        u'ok_actions': [u'http://something/ok'],
+        u'alarm_actions': [u'http://something/alarm'],
+        u'timestamp': u'2015-12-21T03:10:32.305133',
+        u'state_timestamp': u'2015-12-21T03:10:32.305133',
+        u'gnocchi_aggregation_by_resources_threshold_rule': {
+            u'evaluation_periods': 3,
+            u'metric': u'cpu_util',
+            u'threshold': 70.0,
+            u'granularity': 60,
+            u'aggregation_method': u'count',
+            u'comparison_operator': u'le',
+            u'resource_type': u'instance',
+            u'query': u'{"=": {"server_group":"my_autoscaling_group"}}',
+        },
+        u'time_constraints': TIME_CONSTRAINTS,
+        u'alarm_id': ALARM_ID,
+        u'state': u'ok',
+        u'insufficient_data_actions': [u'http://something/insufficient'],
+        u'repeat_actions': True,
+        u'user_id': u'f28735621ee84f329144eb467c91fce6',
+        u'project_id': u'97fcad0402ce4f65ac3bd42a0c6a7e74',
+        u'type': u'gnocchi_aggregation_by_resources_threshold',
+        u'severity': u'critical',
+    }
+
+    COMMON_CLI_ARGS = [
+        '--name', 'name_gnocchi_alarm',
+        '--description', 'description_gnocchi_alarm',
+        '--enabled', 'True',
+        '--state', 'ok',
+        '--severity', 'critical',
+        '--ok-action', 'http://something/ok',
+        '--alarm-action', 'http://something/alarm',
+        '--insufficient-data-action', 'http://something/insufficient',
+        '--repeat-actions', 'True',
+        '--comparison-operator', 'le',
+        '--aggregation-method', 'count',
+        '--threshold', '70',
+        '--evaluation-periods', '3',
+        '--granularity', '60',
+        '--time-constraint',
+        'name=cons1;start="0 11 * * *";duration=300;description="desc1"',
+        '--time-constraint',
+        'name=cons2;start="0 23 * * *";duration=600;description="desc2"',
+        '--user-id', 'f28735621ee84f329144eb467c91fce6',
+        '--project-id', '97fcad0402ce4f65ac3bd42a0c6a7e74',
+    ]
+
+    GNOCCHI_RESOURCES_CLI_ARGS = COMMON_CLI_ARGS + [
+        '--metric', 'cpu_util',
+        '--resource-type', 'instance',
+        '--resource-id', '768ff714-8cfb-4db9-9753-d484cb33a1cc',
+    ]
+
+    GNOCCHI_AGGR_BY_METRICS_CLI_ARGS = COMMON_CLI_ARGS + [
+        '-m', 'b3d9d8ab-05e8-439f-89ad-5e978dd2a5eb',
+        '-m', '009d4faf-c275-46f0-8f2d-670b15bac2b0',
+    ]
+
+    GNOCCHI_AGGR_BY_RESOURCES_CLI_ARGS = COMMON_CLI_ARGS + [
+        '--metric', 'cpu_util',
+        '--resource-type', 'instance',
+        '--query', '{"=": {"server_group":"my_autoscaling_group"}}'
+    ]
+
+    def setUp(self):
+        super(ShellAlarmGnocchiCommandTest, self).setUp()
+        self.cc = mock.Mock()
+        self.cc.alarms = mock.Mock()
+        self.args = mock.Mock()
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_do_alarm_gnocchi_resources_threshold_create(self):
+
+        alarm = alarms.Alarm(mock.Mock(), self.ALARM1)
+        self.cc.alarms.create.return_value = alarm
+        ceilometer_shell.do_alarm_gnocchi_resources_threshold_create(self.cc,
+                                                                     self.args)
+        self.assertEqual('''\
++---------------------------+--------------------------------------+
+| Property                  | Value                                |
++---------------------------+--------------------------------------+
+| aggregation_method        | count                                |
+| alarm_actions             | [u'http://something/alarm']          |
+| alarm_id                  | b69ecdb9-f19b-4fb5-950f-5eb53938b718 |
+| comparison_operator       | le                                   |
+| description               | description_gnocchi_alarm            |
+| enabled                   | True                                 |
+| evaluation_periods        | 3                                    |
+| granularity               | 60                                   |
+| insufficient_data_actions | [u'http://something/insufficient']   |
+| metric                    | cpu_util                             |
+| name                      | name_gnocchi_alarm                   |
+| ok_actions                | [u'http://something/ok']             |
+| project_id                | 97fcad0402ce4f65ac3bd42a0c6a7e74     |
+| repeat_actions            | True                                 |
+| resource_id               | 768ff714-8cfb-4db9-9753-d484cb33a1cc |
+| resource_type             | instance                             |
+| severity                  | critical                             |
+| state                     | ok                                   |
+| threshold                 | 70.0                                 |
+| time_constraints          | [{name: cons1,                       |
+|                           |   description: desc1,                |
+|                           |   start: 0 11 * * *,                 |
+|                           |   duration: 300},                    |
+|                           |  {name: cons2,                       |
+|                           |   description: desc2,                |
+|                           |   start: 0 23 * * *,                 |
+|                           |   duration: 600}]                    |
+| type                      | gnocchi_resources_threshold          |
+| user_id                   | f28735621ee84f329144eb467c91fce6     |
++---------------------------+--------------------------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_do_alarm_gnocchi_aggr_by_metrics_threshold_create(self):
+
+        alarm = alarms.Alarm(mock.Mock(), self.ALARM2)
+        self.cc.alarms.create.return_value = alarm
+        ceilometer_shell.\
+            do_alarm_gnocchi_aggregation_by_metrics_threshold_create(
+                self.cc, self.args)
+        self.assertEqual('''\
++---------------------------+------------------------------------------\
+----------------------------+
+| Property                  | Value                                    \
+                            |
++---------------------------+------------------------------------------\
+----------------------------+
+| aggregation_method        | count                                    \
+                            |
+| alarm_actions             | [u'http://something/alarm']              \
+                            |
+| alarm_id                  | b69ecdb9-f19b-4fb5-950f-5eb53938b718     \
+                            |
+| comparison_operator       | le                                       \
+                            |
+| description               | description_gnocchi_alarm                \
+                            |
+| enabled                   | True                                     \
+                            |
+| evaluation_periods        | 3                                        \
+                            |
+| granularity               | 60                                       \
+                            |
+| insufficient_data_actions | [u'http://something/insufficient']       \
+                            |
+| metrics                   | [u'b3d9d8ab-05e8-439f-89ad-5e978dd2a5eb',\
+ u'009d4faf-c275-46f0-8f2d- |
+|                           | 670b15bac2b0']                           \
+                            |
+| name                      | name_gnocchi_alarm                       \
+                            |
+| ok_actions                | [u'http://something/ok']                 \
+                            |
+| project_id                | 97fcad0402ce4f65ac3bd42a0c6a7e74         \
+                            |
+| repeat_actions            | True                                     \
+                            |
+| severity                  | critical                                 \
+                            |
+| state                     | ok                                       \
+                            |
+| threshold                 | 70.0                                     \
+                            |
+| time_constraints          | [{name: cons1,                           \
+                            |
+|                           |   description: desc1,                    \
+                            |
+|                           |   start: 0 11 * * *,                     \
+                            |
+|                           |   duration: 300},                        \
+                            |
+|                           |  {name: cons2,                           \
+                            |
+|                           |   description: desc2,                    \
+                            |
+|                           |   start: 0 23 * * *,                     \
+                            |
+|                           |   duration: 600}]                        \
+                            |
+| type                      | gnocchi_aggregation_by_metrics_threshold \
+                            |
+| user_id                   | f28735621ee84f329144eb467c91fce6         \
+                            |
++---------------------------+------------------------------------------\
+----------------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_do_alarm_gnocchi_aggr_by_resources_threshold_create(self):
+
+        alarm = alarms.Alarm(mock.Mock(), self.ALARM3)
+        self.cc.alarms.create.return_value = alarm
+        ceilometer_shell.\
+            do_alarm_gnocchi_aggregation_by_resources_threshold_create(
+                self.cc, self.args)
+        self.assertEqual('''\
++---------------------------+------------------------------------------------+
+| Property                  | Value                                          |
++---------------------------+------------------------------------------------+
+| aggregation_method        | count                                          |
+| alarm_actions             | [u'http://something/alarm']                    |
+| alarm_id                  | b69ecdb9-f19b-4fb5-950f-5eb53938b718           |
+| comparison_operator       | le                                             |
+| description               | description_gnocchi_alarm                      |
+| enabled                   | True                                           |
+| evaluation_periods        | 3                                              |
+| granularity               | 60                                             |
+| insufficient_data_actions | [u'http://something/insufficient']             |
+| metric                    | cpu_util                                       |
+| name                      | name_gnocchi_alarm                             |
+| ok_actions                | [u'http://something/ok']                       |
+| project_id                | 97fcad0402ce4f65ac3bd42a0c6a7e74               |
+| query                     | {"=": {"server_group":"my_autoscaling_group"}} |
+| repeat_actions            | True                                           |
+| resource_type             | instance                                       |
+| severity                  | critical                                       |
+| state                     | ok                                             |
+| threshold                 | 70.0                                           |
+| time_constraints          | [{name: cons1,                                 |
+|                           |   description: desc1,                          |
+|                           |   start: 0 11 * * *,                           |
+|                           |   duration: 300},                              |
+|                           |  {name: cons2,                                 |
+|                           |   description: desc2,                          |
+|                           |   start: 0 23 * * *,                           |
+|                           |   duration: 600}]                              |
+| type                      | gnocchi_aggregation_by_resources_threshold     |
+| user_id                   | f28735621ee84f329144eb467c91fce6               |
++---------------------------+------------------------------------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_do_alarm_gnocchi_resources_threshold_create_args(self):
+        argv = ['alarm-gnocchi-resources-threshold-create'] + \
+            self.GNOCCHI_RESOURCES_CLI_ARGS
+        self._test_alarm_gnocchi_resources_arguments('create', argv)
+
+    def test_do_alarm_gnocchi_resources_threshold_update_args(self):
+        argv = ['alarm-gnocchi-resources-threshold-update'] + \
+            self.GNOCCHI_RESOURCES_CLI_ARGS + [self.ALARM_ID]
+        self._test_alarm_gnocchi_resources_arguments('update', argv)
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_do_alarm_gnocchi_aggr_by_metrics_threshold_create_args(self):
+        argv = ['alarm-gnocchi-aggregation-by-metrics-threshold-create'] + \
+            self.GNOCCHI_AGGR_BY_METRICS_CLI_ARGS
+        self._test_alarm_gnocchi_aggr_by_metrics_arguments('create', argv)
+
+    def test_do_alarm_gnocchi_aggr_by_metrics_threshold_update_args(self):
+        argv = ['alarm-gnocchi-aggregation-by-metrics-threshold-update'] + \
+            self.GNOCCHI_AGGR_BY_METRICS_CLI_ARGS + [self.ALARM_ID]
+        self._test_alarm_gnocchi_aggr_by_metrics_arguments('update', argv)
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_do_alarm_gnocchi_aggr_by_resources_threshold_create_args(self):
+        argv = ['alarm-gnocchi-aggregation-by-resources-threshold-create'] + \
+            self.GNOCCHI_AGGR_BY_RESOURCES_CLI_ARGS
+        self._test_alarm_gnocchi_aggr_by_resources_arguments('create', argv)
+
+    def test_do_alarm_gnocchi_aggr_by_resources_threshold_update_args(self):
+        argv = ['alarm-gnocchi-aggregation-by-resources-threshold-update'] + \
+            self.GNOCCHI_AGGR_BY_RESOURCES_CLI_ARGS + [self.ALARM_ID]
+        self._test_alarm_gnocchi_aggr_by_resources_arguments('update', argv)
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def _test_common_alarm_gnocchi_arguments(self, kwargs):
+        self.assertEqual('97fcad0402ce4f65ac3bd42a0c6a7e74',
+                         kwargs.get('project_id'))
+        self.assertEqual('f28735621ee84f329144eb467c91fce6',
+                         kwargs.get('user_id'))
+        self.assertEqual('name_gnocchi_alarm', kwargs.get('name'))
+        self.assertEqual('description_gnocchi_alarm',
+                         kwargs.get('description'))
+        self.assertEqual(['http://something/alarm'],
+                         kwargs.get('alarm_actions'))
+        self.assertEqual(['http://something/ok'], kwargs.get('ok_actions'))
+        self.assertEqual(['http://something/insufficient'],
+                         kwargs.get('insufficient_data_actions'))
+        self.assertEqual('critical', kwargs.get('severity'))
+        self.assertEqual('ok', kwargs.get('state'))
+        self.assertEqual(True, kwargs.get('enabled'))
+        self.assertEqual(True, kwargs.get('repeat_actions'))
+        time_constraints = [dict(name='cons1', start='0 11 * * *',
+                                 duration='300', description='desc1'),
+                            dict(name='cons2', start='0 23 * * *',
+                                 duration='600', description='desc2')]
+        self.assertEqual(time_constraints, kwargs['time_constraints'])
+
+    def _test_alarm_gnocchi_resources_arguments(self, action, argv):
+        self.make_env(test_shell.FAKE_V2_ENV)
+        with mock.patch.object(alarms.AlarmManager, action) as mocked:
+            with mock.patch('ceilometerclient.client.AuthPlugin.'
+                            'redirect_to_aodh_endpoint') as redirect_aodh:
+                redirect_aodh.site_effect = exceptions.EndpointNotFound
+                base_shell.main(argv)
+        args, kwargs = mocked.call_args
+        self.assertEqual('gnocchi_resources_threshold', kwargs.get('type'))
+        self.assertIn('gnocchi_resources_threshold_rule', kwargs)
+        rule = kwargs['gnocchi_resources_threshold_rule']
+        self.assertEqual('cpu_util', rule.get('metric'))
+        self.assertEqual(70.0, rule.get('threshold'))
+        self.assertEqual(60, rule.get('granularity'))
+        self.assertEqual('count', rule.get('aggregation_method'))
+        self.assertEqual('le', rule.get('comparison_operator'))
+        self.assertEqual(3, rule.get('evaluation_periods'))
+        self.assertEqual('768ff714-8cfb-4db9-9753-d484cb33a1cc',
+                         rule.get('resource_id'))
+        self.assertEqual('instance', rule.get('resource_type'))
+        self._test_common_alarm_gnocchi_arguments(kwargs)
+
+    def _test_alarm_gnocchi_aggr_by_metrics_arguments(self, action, argv):
+        self.make_env(test_shell.FAKE_V2_ENV)
+        with mock.patch.object(alarms.AlarmManager, action) as mocked:
+            with mock.patch('ceilometerclient.client.AuthPlugin.'
+                            'redirect_to_aodh_endpoint') as redirect_aodh:
+                redirect_aodh.site_effect = exceptions.EndpointNotFound
+                base_shell.main(argv)
+        args, kwargs = mocked.call_args
+        self.assertEqual('gnocchi_aggregation_by_metrics_threshold',
+                         kwargs.get('type'))
+        self.assertIn('gnocchi_aggregation_by_metrics_threshold_rule', kwargs)
+        rule = kwargs['gnocchi_aggregation_by_metrics_threshold_rule']
+        self.assertEqual(['b3d9d8ab-05e8-439f-89ad-5e978dd2a5eb',
+                          '009d4faf-c275-46f0-8f2d-670b15bac2b0'],
+                         rule.get('metrics'))
+        self.assertEqual(70.0, rule.get('threshold'))
+        self.assertEqual(60, rule.get('granularity'))
+        self.assertEqual('count', rule.get('aggregation_method'))
+        self.assertEqual('le', rule.get('comparison_operator'))
+        self.assertEqual(3, rule.get('evaluation_periods'))
+        self._test_common_alarm_gnocchi_arguments(kwargs)
+
+    def _test_alarm_gnocchi_aggr_by_resources_arguments(self, action, argv):
+        self.make_env(test_shell.FAKE_V2_ENV)
+        with mock.patch.object(alarms.AlarmManager, action) as mocked:
+            with mock.patch('ceilometerclient.client.AuthPlugin.'
+                            'redirect_to_aodh_endpoint') as redirect_aodh:
+                redirect_aodh.site_effect = exceptions.EndpointNotFound
+                base_shell.main(argv)
+        args, kwargs = mocked.call_args
+        self.assertEqual('gnocchi_aggregation_by_resources_threshold',
+                         kwargs.get('type'))
+        self.assertIn('gnocchi_aggregation_by_resources_threshold_rule',
+                      kwargs)
+        rule = kwargs['gnocchi_aggregation_by_resources_threshold_rule']
+        self.assertEqual('cpu_util', rule.get('metric'))
+        self.assertEqual(70.0, rule.get('threshold'))
+        self.assertEqual(60, rule.get('granularity'))
+        self.assertEqual('count', rule.get('aggregation_method'))
+        self.assertEqual('le', rule.get('comparison_operator'))
+        self.assertEqual(3, rule.get('evaluation_periods'))
+        self.assertEqual('instance', rule.get('resource_type'))
+        self.assertEqual('{"=": {"server_group":"my_autoscaling_group"}}',
+                         rule.get('query'))
+        self._test_common_alarm_gnocchi_arguments(kwargs)
+
+
 class ShellSampleListCommandTest(utils.BaseTestCase):
 
     METER = 'cpu_util'
@@ -1065,6 +1500,18 @@ class ShellEmptyIdTest(utils.BaseTestCase):
     def test_alarm_combination_update_with_empty_id(self):
         self._test_alarm_action_with_empty_ids('alarm-combination-update')
 
+    def test_alarm_gnocchi_resources_update_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids(
+            'alarm-gnocchi-resources-threshold-update')
+
+    def test_alarm_gnocchi_aggr_by_resources_update_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids(
+            'alarm-gnocchi-aggregation-by-resources-threshold-update')
+
+    def test_alarm_gnocchi_aggr_by_metrics_update_with_empty_id(self):
+        self._test_alarm_action_with_empty_ids(
+            'alarm-gnocchi-aggregation-by-metrics-threshold-update')
+
     def test_alarm_delete_with_empty_id(self):
         self._test_alarm_action_with_empty_ids('alarm-delete')
 
@@ -1262,6 +1709,52 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
                                        cli_args, 'create')
         cli_args += ['--alarm_id', '437b7ed0-3733-4054-a877-e9a297b8be85']
         self._test_shadowed_args_alarm('alarm-combination-update',
+                                       cli_args, 'update')
+
+    def test_shadowed_args_gnocchi_resources_threshold_alarm(self):
+        cli_args = [
+            '--metric', 'cpu',
+            '--threshold', '80',
+            '--resource-type', 'instance',
+            '--resource-id', 'fb16a05a-669d-414e-8bbe-93aa381df6a8',
+            '--aggregation-method', 'last',
+        ]
+        self._test_shadowed_args_alarm('alarm-gnocchi-resources-'
+                                       'threshold-create',
+                                       cli_args, 'create')
+        cli_args += ['--alarm_id', '437b7ed0-3733-4054-a877-e9a297b8be85']
+        self._test_shadowed_args_alarm('alarm-gnocchi-resources-'
+                                       'threshold-update',
+                                       cli_args, 'update')
+
+    def test_shadowed_args_gnocchi_aggr_by_resources_threshold_alarm(self):
+        cli_args = [
+            '--metric', 'cpu',
+            '--threshold', '80',
+            '--resource-type', 'instance',
+            '--aggregation-method', 'last',
+            '--query', '"server_group":"my_autoscaling_group"',
+        ]
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-resources-threshold-create',
+                                       cli_args, 'create')
+        cli_args += ['--alarm_id', '437b7ed0-3733-4054-a877-e9a297b8be85']
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-resources-threshold-update',
+                                       cli_args, 'update')
+
+    def test_shadowed_args_gnocchi_aggr_by_metrics_threshold_alarm(self):
+        cli_args = [
+            '--metric', 'cpu,cpu_util',
+            '--threshold', '80',
+            '--aggregation-method', 'last',
+        ]
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-metrics-threshold-create',
+                                       cli_args, 'create')
+        cli_args += ['--alarm_id', '437b7ed0-3733-4054-a877-e9a297b8be85']
+        self._test_shadowed_args_alarm('alarm-gnocchi-aggregation-'
+                                       'by-metrics-threshold-update',
                                        cli_args, 'update')
 
     @mock.patch.object(samples.OldSampleManager, 'create')
