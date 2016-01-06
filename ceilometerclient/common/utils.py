@@ -91,6 +91,8 @@ def print_dict(d, dict_property="Property", wrap=0):
         # convert dict to str to check length
         if isinstance(v, dict):
             v = jsonutils.dumps(v)
+        if isinstance(v, list):
+            v = map(lambda i: encodeutils.safe_encode(i) if six.PY2 else i, v)
         # if value has a newline, add in multiple rows
         # e.g. fault with stacktrace
         if v and isinstance(v, six.string_types) and r'\n' in v:
