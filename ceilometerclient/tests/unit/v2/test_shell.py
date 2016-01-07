@@ -1388,10 +1388,8 @@ class ShellResourceListCommandTest(utils.BaseTestCase):
     def test_resource_list(self):
         resource = resources.Resource(mock.Mock(), self.RESOURCE)
         self.cc.resources.list.return_value = [resource]
-
         ceilometer_shell.do_resource_list(self.cc, self.args)
         self.cc.resources.list.assert_called_once_with(q=[],
-                                                       links=None,
                                                        limit=None)
 
         self.assertEqual('''\
@@ -1404,12 +1402,10 @@ class ShellResourceListCommandTest(utils.BaseTestCase):
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_resource_list_with_links(self):
-        self.args.meter_links = True
         resource = resources.Resource(mock.Mock(), self.RESOURCE)
         self.cc.resources.list.return_value = [resource]
         ceilometer_shell.do_resource_list(self.cc, self.args)
         self.cc.resources.list.assert_called_once_with(q=[],
-                                                       links=True,
                                                        limit=None)
         self.assertEqual('''\
 +-------------+-----------+---------+------------+
