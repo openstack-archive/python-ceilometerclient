@@ -55,4 +55,4 @@ class CapabilitiesManagerTest(testtools.TestCase):
     def test_capabilities_get(self):
         capabilities = self.mgr.get()
         self.http_client.assert_called('GET', '/v2/capabilities')
-        self.assertEqual(True, capabilities.api['alarms:query:complex'])
+        self.assertTrue(capabilities.api['alarms:query:complex'])

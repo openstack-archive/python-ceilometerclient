@@ -210,7 +210,7 @@ class ShellInsecureTest(ShellTestBase):
         args = ['--debug', '--os-insecure', 'true', 'alarm-list']
         self.assertIsNone(ceilometer_shell.main(args))
         args, kwargs = mocked_client.call_args
-        self.assertEqual(False, kwargs.get('verify'))
+        self.assertFalse(kwargs.get('verify'))
 
     @mock.patch.object(ks_session, 'Session')
     @mock.patch('ceilometerclient.client.AuthPlugin.redirect_to_aodh_endpoint')
@@ -220,7 +220,7 @@ class ShellInsecureTest(ShellTestBase):
         args = ['--debug', '--os-insecure', 'true', 'alarm-list']
         self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
         args, kwargs = mocked_session.call_args
-        self.assertEqual(False, kwargs.get('verify'))
+        self.assertFalse(kwargs.get('verify'))
 
     @mock.patch.object(api_client, 'HTTPClient')
     @mock.patch('ceilometerclient.client.AuthPlugin.redirect_to_aodh_endpoint')
@@ -229,7 +229,7 @@ class ShellInsecureTest(ShellTestBase):
         args = ['--debug', '--os-insecure', 'false', 'alarm-list']
         self.assertIsNone(ceilometer_shell.main(args))
         args, kwargs = mocked_client.call_args
-        self.assertEqual(True, kwargs.get('verify'))
+        self.assertTrue(kwargs.get('verify'))
 
     @mock.patch.object(ks_session, 'Session')
     @mock.patch('ceilometerclient.client.AuthPlugin.redirect_to_aodh_endpoint')
@@ -239,7 +239,7 @@ class ShellInsecureTest(ShellTestBase):
         args = ['--debug', '--os-insecure', 'false', 'alarm-list']
         self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
         args, kwargs = mocked_session.call_args
-        self.assertEqual(True, kwargs.get('verify'))
+        self.assertTrue(kwargs.get('verify'))
 
 
 class ShellEndpointTest(ShellTestBase):
