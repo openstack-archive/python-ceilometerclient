@@ -23,13 +23,6 @@ from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import base
 from ceilometerclient.openstack.common.apiclient import exceptions
 
-# Python 2.4 compat
-try:
-    all
-except NameError:
-    def all(iterable):
-        return True not in (not x for x in iterable)
-
 
 def getid(obj):
     """Extracts object ID.
