@@ -1235,9 +1235,9 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
             '--user-id', 'the-user-id-i-want-to-set',
             '--name', 'project-id-test'] + args
         with mock.patch.object(alarms.AlarmManager, method) as mocked:
-            with mock.patch('ceilometerclient.client.AuthPlugin.'
-                            'redirect_to_aodh_endpoint') as redirect_aodh:
-                redirect_aodh.site_effect = exceptions.EndpointNotFound
+            with mock.patch('ceilometerclient.openstack.common.apiclient.'
+                            'client.HTTPClient.client_request') as request:
+                request.site_effect = exceptions.EndpointNotFound
                 base_shell.main(cli_args)
         args, kwargs = mocked.call_args
         self.assertEqual('the-project-id-i-want-to-set',
@@ -1279,9 +1279,9 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
             '--meter-unit', 'ns',
             '--sample-volume', '10086',
         ]
-        with mock.patch('ceilometerclient.client.AuthPlugin.'
-                        'redirect_to_aodh_endpoint') as redirect_aodh:
-            redirect_aodh.site_effect = exceptions.EndpointNotFound
+        with mock.patch('ceilometerclient.openstack.common.apiclient.client.'
+                        'HTTPClient.client_request') as client_request:
+            client_request.site_effect = exceptions.EndpointNotFound
             base_shell.main(cli_args)
         args, kwargs = mocked.call_args
         self.assertEqual('the-project-id-i-want-to-set',
