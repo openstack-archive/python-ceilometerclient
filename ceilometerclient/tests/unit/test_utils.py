@@ -50,6 +50,8 @@ class UtilsTest(test_utils.BaseTestCase):
                               'type': 'threshold',
                               'threshold': '1.0',
                               'statistic': 'avg',
+                              'alarm_actions': [u'http://something/alarm1',
+                                                u'http://something/alarm2'],
                               'time_constraints': '[{name: c1,'
                                                   '\\n  description: test,'
                                                   '\\n  start: 0 18 * * *,'
@@ -57,23 +59,24 @@ class UtilsTest(test_utils.BaseTestCase):
                                                   '\\n  timezone: US}]'},
                              wrap=72)
             expected = u'''\
-+------------------+----------------------------------+
-| Property         | Value                            |
-+------------------+----------------------------------+
-| alarm_id         | 262567fd-d79a-4bbb-a9d0-59d879b6 |
-| description      | \u6d4b\u8bd5                             |
-| name             | \u6d4b\u8bd5                             |
-| repeat_actions   | False                            |
-| state            | insufficient data                |
-| statistic        | avg                              |
-| threshold        | 1.0                              |
-| time_constraints | [{name: c1,                      |
-|                  |   description: test,             |
-|                  |   start: 0 18 * * *,             |
-|                  |   duration: 1,                   |
-|                  |   timezone: US}]                 |
-| type             | threshold                        |
-+------------------+----------------------------------+
++------------------+--------------------------------------------------------+
+| Property         | Value                                                  |
++------------------+--------------------------------------------------------+
+| alarm_actions    | ['http://something/alarm1', 'http://something/alarm2'] |
+| alarm_id         | 262567fd-d79a-4bbb-a9d0-59d879b6                       |
+| description      | \u6d4b\u8bd5                                                   |
+| name             | \u6d4b\u8bd5                                                   |
+| repeat_actions   | False                                                  |
+| state            | insufficient data                                      |
+| statistic        | avg                                                    |
+| threshold        | 1.0                                                    |
+| time_constraints | [{name: c1,                                            |
+|                  |   description: test,                                   |
+|                  |   start: 0 18 * * *,                                   |
+|                  |   duration: 1,                                         |
+|                  |   timezone: US}]                                       |
+| type             | threshold                                              |
++------------------+--------------------------------------------------------+
 '''
             # py2 prints str type, py3 prints unicode type
             if six.PY2:
