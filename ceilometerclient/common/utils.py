@@ -29,6 +29,24 @@ from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils
 
 
+def decode_unicode(input):
+    """encode into utf-8."""
+
+    if isinstance(input, dict):
+        temp = {}
+        for key, value in sorted(six.iteritems(input)):
+            temp[decode_unicode(key)] = decode_unicode(value)
+        return temp
+    elif isinstance(input, (tuple, list)):
+        return [decode_unicode(element) for element in input]
+    elif six.PY2 and isinstance(input, six.text_type):
+        return input.encode('utf-8')
+    elif six.PY3 and isinstance(input, six.binary_type):
+        return input.decode('utf-8')
+    else:
+        return input
+
+
 # Decorator for cli-args
 def arg(*args, **kwargs):
     def _decorator(func):
@@ -89,7 +107,7 @@ def print_dict(d, dict_property="Property", wrap=0):
     pt.align = 'l'
     for k, v in sorted(six.iteritems(d)):
         # convert dict to str to check length
-        if isinstance(v, dict):
+        if isinstance(v, (list, dict)):
             v = jsonutils.dumps(v)
         # if value has a newline, add in multiple rows
         # e.g. fault with stacktrace
