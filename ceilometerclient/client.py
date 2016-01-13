@@ -213,7 +213,6 @@ class AuthPlugin(auth.BaseAuthPlugin):
         :raises: AuthPluginOptionsMissing
         """
         has_token = self.opts.get('token') or self.opts.get('auth_token')
-        no_auth = has_token and self.opts.get('endpoint')
         has_project_domain_or_tenant = (self.opts.get('project_id') or
                                         (self.opts.get('project_name') and
                                         (self.opts.get('user_domain_name') or
@@ -224,7 +223,7 @@ class AuthPlugin(auth.BaseAuthPlugin):
                           and has_project_domain_or_tenant
                           and self.opts.get('password')
                           and self.opts.get('auth_url'))
-        missing = not (no_auth or has_credential)
+        missing = not (has_token or has_credential)
         if missing:
             missing_opts = []
             opts = ['token', 'endpoint', 'username', 'password', 'auth_url',
