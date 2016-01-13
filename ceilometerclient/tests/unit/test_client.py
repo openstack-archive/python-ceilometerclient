@@ -399,6 +399,6 @@ class ClientAuthTest(utils.BaseTestCase):
         session_instance_mock = mock.MagicMock()
         session.return_value = session_instance_mock
         client = self.create_client(env)
-        client.auth_plugin.opts.pop('endpoint', None)
+        client.auth_plugin.opts.pop('token', None)
         self.assertRaises(exceptions.AuthPluginOptionsMissing,
                           client.auth_plugin.sufficient_options)
