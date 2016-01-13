@@ -29,6 +29,30 @@ from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils
 
 
+def decode_unicode(input):
+    """Decode the unicode of the message, and encode it into utf-8."""
+    if isinstance(input, dict):
+        temp = {}
+        # If the input data is a dict, create an equivalent dict with a
+        # predictable insertion order to avoid inconsistencies in the
+        # message signature computation for equivalent payloads modulo
+        # ordering
+        for key, value in sorted(six.iteritems(input)):
+            temp[decode_unicode(key)] = decode_unicode(value)
+        return temp
+    elif isinstance(input, (tuple, list)):
+        # When doing a pair of JSON encode/decode operations to the tuple,
+        # the tuple would become list. So we have to generate the value as
+        # list here.
+        return [decode_unicode(element) for element in input]
+    elif six.PY2 and isinstance(input, six.text_type):
+        return input.encode('utf-8')
+    elif six.PY3 and isinstance(input, six.binary_type):
+        return input.decode('utf-8')
+    else:
+        return input
+
+
 # Decorator for cli-args
 def arg(*args, **kwargs):
     def _decorator(func):
@@ -87,7 +111,7 @@ def format_nested_list_of_dict(l, column_names):
 def print_dict(d, dict_property="Property", wrap=0):
     pt = prettytable.PrettyTable([dict_property, 'Value'], print_empty=False)
     pt.align = 'l'
-    for k, v in sorted(six.iteritems(d)):
+    for k, v in decode_unicode(sorted(six.iteritems(d))):
         # convert dict to str to check length
         if isinstance(v, dict):
             v = jsonutils.dumps(v)
@@ -97,12 +121,14 @@ def print_dict(d, dict_property="Property", wrap=0):
             lines = v.strip().split(r'\n')
             col1 = k
             for line in lines:
-                if wrap > 0:
+                if wrap > 0 and isinstance(v, six.text_type):
                     line = textwrap.fill(six.text_type(line), wrap)
+                if wrap > 0 and isinstance(v, six.binary_type):
+                    line = textwrap.fill(line, wrap)
                 pt.add_row([col1, line])
                 col1 = ''
         else:
-            if wrap > 0:
+            if wrap > 0 and isinstance(v, six.text_type):
                 v = textwrap.fill(six.text_type(v), wrap)
             pt.add_row([k, v])
     encoded = encodeutils.safe_encode(pt.get_string())
