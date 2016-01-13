@@ -29,6 +29,26 @@ from ceilometerclient import exc
 from ceilometerclient.openstack.common import cliutils
 
 
+def unify_to_unicode(input):
+    """Unify the message to unicode."""
+    if isinstance(input, dict):
+        temp = {}
+        # If the input data is a dict, create an equivalent dict with a
+        # predictable insertion order to avoid inconsistencies in the
+        # message signature computation for equivalent payloads modulo
+        # ordering
+        for key, value in sorted(six.iteritems(input)):
+            temp[unify_to_unicode(key)] = unify_to_unicode(value)
+        return temp
+    elif isinstance(input, (tuple, list)):
+        # When doing a pair of JSON encode/decode operations to the tuple,
+        # the tuple would become list. So we have to generate the value as
+        # list here.
+        return [unify_to_unicode(element) for element in input]
+    else:
+        return six.text_type(input)
+
+
 # Decorator for cli-args
 def arg(*args, **kwargs):
     def _decorator(func):
@@ -87,7 +107,7 @@ def format_nested_list_of_dict(l, column_names):
 def print_dict(d, dict_property="Property", wrap=0):
     pt = prettytable.PrettyTable([dict_property, 'Value'], print_empty=False)
     pt.align = 'l'
-    for k, v in sorted(six.iteritems(d)):
+    for k, v in unify_to_unicode(sorted(six.iteritems(d))):
         # convert dict to str to check length
         if isinstance(v, dict):
             v = jsonutils.dumps(v)
