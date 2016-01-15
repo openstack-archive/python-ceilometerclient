@@ -89,7 +89,7 @@ def print_dict(d, dict_property="Property", wrap=0):
     pt.align = 'l'
     for k, v in sorted(six.iteritems(d)):
         # convert dict to str to check length
-        if isinstance(v, dict):
+        if isinstance(v, (list, dict)):
             v = jsonutils.dumps(v)
         # if value has a newline, add in multiple rows
         # e.g. fault with stacktrace
