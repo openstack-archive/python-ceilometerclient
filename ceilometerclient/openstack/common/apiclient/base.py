@@ -43,6 +43,7 @@ import copy
 from oslo_utils import strutils
 import six
 from six.moves.urllib import parse
+from oslo_utils import reflection
 
 from ceilometerclient.openstack.common._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
@@ -463,7 +464,9 @@ class Resource(object):
                           for k in self.__dict__.keys()
                           if k[0] != '_' and k != 'manager')
         info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
-        return "<%s %s>" % (self.__class__.__name__, info)
+        self_cls_name = reflection.get_class_name(self,
+                                                  fully_qualified=False)
+        return "<%s %s>" % (self_cls_name, info)
 
     @property
     def human_id(self):
