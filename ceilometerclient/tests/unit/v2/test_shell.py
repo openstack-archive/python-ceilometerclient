@@ -205,6 +205,55 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         '--query', 'resource_id=INSTANCE_ID'
     ]
 
+    def test_alarm_create_resources_threshold_argv(self):
+        argv = [
+            'alarm-gnocchi-resources-threshold-create',
+            '--name', 'cpu_high',
+            '--threshold', '70.0',
+            '-m', 'image',
+            '--resource-type', 'image',
+            '--resource-id', '4ca22074-952c-4868-b411-a5ff9cfa0e6a'
+        ]
+        with mock.patch('sys.stderr', new_callable=six.StringIO) as stderr:
+            try:
+                base_shell.CeilometerShell().parse_args(argv)
+            except SystemExit:
+                pass
+            self.assertIn('argument --aggregation-method is required',
+                          stderr.getvalue())
+
+    def test_alarm_create_aggregation_by_metrics_threshold_argv(self):
+        argv = [
+            'alarm-gnocchi-aggregation-by-metrics-threshold-create',
+            '--name', 'cpu_high',
+            '--threshold', '70.0',
+            '-m', 'image',
+        ]
+        with mock.patch('sys.stderr', new_callable=six.StringIO) as stderr:
+            try:
+                base_shell.CeilometerShell().parse_args(argv)
+            except SystemExit:
+                pass
+            self.assertIn('argument --aggregation-method is required',
+                          stderr.getvalue())
+
+    def test_alarm_create_aggregation_by_resources_threshold_argv(self):
+        argv = [
+            'alarm-gnocchi-aggregation-by-resources-threshold-create',
+            '--name', 'cpu_high',
+            '--threshold', '70.0',
+            '-m', 'image',
+            '--resource-type', 'image',
+            '--query', '{"=": {"id":"f73c44cb-9657-43c3-a43d-8ac09167a0a5"}}'
+        ]
+        with mock.patch('sys.stderr', new_callable=six.StringIO) as stderr:
+            try:
+                base_shell.CeilometerShell().parse_args(argv)
+            except SystemExit:
+                pass
+            self.assertIn('argument --aggregation-method is required',
+                          stderr.getvalue())
+
     def setUp(self):
         super(ShellAlarmCommandTest, self).setUp()
         self.cc = mock.Mock()
