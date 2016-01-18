@@ -45,7 +45,7 @@ import six
 from six.moves.urllib import parse
 from oslo_utils import reflection
 
-from ceilometerclient.openstack.common._i18n import _
+from ceilometerclient._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
 
 

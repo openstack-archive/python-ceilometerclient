@@ -27,7 +27,6 @@ import ceilometerclient
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
 from ceilometerclient import exc
-from ceilometerclient.openstack.common import cliutils
 
 
 def _positive_non_zero_int(argument_value):
@@ -70,7 +69,7 @@ class CeilometerShell(object):
                             version=ceilometerclient.__version__)
 
         parser.add_argument('-d', '--debug',
-                            default=bool(cliutils.env('CEILOMETERCLIENT_DEBUG')
+                            default=bool(utils.env('CEILOMETERCLIENT_DEBUG')
                                          ),
                             action='store_true',
                             help='Defaults to env[CEILOMETERCLIENT_DEBUG].')
@@ -86,7 +85,7 @@ class CeilometerShell(object):
 
         parser.add_argument('--ceilometer-url', metavar='<CEILOMETER_URL>',
                             dest='os_endpoint',
-                            default=cliutils.env('CEILOMETER_URL'),
+                            default=utils.env('CEILOMETER_URL'),
                             help=("DEPRECATED, use --os-endpoint instead. "
                                   "Defaults to env[CEILOMETER_URL]."))
 
@@ -95,7 +94,7 @@ class CeilometerShell(object):
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--ceilometer-api-version',
-                            default=cliutils.env(
+                            default=utils.env(
                                 'CEILOMETER_API_VERSION', default='2'),
                             help='Defaults to env[CEILOMETER_API_VERSION] '
                             'or 2.')

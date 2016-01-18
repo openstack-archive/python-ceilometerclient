@@ -43,71 +43,12 @@ from ceilometerclient.openstack.common.apiclient import exceptions
 _discovered_plugins = {}
 
 
-def discover_auth_systems():
-    """Discover the available auth-systems.
-
-    This won't take into account the old style auth-systems.
-    """
-    global _discovered_plugins
-    _discovered_plugins = {}
-
-    def add_plugin(ext):
-        _discovered_plugins[ext.name] = ext.plugin
-
-    ep_namespace = "ceilometerclient.openstack.common.apiclient.auth"
-    mgr = extension.ExtensionManager(ep_namespace)
-    mgr.map(add_plugin)
-
-
-def load_auth_system_opts(parser):
-    """Load options needed by the available auth-systems into a parser.
-
-    This function will try to populate the parser with options from the
-    available plugins.
-    """
-    group = parser.add_argument_group("Common auth options")
-    BaseAuthPlugin.add_common_opts(group)
-    for name, auth_plugin in six.iteritems(_discovered_plugins):
-        group = parser.add_argument_group(
-            "Auth-system '%s' options" % name,
-            conflict_handler="resolve")
-        auth_plugin.add_opts(group)
-
-
 def load_plugin(auth_system):
     try:
         plugin_class = _discovered_plugins[auth_system]
     except KeyError:
         raise exceptions.AuthSystemNotFound(auth_system)
     return plugin_class(auth_system=auth_system)
-
-
-def load_plugin_from_args(args):
-    """Load required plugin and populate it with options.
-
-    Try to guess auth system if it is not specified. Systems are tried in
-    alphabetical order.
-
-    :type args: argparse.Namespace
-    :raises: AuthPluginOptionsMissing
-    """
-    auth_system = args.os_auth_system
-    if auth_system:
-        plugin = load_plugin(auth_system)
-        plugin.parse_opts(args)
-        plugin.sufficient_options()
-        return plugin
-
-    for plugin_auth_system in sorted(six.iterkeys(_discovered_plugins)):
-        plugin_class = _discovered_plugins[plugin_auth_system]
-        plugin = plugin_class()
-        plugin.parse_opts(args)
-        try:
-            plugin.sufficient_options()
-        except exceptions.AuthPluginOptionsMissing:
-            continue
-        return plugin
-    raise exceptions.AuthPluginOptionsMissing(["auth_system"])
 
 
 @six.add_metaclass(abc.ABCMeta)

@@ -38,7 +38,7 @@ from oslo_utils import encodeutils
 from oslo_utils import importutils
 import requests
 
-from ceilometerclient.openstack.common._i18n import _
+from ceilometerclient._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
 
 _logger = logging.getLogger(__name__)
