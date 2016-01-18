@@ -15,9 +15,7 @@
 
 from __future__ import print_function
 
-import sys
 import textwrap
-import uuid
 
 from oslo_serialization import jsonutils
 from oslo_utils import encodeutils
@@ -44,10 +42,6 @@ def arg(*args, **kwargs):
         func.__dict__.setdefault('arguments', []).insert(0, (args, kwargs))
         return func
     return _decorator
-
-
-def pretty_choice_list(l):
-    return ', '.join("'%s'" % i for i in l)
 
 
 def print_list(objs, fields, field_labels, formatters={}, sortby=0):
@@ -112,31 +106,6 @@ def print_dict(d, dict_property="Property", wrap=0):
     print(encoded)
 
 
-def find_resource(manager, name_or_id):
-    """Helper for the _find_* methods."""
-    # first try to get entity as integer id
-    try:
-        if isinstance(name_or_id, int) or name_or_id.isdigit():
-            return manager.get(int(name_or_id))
-    except exc.HTTPNotFound:
-        pass
-
-    # now try to get entity as uuid
-    try:
-        uuid.UUID(str(name_or_id))
-        return manager.get(name_or_id)
-    except (ValueError, exc.HTTPNotFound):
-        pass
-
-    # finally try to find entity by name
-    try:
-        return manager.find(name=name_or_id)
-    except exc.HTTPNotFound:
-        msg = "No %s with a name or ID of '%s' exists." % \
-              (manager.resource_class.__name__.lower(), name_or_id)
-        raise exc.CommandError(msg)
-
-
 def import_versioned_module(version, submodule=None):
     module = 'ceilometerclient.v%s' % version
     if submodule:
@@ -195,9 +164,3 @@ def merge_nested_dict(dest, source, depth=0):
                               depth=(depth - 1))
         else:
             dest[key] = value
-
-
-def exit(msg=''):
-    if msg:
-        print(msg, file=sys.stderr)
-    sys.exit(1)
