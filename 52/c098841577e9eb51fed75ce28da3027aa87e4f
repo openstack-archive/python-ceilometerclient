@@ -1,0 +1,9 @@
+Code-Review+2: liusheng <liusheng2048@gmail.com>
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: gordon chung <gord@live.ca>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 18 Jan 2016 19:40:37 +0000
+Reviewed-on: https://review.openstack.org/250131
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
