@@ -15,6 +15,7 @@
 
 from __future__ import print_function
 
+import os
 import textwrap
 
 from oslo_serialization import jsonutils
@@ -24,7 +25,6 @@ import prettytable
 import six
 
 from ceilometerclient import exc
-from ceilometerclient.openstack.common import cliutils
 
 
 # Decorator for cli-args
@@ -44,7 +44,22 @@ def arg(*args, **kwargs):
     return _decorator
 
 
-def print_list(objs, fields, field_labels, formatters={}, sortby=0):
+def print_list(objs, fields, field_labels, formatters=None, sortby=0):
+    """Print a list of objects as a table, one row per object.
+
+    :param objs: Iterable of :class:`Resource`
+    :param fields: Attributes that correspond to columns, in order
+    :param field_labels: Labels to use in the heading of the table, default to
+                         fields.
+    :param formatters: `dict` of callables for field formatting
+    :param sortby: Index of the field for sorting table rows
+    """
+    formatters = formatters or {}
+
+    if len(field_labels) != len(fields):
+        raise ValueError(("Field labels list %(labels)s has different number "
+                          "of elements than fields list %(fields)s"),
+                         {'labels': field_labels, 'fields': fields})
 
     def _make_default_formatter(field):
         return lambda o: getattr(o, field, '')
@@ -56,9 +71,25 @@ def print_list(objs, fields, field_labels, formatters={}, sortby=0):
         else:
             new_formatters[field_label] = _make_default_formatter(field)
 
-    cliutils.print_list(objs, field_labels,
-                        formatters=new_formatters,
-                        sortby_index=sortby)
+    kwargs = {} if sortby is None else {'sortby': field_labels[sortby]}
+    pt = prettytable.PrettyTable(field_labels)
+    pt.align = 'l'
+
+    for o in objs:
+        row = []
+        for field in field_labels:
+            if field in new_formatters:
+                row.append(new_formatters[field](o))
+            else:
+                field_name = field.lower().replace(' ', '_')
+                data = getattr(o, field_name, '')
+                row.append(data)
+        pt.add_row(row)
+
+    if six.PY3:
+        print(encodeutils.safe_encode(pt.get_string(**kwargs)).decode())
+    else:
+        print(encodeutils.safe_encode(pt.get_string(**kwargs)))
 
 
 def nested_list_of_dict_formatter(field, column_names):
@@ -164,3 +195,15 @@ def merge_nested_dict(dest, source, depth=0):
                               depth=(depth - 1))
         else:
             dest[key] = value
+
+
+def env(*args, **kwargs):
+    """Returns the first environment variable set.
+
+    If all are empty, defaults to '' or keyword arg `default`.
+    """
+    for arg in args:
+        value = os.environ.get(arg)
+        if value:
+            return value
+    return kwargs.get('default', '')
