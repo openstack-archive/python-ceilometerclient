@@ -519,6 +519,7 @@ def common_alarm_gnocchi_arguments(rule_namespace, create=False):
                    help='Number of periods to evaluate over.')
         @utils.arg('--aggregation-method', metavar='<AGGREATION>',
                    dest=rule_namespace + '/aggregation_method',
+                   required=create,
                    help=('Aggregation method to use, one of: ' +
                          str(GNOCCHI_AGGREGATION) + '.'))
         @utils.arg('--comparison-operator', metavar='<OPERATOR>',
