@@ -266,10 +266,14 @@ def do_sample_create(cc, args={}):
                 'but if supplied must be string, integer, float, or boolean.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
            help='Maximum number of meters to return. %s' % DEFAULT_API_LIMIT)
+@utils.arg('--unique', dest='unique',
+           metavar='{True|False}',
+           type=lambda v: strutils.bool_from_string(v, True),
+           help='Retrieves unique list of meters.')
 def do_meter_list(cc, args={}):
     """List the user's meters."""
     meters = cc.meters.list(q=options.cli_to_array(args.query),
-                            limit=args.limit)
+                            limit=args.limit, unique=args.unique)
     field_labels = ['Name', 'Type', 'Unit', 'Resource ID', 'User ID',
                     'Project ID']
     fields = ['name', 'type', 'unit', 'resource_id', 'user_id',
