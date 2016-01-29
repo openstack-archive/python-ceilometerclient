@@ -1,0 +1,10 @@
+Code-Review+2: liusheng <liusheng2048@gmail.com>
+Code-Review+1: Clint Adams <clint@gcfm.net>
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Workflow+1: Lianhao Lu <lianhao.lu@intel.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Fri, 29 Jan 2016 08:17:12 +0000
+Reviewed-on: https://review.openstack.org/269641
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
