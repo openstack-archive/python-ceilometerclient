@@ -110,7 +110,7 @@ class Client(object):
             kwargs['auth_plugin'] = ceiloclient.get_auth_plugin(
                 aodh_endpoint, **kwargs)
         else:
-            # Users may just provided ceilometer endpoint and token, and no
+            # Users may just provide ceilometer endpoint and token, and no
             # auth_url, in this case, we need 'aodh_endpoint' also
             # provided, otherwise we cannot get aodh endpoint from
             # keystone, and assume aodh is unavailable.
