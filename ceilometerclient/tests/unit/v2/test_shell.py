@@ -1846,6 +1846,7 @@ class ShellMeterListCommandTest(utils.BaseTestCase):
         self.cc.meters.list = mock.Mock()
         self.args = mock.MagicMock()
         self.args.limit = None
+        self.args.unique = False
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_meter_list(self):
@@ -1853,7 +1854,26 @@ class ShellMeterListCommandTest(utils.BaseTestCase):
         self.cc.meters.list.return_value = [meter]
 
         ceilometer_shell.do_meter_list(self.cc, self.args)
-        self.cc.meters.list.assert_called_once_with(q=[], limit=None)
+        self.cc.meters.list.assert_called_once_with(q=[], limit=None,
+                                                    unique=False)
+
+        self.assertEqual('''\
++-------+-------+-------+-------------+---------+------------+
+| Name  | Type  | Unit  | Resource ID | User ID | Project ID |
++-------+-------+-------+-------------+---------+------------+
+| image | gauge | image | resource-id |         | project    |
++-------+-------+-------+-------------+---------+------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_unique_meter_list(self):
+        self.args.unique = True
+        meter = meters.Meter(mock.Mock(), self.METER)
+        self.cc.meters.list.return_value = [meter]
+
+        ceilometer_shell.do_meter_list(self.cc, self.args)
+        self.cc.meters.list.assert_called_once_with(q=[], limit=None,
+                                                    unique=True)
 
         self.assertEqual('''\
 +-------+-------+-------+-------------+---------+------------+
