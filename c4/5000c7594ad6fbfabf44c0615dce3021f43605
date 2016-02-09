@@ -1,0 +1,9 @@
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: Nadya Shakhat <nprivalova@mirantis.com>
+Code-Review+2: Nadya Shakhat <nprivalova@mirantis.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 09 Feb 2016 10:05:27 +0000
+Reviewed-on: https://review.openstack.org/272633
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
