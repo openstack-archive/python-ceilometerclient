@@ -410,7 +410,7 @@ def _construct_http_client(**kwargs):
                                                          'publicURL')),
             region_name=kwargs.pop('region_name', None),
             user_agent=kwargs.pop('user_agent', 'python-ceilometerclient'),
-            auth=kwargs.get('auth', None),
+            auth=kwargs.get('auth'),
             timings=kwargs.pop('timings', None),
             **kwargs)
     else:
