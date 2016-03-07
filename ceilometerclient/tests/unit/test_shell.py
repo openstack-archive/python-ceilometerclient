@@ -266,3 +266,22 @@ class ShellEndpointTest(ShellTestBase):
         self._test_endpoint_and_token('--os-auth-token', '--os-endpoint')
         self._test_endpoint_and_token('--os-token', '--ceilometer-url')
         self._test_endpoint_and_token('--os-token', '--os-endpoint')
+
+
+class ShellAlarmUpdateRepeatAction(ShellTestBase):
+    @mock.patch('ceilometerclient.v2.alarms.AlarmManager.update')
+    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+                return_value=None)
+    def test_repeat_action_not_specified(self, __, mocked):
+        self.make_env(FAKE_V2_ENV)
+
+        def _test(method):
+            args = ['--debug', method, '--state', 'alarm', '123']
+            ceilometer_shell.main(args)
+            args, kwargs = mocked.call_args
+            self.assertEqual(None, kwargs.get('repeat_actions'))
+
+        _test('alarm-update')
+        _test('alarm-threshold-update')
+        _test('alarm-combination-update')
+        _test('alarm-event-update')

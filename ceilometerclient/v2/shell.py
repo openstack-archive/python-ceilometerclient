@@ -503,7 +503,6 @@ def common_alarm_arguments(create=False):
                          '[timezone=<IANA Timezone>]]'))
         @utils.arg('--repeat-actions', dest='repeat_actions',
                    metavar='{True|False}', type=strutils.bool_from_string,
-                   default=False,
                    help=('True if actions should be repeatedly notified '
                          'while alarm remains in target state.'))
         @functools.wraps(func)
