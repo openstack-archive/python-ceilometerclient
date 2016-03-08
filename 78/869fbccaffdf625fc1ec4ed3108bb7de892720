@@ -1,0 +1,9 @@
+Code-Review+2: Lianhao Lu <lianhao.lu@intel.com>
+Code-Review+2: ZhiQiang Fan <aji.zqfan@gmail.com>
+Workflow+1: ZhiQiang Fan <aji.zqfan@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 08 Mar 2016 05:17:14 +0000
+Reviewed-on: https://review.openstack.org/289653
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
