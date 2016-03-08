@@ -16,6 +16,8 @@
 #    under the License.
 import copy
 
+import requests
+
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.v2 import alarms
 from ceilometerclient.v2 import capabilities
@@ -124,4 +126,6 @@ class Client(object):
         except ka_exc.EndpointNotFound:
             return None
         except kc_exc.EndpointNotFound:
+            return None
+        except requests.exceptions.ConnectionError:
             return None
