@@ -17,6 +17,7 @@ from keystoneclient.auth.identity import v3 as v3_auth
 from keystoneclient import exceptions as ks_exc
 from keystoneclient import session as ks_session
 import mock
+import requests
 
 from ceilometerclient import client
 from ceilometerclient import exc
@@ -217,6 +218,15 @@ class ClientTestWithAodh(ClientTest):
                       client.alarm_client.http_client.auth_plugin.opts)
         self.assertEqual('True', (client.alarm_client.http_client.
                                   auth_plugin.opts['insecure']))
+
+    def test_ceilometerclient_available_without_aodh_services_running(self):
+        env = FAKE_ENV.copy()
+        env.pop('auth_plugin', None)
+        with mock.patch('ceilometerclient.openstack.common.apiclient.client.'
+                        'HTTPClient.client_request') as mocked_request:
+            mocked_request.side_effect = requests.exceptions.ConnectionError
+            ceiloclient = client.get_client(2, **env)
+            self.assertIsInstance(ceiloclient, v2client.Client)
 
 
 class ClientAuthTest(utils.BaseTestCase):
