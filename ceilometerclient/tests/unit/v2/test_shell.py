@@ -266,6 +266,18 @@ class ShellAlarmCommandTest(utils.BaseTestCase):
         method = ceilometer_shell.do_alarm_threshold_update
         self._do_test_alarm_update_repeat_actions(method, False)
 
+    def test_alarm_event_upadte_repeat_action_untouched(self):
+        method = ceilometer_shell.do_alarm_event_update
+        self._do_test_alarm_update_repeat_actions(method, None)
+
+    def test_alarm_event_upadte_repeat_action_set(self):
+        method = ceilometer_shell.do_alarm_event_update
+        self._do_test_alarm_update_repeat_actions(method, True)
+
+    def test_alarm_event_upadte_repeat_action_clear(self):
+        method = ceilometer_shell.do_alarm_event_update
+        self._do_test_alarm_update_repeat_actions(method, False)
+
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_alarm_threshold_create_args(self):
         argv = ['alarm-threshold-create'] + self.THRESHOLD_ALARM_CLI_ARGS
