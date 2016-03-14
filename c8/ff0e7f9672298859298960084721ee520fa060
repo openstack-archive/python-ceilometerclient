@@ -1,0 +1,10 @@
+Code-Review+1: Igor Degtiarov <idegtiarov@mirantis.com>
+Code-Review+2: gordon chung <gord@live.ca>
+Code-Review+2: liusheng <liusheng2048@gmail.com>
+Workflow+1: liusheng <liusheng2048@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 14 Mar 2016 10:50:12 +0000
+Reviewed-on: https://review.openstack.org/289238
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
