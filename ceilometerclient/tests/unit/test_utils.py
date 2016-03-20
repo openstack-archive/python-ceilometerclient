@@ -283,14 +283,16 @@ l2"]}]  |
         table.get_string.return_value = "the table"
 
         test_data = [
-            {'column_1': 'value_11', 'column_2': 'value_21'},
-            {'column_1': 'value_12', 'column_2': 'value_22'}
-
+            {'column_1': 'value_c', 'column_2': 'value_23'},
+            {'column_1': 'value_b', 'column_2': 'value_22'},
+            {'column_1': 'value_a', 'column_2': 'value_21'}
         ]
         columns = ['column_1', 'column_2']
         pt_mock.return_value = table
 
         rval = utils.format_nested_list_of_dict(test_data, columns)
         self.assertEqual("the table", rval)
-        self.assertEqual([['value_11', 'value_21'], ['value_12', 'value_22']],
+        self.assertEqual([['value_a', 'value_21'],
+                          ['value_b', 'value_22'],
+                          ['value_c', 'value_23']],
                          actual_rows)
