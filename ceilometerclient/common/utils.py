@@ -104,6 +104,8 @@ def format_nested_list_of_dict(l, column_names):
     pt = prettytable.PrettyTable(caching=False, print_empty=False,
                                  header=True, hrules=prettytable.FRAME,
                                  field_names=column_names)
+    if l is not None:
+        l.sort(key=lambda k: (k.get('name')))
     for d in l:
         pt.add_row(list(map(lambda k: d[k], column_names)))
     return pt.get_string()
