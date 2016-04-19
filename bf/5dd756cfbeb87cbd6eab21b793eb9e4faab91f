@@ -1,0 +1,10 @@
+Code-Review+1: Adam Zhang <adamz@vmware.com>
+Code-Review+2: liusheng <liusheng2048@gmail.com>
+Code-Review+2: Mehdi Abaakouk (sileht) <sileht@redhat.com>
+Workflow+1: Mehdi Abaakouk (sileht) <sileht@redhat.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 19 Apr 2016 07:05:53 +0000
+Reviewed-on: https://review.openstack.org/304793
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
