@@ -18,9 +18,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from __future__ import print_function
+
 import argparse
 import functools
 import json
+import sys
 
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
@@ -297,6 +300,16 @@ def do_sample_create_list(cc, args={}):
     utils.print_list(samples, fields, field_labels, sortby=None)
 
 
+def _deprecate_alarm(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        print('ceilometer alarm commands are deprecated, and will be removed '
+              'when stable/liberty reaches its EOF. Please migrate to aodh '
+              'commands.', file=sys.stderr)
+        func(*args, **kwargs)
+    return wrapped
+
+
 def _display_alarm_list(alarms, sortby=None):
     # omit action initially to keep output width sane
     # (can switch over to vertical formatting when available from CLIFF)
@@ -395,6 +408,7 @@ def alarm_change_detail_formatter(change):
     return '\n'.join(fields)
 
 
+@_deprecate_alarm
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
                 'but if supplied must be string, integer, float, or boolean.')
@@ -437,6 +451,7 @@ def _display_alarm(alarm):
     utils.print_dict(data, wrap=72)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -615,6 +630,7 @@ def common_alarm_event_arguments():
     return _wrapper
 
 
+@_deprecate_alarm
 @common_alarm_arguments(create=True)
 @utils.arg('--period', type=int, metavar='<PERIOD>',
            help='Length of each period (seconds) to evaluate over.')
@@ -644,6 +660,7 @@ def do_alarm_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @common_alarm_arguments(create=True)
 @common_alarm_gnocchi_arguments('gnocchi_resources_threshold_rule',
                                 create=True)
@@ -660,6 +677,7 @@ def do_alarm_gnocchi_resources_threshold_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @common_alarm_arguments(create=True)
 @common_alarm_gnocchi_arguments(
     'gnocchi_aggregation_by_metrics_threshold_rule', create=True)
@@ -676,6 +694,7 @@ def do_alarm_gnocchi_aggregation_by_metrics_threshold_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @common_alarm_arguments(create=True)
 @common_alarm_gnocchi_arguments(
     'gnocchi_aggregation_by_resources_threshold_rule', create=True)
@@ -692,6 +711,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @common_alarm_arguments(create=True)
 @utils.arg('-m', '--meter-name', metavar='<METRIC>', required=True,
            dest='threshold_rule/meter_name',
@@ -731,6 +751,7 @@ def do_alarm_threshold_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @common_alarm_arguments(create=True)
 @utils.arg('--alarm_ids', action='append', metavar='<ALARM IDS>',
            required=True, dest='combination_rule/alarm_ids',
@@ -751,6 +772,7 @@ def do_alarm_combination_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @common_alarm_arguments(create=True)
 @common_alarm_event_arguments()
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
@@ -768,6 +790,7 @@ def do_alarm_event_create(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -810,6 +833,7 @@ def do_alarm_update(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -863,6 +887,7 @@ def do_alarm_threshold_update(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -891,6 +916,7 @@ def do_alarm_gnocchi_resources_threshold_update(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -920,6 +946,7 @@ def do_alarm_gnocchi_aggregation_by_metrics_threshold_update(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -949,6 +976,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -982,6 +1010,7 @@ def do_alarm_combination_update(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -1007,6 +1036,7 @@ def do_alarm_event_update(cc, args={}):
     _display_alarm(alarm)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -1020,6 +1050,7 @@ def do_alarm_delete(cc, args={}):
         raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -1037,6 +1068,7 @@ def do_alarm_state_set(cc, args={}):
     utils.print_dict({'state': state}, wrap=72)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -1051,6 +1083,7 @@ def do_alarm_state_get(cc, args={}):
     utils.print_dict({'state': state}, wrap=72)
 
 
+@_deprecate_alarm
 @utils.arg('-a', '--alarm_id', metavar='<ALARM_ID>',
            action=obsoleted_by('alarm_id'), help=argparse.SUPPRESS,
            dest='alarm_id_deprecated')
@@ -1207,6 +1240,7 @@ def do_query_samples(cc, args):
                          sortby=None)
 
 
+@_deprecate_alarm
 @utils.arg('-f', '--filter', metavar='<FILTER>',
            help=('{complex_op: [{simple_op: {field_name: value}}]} '
                  'The complex_op is one of: ' + str(COMPLEX_OPERATORS) + ', '
@@ -1229,6 +1263,7 @@ def do_query_alarms(cc, args):
         _display_alarm_list(alarms, sortby=None)
 
 
+@_deprecate_alarm
 @utils.arg('-f', '--filter', metavar='<FILTER>',
            help=('{complex_op: [{simple_op: {field_name: value}}]} '
                  'The complex_op is one of: ' + str(COMPLEX_OPERATORS) + ', '
