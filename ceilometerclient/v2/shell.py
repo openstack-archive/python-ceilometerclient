@@ -1063,6 +1063,9 @@ def do_alarm_history(cc, args={}):
     """Display the change history of an alarm."""
     kwargs = dict(alarm_id=args.alarm_id,
                   q=options.cli_to_array(args.query))
+    alarm = cc.alarms.get(args.alarm_id)
+    if alarm is None:
+        raise exc.CommandError('Alarm not found: %s' % args.alarm_id)
     try:
         history = cc.alarms.get_history(**kwargs)
     except exc.HTTPNotFound:
