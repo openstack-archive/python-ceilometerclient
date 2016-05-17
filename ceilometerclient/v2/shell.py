@@ -2,10 +2,6 @@
 # Copyright 2013 Red Hat, Inc
 # Copyright Ericsson AB 2014. All rights reserved
 #
-# Authors: Angus Salkeld <asalkeld@redhat.com>
-#          Balazs Gibizer <balazs.gibizer@ericsson.com>
-#          Ildiko Vancsa <ildiko.vancsa@ericsson.com>
-#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
