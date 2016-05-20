@@ -135,10 +135,10 @@ class EventManagerTest(utils.BaseTestCase):
             'GET', '/v2/events'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(events), 3)
-        self.assertEqual(events[0].event_type, 'Foo')
-        self.assertEqual(events[1].event_type, 'Foo')
-        self.assertEqual(events[2].event_type, 'Bar')
+        self.assertEqual(3, len(events))
+        self.assertEqual('Foo', events[0].event_type)
+        self.assertEqual('Foo', events[1].event_type)
+        self.assertEqual('Bar', events[2].event_type)
 
     def test_list_one(self):
         event = self.mgr.get(2)
@@ -147,7 +147,7 @@ class EventManagerTest(utils.BaseTestCase):
         ]
         self.http_client.assert_called(*expect)
         self.assertIsNotNone(event)
-        self.assertEqual(event.event_type, 'Foo')
+        self.assertEqual('Foo', event.event_type)
 
     def test_list_with_query(self):
         events = list(self.mgr.list(q=[{"field": "hostname",
@@ -158,8 +158,8 @@ class EventManagerTest(utils.BaseTestCase):
             '&q.value=localhost'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(events), 2)
-        self.assertEqual(events[0].event_type, 'Foo')
+        self.assertEqual(2, len(events))
+        self.assertEqual('Foo', events[0].event_type)
 
     def test_list_with_query_no_type(self):
         events = list(self.mgr.list(q=[{"field": "hostname",
@@ -169,8 +169,8 @@ class EventManagerTest(utils.BaseTestCase):
             '&q.type=&q.value=foreignhost'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(events), 2)
-        self.assertEqual(events[0].event_type, 'Foo')
+        self.assertEqual(2, len(events))
+        self.assertEqual('Foo', events[0].event_type)
 
     def test_list_with_multiple_filters(self):
         events = list(self.mgr.list(q=[{"field": "hostname",
@@ -184,7 +184,7 @@ class EventManagerTest(utils.BaseTestCase):
             '&q.type=&q.type=integer&q.value=localhost&q.value=5'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(events), 1)
+        self.assertEqual(1, len(events))
 
     def test_get_from_event_class(self):
         event = self.mgr.get(2)
