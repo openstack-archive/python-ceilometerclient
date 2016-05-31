@@ -12,10 +12,10 @@
 
 import types
 
-from keystoneclient.auth.identity import v2 as v2_auth
-from keystoneclient.auth.identity import v3 as v3_auth
-from keystoneclient import exceptions as ks_exc
-from keystoneclient import session as ks_session
+from keystoneauth1 import exceptions as ks_exc
+from keystoneauth1.identity import v2 as v2_auth
+from keystoneauth1.identity import v3 as v3_auth
+from keystoneauth1 import session as ks_session
 import mock
 import requests
 
@@ -240,8 +240,8 @@ class ClientAuthTest(utils.BaseTestCase):
                         return_value=mock.MagicMock()):
             return client.get_client(api_version, **env)
 
-    @mock.patch('keystoneclient.discover.Discover')
-    @mock.patch('keystoneclient.session.Session')
+    @mock.patch('keystoneauth1.discover.Discover')
+    @mock.patch('keystoneauth1.session.Session')
     def test_discover_auth_versions(self, session, discover_mock):
         env = FAKE_ENV.copy()
         env.pop('auth_plugin', None)
@@ -258,8 +258,8 @@ class ClientAuthTest(utils.BaseTestCase):
                          discover_mock.call_args_list)
         self.assertIsInstance(mock_session_instance.auth, v3_auth.Password)
 
-    @mock.patch('keystoneclient.discover.Discover')
-    @mock.patch('keystoneclient.session.Session')
+    @mock.patch('keystoneauth1.discover.Discover')
+    @mock.patch('keystoneauth1.session.Session')
     def test_discover_auth_versions_v2_only(self, session, discover):
         env = FAKE_ENV.copy()
         env.pop('auth_plugin', None)
@@ -285,8 +285,8 @@ class ClientAuthTest(utils.BaseTestCase):
 
         self.assertIsInstance(session_instance_mock.auth, v2_auth.Password)
 
-    @mock.patch('keystoneclient.discover.Discover')
-    @mock.patch('keystoneclient.session.Session')
+    @mock.patch('keystoneauth1.discover.Discover')
+    @mock.patch('keystoneauth1.session.Session')
     def test_discover_auth_versions_raise_discovery_failure(self,
                                                             session,
                                                             discover):

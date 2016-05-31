@@ -14,7 +14,7 @@ import re
 import sys
 
 import fixtures
-from keystoneclient import session as ks_session
+from keystoneauth1 import session as ks_session
 import mock
 import six
 from testtools import matchers
