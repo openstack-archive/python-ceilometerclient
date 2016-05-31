@@ -28,14 +28,13 @@ from ceilometerclient.v2 import statistics
 from ceilometerclient.v2 import trait_descriptions
 from ceilometerclient.v2 import traits
 from keystoneauth1 import exceptions as ka_exc
-from keystoneclient import exceptions as kc_exc
 
 
 class Client(object):
     """Client for the Ceilometer v2 API.
 
-    :param session: a keystoneauth/keystoneclient session object
-    :type session: keystoneclient.session.Session
+    :param session: a keystoneauth session object
+    :type session: keystoneauth1.session.Session
     :param str service_type: The default service_type for URL discovery
     :param str service_name: The default service_name for URL discovery
     :param str interface: The default interface for URL discovery
@@ -44,7 +43,7 @@ class Client(object):
     :param str endpoint_override: Always use this endpoint URL for requests
                                   for this ceiloclient
     :param auth: An auth plugin to use instead of the session one
-    :type auth: keystoneclient.auth.base.BaseAuthPlugin
+    :type auth: keystoneauth1.plugin.BaseAuthPlugin
     :param str user_agent: The User-Agent string to set
                            (Default is python-ceilometer-client)
     :param int connect_retries: the maximum number of retries that should be
@@ -121,8 +120,6 @@ class Client(object):
             c.get("/")
             return c
         except ka_exc.EndpointNotFound:
-            return None
-        except kc_exc.EndpointNotFound:
             return None
         except requests.exceptions.ConnectionError:
             return None
