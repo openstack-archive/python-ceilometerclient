@@ -402,6 +402,8 @@ def _construct_http_client(**kwargs):
         # Drop legacy options
         for opt in LEGACY_OPTS:
             kwargs.pop(opt, None)
+        # Drop aodh_endpoint from kwargs
+        kwargs.pop('aodh_endpoint', None)
 
         return SessionClient(
             session=kwargs.pop('session'),
