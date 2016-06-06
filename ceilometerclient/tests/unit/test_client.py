@@ -228,6 +228,24 @@ class ClientTestWithAodh(ClientTest):
             ceiloclient = client.get_client(2, **env)
             self.assertIsInstance(ceiloclient, v2client.Client)
 
+    @mock.patch('ceilometerclient.client.SessionClient')
+    def test_http_client_with_session_and_aodh(self, mock_sc):
+        session = mock.Mock()
+        kwargs = {"session": session,
+                  "service_type": "metering",
+                  "user_agent": "python-ceilometerclient"}
+        expected = {
+            "auth": None,
+            "interface": 'publicURL',
+            "region_name": None,
+            "timings": None,
+            "session": session,
+            "service_type": "metering",
+            "user_agent": "python-ceilometerclient"}
+        kwargs['aodh_endpoint'] = 'http://aodh.where'
+        client._construct_http_client(**kwargs)
+        mock_sc.assert_called_with(**expected)
+
 
 class ClientAuthTest(utils.BaseTestCase):
 
@@ -351,7 +369,6 @@ class ClientAuthTest(utils.BaseTestCase):
         session = mock.Mock()
         session.request.return_value = mock.Mock(status_code=404,
                                                  text=b'')
-
         env = {"session": session,
                "service_type": "metering",
                "user_agent": "python-ceilometerclient"}
