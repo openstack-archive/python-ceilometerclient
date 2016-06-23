@@ -35,7 +35,7 @@ from ceilometerclient.v2 import shell as ceilometer_shell
 from ceilometerclient.v2 import statistics
 from ceilometerclient.v2 import trait_descriptions
 from ceilometerclient.v2 import traits
-from keystoneclient import exceptions
+from keystoneauth1 import exceptions
 
 
 class ShellAlarmStateCommandsTest(utils.BaseTestCase):
