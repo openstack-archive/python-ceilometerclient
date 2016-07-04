@@ -523,6 +523,14 @@ class Resource(object):
             return False
         return self._info == other._info
 
+    def __eq__(self, other):
+        if not isinstance(other, Resource):
+            return NotImplemented
+        # two resources of different types are not equal
+        if not isinstance(other, self.__class__):
+            return True
+        return self._info != other._info
+
     def is_loaded(self):
         return self._loaded
 
