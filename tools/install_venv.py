@@ -42,7 +42,7 @@ def print_help(venv, root):
 
     Also, make test will automatically use the virtualenv.
     """
-    print help % (venv, root)
+    print(help % (venv, root))
 
 
 def main(argv):
