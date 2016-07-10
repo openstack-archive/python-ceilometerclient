@@ -42,6 +42,17 @@ class UtilsTest(test_utils.BaseTestCase):
 ''', stdout.getvalue())
 
         with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
+            utils.print_dict({'K': 'k', 'Key': None})
+            self.assertEqual('''\
++----------+-------+
+| Property | Value |
++----------+-------+
+| K        | k     |
+| Key      | -     |
++----------+-------+
+''', stdout.getvalue())
+
+        with mock.patch('sys.stdout', new=six.StringIO()) as stdout:
             utils.print_dict({'alarm_id': '262567fd-d79a-4bbb-a9d0-59d879b6',
                               'name': u'\u6d4b\u8bd5',
                               'description': u'\u6d4b\u8bd5',
@@ -120,7 +131,7 @@ l2"]}]  |
 
         foo_list = [
             Foo(10, 'a', 'B'),
-            Foo(8, 'c', 'c'),
+            Foo(8, None, 'c'),
             Foo(12, '0', 'Z')]
 
         def do_print_list(sortby):
@@ -138,7 +149,7 @@ l2"]}]  |
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
 | 100 | a   | B   |
-| 80  | c   | c   |
+| 80  | -   | c   |
 | 120 | 0   | Z   |
 +-----+-----+-----+
 ''', printed)
@@ -148,7 +159,7 @@ l2"]}]  |
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
-| 80  | c   | c   |
+| 80  | -   | c   |
 | 100 | a   | B   |
 | 120 | 0   | Z   |
 +-----+-----+-----+
@@ -159,9 +170,9 @@ l2"]}]  |
 +-----+-----+-----+
 | 1st | 2nd | 3rd |
 +-----+-----+-----+
+| 80  | -   | c   |
 | 120 | 0   | Z   |
 | 100 | a   | B   |
-| 80  | c   | c   |
 +-----+-----+-----+
 ''', printed)
 
