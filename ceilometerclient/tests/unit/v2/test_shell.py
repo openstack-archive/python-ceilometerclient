@@ -955,7 +955,7 @@ class ShellSampleShowCommandTest(utils.BaseTestCase):
 | timestamp   | 2014-11-03T13:37:46                  |
 | type        | gauge                                |
 | unit        | image                                |
-| user_id     | None                                 |
+| user_id     | -                                    |
 | volume      | 1.0                                  |
 +-------------+--------------------------------------+
 ''', sys.stdout.getvalue())

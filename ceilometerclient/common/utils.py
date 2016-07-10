@@ -78,12 +78,15 @@ def print_list(objs, fields, field_labels, formatters=None, sortby=0):
     for o in objs:
         row = []
         for field in field_labels:
+            data = '-'
             if field in new_formatters:
-                row.append(new_formatters[field](o))
+                data = new_formatters[field](o)
             else:
                 field_name = field.lower().replace(' ', '_')
                 data = getattr(o, field_name, '')
-                row.append(data)
+            if data is None:
+                data = '-'
+            row.append(data)
         pt.add_row(row)
 
     if six.PY3:
@@ -130,6 +133,8 @@ def print_dict(d, dict_property="Property", wrap=0):
                 pt.add_row([col1, line])
                 col1 = ''
         else:
+            if v is None:
+                v = '-'
             if wrap > 0:
                 v = textwrap.fill(six.text_type(v), wrap)
             pt.add_row([k, v])
