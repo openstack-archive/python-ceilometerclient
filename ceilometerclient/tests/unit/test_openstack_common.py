@@ -33,7 +33,7 @@ class BaseTest(utils.BaseTestCase):
         self.assertEqual(r1, r2)
 
     def test_two_resources_with_diff_type_are_not_equal(self):
-        # Two resoruces of different types: never equal
+        # Two resources of different types: never equal
         r1 = base.Resource(None, {'id': 1})
         r2 = events.Event(None, {'id': 1})
         self.assertNotEqual(r1, r2)
