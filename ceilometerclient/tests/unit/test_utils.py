@@ -172,7 +172,7 @@ l2"]}]  |
         }
         cleaned_dict = utils.args_array_to_dict(my_args,
                                                 "matching_metadata")
-        self.assertEqual({
+        self.assertDictEqual({
             'matching_metadata': {'metadata.key': 'metadata_value'},
             'other': 'value'
         }, cleaned_dict)
@@ -213,7 +213,7 @@ l2"]}]  |
             'threshold_rule/comparison_operator': 'or',
         }
         nested_dict = utils.key_with_slash_to_nested_dict(my_args)
-        self.assertEqual({
+        self.assertDictEqual({
             'combination_rule': {'alarm_ids': ['id1', 'id2'],
                                  'operator': 'and'},
             'threshold_rule': {'threshold': 400,
@@ -251,7 +251,7 @@ l2"]}]  |
                              'nested2': {'key5': 'value5'}}}
         utils.merge_nested_dict(dest, source, depth=1)
 
-        self.assertEqual({'key': 'modified',
+        self.assertDictEqual({'key': 'modified',
                           'nested': {'key2': 'value2',
                                      'key3': 'modified3',
                                      'nested2': {'key5': 'value5'}}}, dest)
@@ -267,7 +267,7 @@ l2"]}]  |
                              'nested2': {'key5': 'value5'}}}
         utils.merge_nested_dict(dest, source)
 
-        self.assertEqual({'key': 'modified',
+        self.assertDictEqual({'key': 'modified',
                           'nested': {'key3': 'modified3',
                                      'nested2': {'key5': 'value5'}}}, dest)
 
