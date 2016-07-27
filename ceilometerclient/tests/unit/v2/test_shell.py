@@ -538,72 +538,11 @@ class ShellAlarmGnocchiCommandTest(test_shell.ShellTestBase):
         ceilometer_shell.\
             do_alarm_gnocchi_aggregation_by_metrics_threshold_create(
                 self.cc, self.args)
-        self.assertEqual('''\
-+---------------------------+------------------------------------------\
---------------------------+
-| Property                  | Value                                    \
-                          |
-+---------------------------+------------------------------------------\
---------------------------+
-| aggregation_method        | count                                    \
-                          |
-| alarm_actions             | ["http://something/alarm"]               \
-                          |
-| alarm_id                  | b69ecdb9-f19b-4fb5-950f-5eb53938b718     \
-                          |
-| comparison_operator       | le                                       \
-                          |
-| description               | description_gnocchi_alarm                \
-                          |
-| enabled                   | True                                     \
-                          |
-| evaluation_periods        | 3                                        \
-                          |
-| granularity               | 60                                       \
-                          |
-| insufficient_data_actions | ["http://something/insufficient"]        \
-                          |
-| metrics                   | ["b3d9d8ab-05e8-439f-89ad-5e978dd2a5eb", \
-"009d4faf-c275-46f0-8f2d- |
-|                           | 670b15bac2b0"]                           \
-                          |
-| name                      | name_gnocchi_alarm                       \
-                          |
-| ok_actions                | ["http://something/ok"]                  \
-                          |
-| project_id                | 97fcad0402ce4f65ac3bd42a0c6a7e74         \
-                          |
-| repeat_actions            | True                                     \
-                          |
-| severity                  | critical                                 \
-                          |
-| state                     | ok                                       \
-                          |
-| threshold                 | 70.0                                     \
-                          |
-| time_constraints          | [{name: cons1,                           \
-                          |
-|                           |   description: desc1,                    \
-                          |
-|                           |   start: 0 11 * * *,                     \
-                          |
-|                           |   duration: 300},                        \
-                          |
-|                           |  {name: cons2,                           \
-                          |
-|                           |   description: desc2,                    \
-                          |
-|                           |   start: 0 23 * * *,                     \
-                          |
-|                           |   duration: 600}]                        \
-                          |
-| type                      | gnocchi_aggregation_by_metrics_threshold \
-                          |
-| user_id                   | f28735621ee84f329144eb467c91fce6         \
-                          |
-+---------------------------+------------------------------------------\
---------------------------+
-''', sys.stdout.getvalue())
+        stdout = sys.stdout.getvalue()
+        self.assertIn("b69ecdb9-f19b-4fb5-950f-5eb53938b718", stdout)
+        self.assertIn("[\"http://something/alarm\"]", stdout)
+        self.assertIn("description_gnocchi_alarm", stdout)
+        self.assertIn("gnocchi_aggregation_by_metrics_threshold", stdout)
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_do_alarm_gnocchi_aggr_by_resources_threshold_create(self):
