@@ -22,7 +22,6 @@ import requests
 from ceilometerclient import client
 from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import exceptions
-from ceilometerclient.tests.unit import fakes
 from ceilometerclient.tests.unit import utils
 from ceilometerclient.v2 import client as v2client
 
@@ -77,7 +76,6 @@ class ClientTest(utils.BaseTestCase):
         c2 = self.create_client(env)
         self.assertIsInstance(c2, v2client.Client)
 
-    @mock.patch('keystoneclient.v2_0.client', fakes.FakeKeystone)
     def test_client_without_auth_plugin(self):
         env = FAKE_ENV.copy()
         del env['auth_plugin']
@@ -201,7 +199,6 @@ class ClientTestWithAodh(ClientTest):
                         return_value=mock.MagicMock()):
             return client.get_client(api_version, **env)
 
-    @mock.patch('keystoneclient.v2_0.client', fakes.FakeKeystone)
     def test_client_without_auth_plugin(self):
         env = FAKE_ENV.copy()
         del env['auth_plugin']
