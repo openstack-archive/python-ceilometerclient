@@ -147,8 +147,8 @@ class OldSampleManagerTest(utils.BaseTestCase):
             'GET', '/v2/meters/instance'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(samples), 1)
-        self.assertEqual(samples[0].resource_id, 'resource-id')
+        self.assertEqual(1, len(samples))
+        self.assertEqual('resource-id', samples[0].resource_id)
 
     def test_list_by_meter_name_extended(self):
         samples = list(self.mgr.list(meter_name='instance',
@@ -160,7 +160,7 @@ class OldSampleManagerTest(utils.BaseTestCase):
                                      ]))
         expect = ['GET', '%s?%s' % (METER_URL, QUERIES)]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(samples), 0)
+        self.assertEqual(0, len(samples))
 
     def test_create(self):
         sample = self.mgr.create(**CREATE_SAMPLE)
@@ -200,7 +200,7 @@ class OldSampleManagerTest(utils.BaseTestCase):
         samples = list(self.mgr.list(meter_name='instance', limit=1))
         expect = ['GET', '/v2/meters/instance?limit=1']
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(samples), 1)
+        self.assertEqual(1, len(samples))
 
 
 class SampleManagerTest(utils.BaseTestCase):

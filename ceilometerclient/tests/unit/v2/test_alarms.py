@@ -279,8 +279,8 @@ class AlarmManagerTest(testtools.TestCase):
             'GET', '/v2/alarms'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(alarms), 1)
-        self.assertEqual(alarms[0].alarm_id, 'alarm-id')
+        self.assertEqual(1, len(alarms))
+        self.assertEqual('alarm-id', alarms[0].alarm_id)
 
     def test_list_with_query(self):
         alarms = list(self.mgr.list(q=[{"field": "project_id",
@@ -293,8 +293,8 @@ class AlarmManagerTest(testtools.TestCase):
             '&q.type=&q.type=&q.value=project-id&q.value=SwiftObjectAlarm',
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(alarms), 1)
-        self.assertEqual(alarms[0].alarm_id, 'alarm-id')
+        self.assertEqual(1, len(alarms))
+        self.assertEqual('alarm-id', alarms[0].alarm_id)
 
     def test_get(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
@@ -303,7 +303,7 @@ class AlarmManagerTest(testtools.TestCase):
         ]
         self.http_client.assert_called(*expect)
         self.assertIsNotNone(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         self.assertEqual(alarm.rule, alarm.threshold_rule)
 
     def test_create(self):
@@ -325,7 +325,7 @@ class AlarmManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_get, pos=0)
         self.http_client.assert_called(*expect_put, pos=1)
         self.assertIsNotNone(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
 
@@ -340,7 +340,7 @@ class AlarmManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_get, pos=0)
         self.http_client.assert_called(*expect_put, pos=1)
         self.assertIsNotNone(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
 
@@ -350,7 +350,7 @@ class AlarmManagerTest(testtools.TestCase):
             'PUT', '/v2/alarms/alarm-id/state'
         ]
         self.http_client.assert_called(*expect, body='alarm')
-        self.assertEqual(state, {'alarm': 'alarm'})
+        self.assertEqual({'alarm': 'alarm'}, state)
 
     def test_get_state(self):
         state = self.mgr.get_state(alarm_id='alarm-id')
@@ -358,7 +358,7 @@ class AlarmManagerTest(testtools.TestCase):
             'GET', '/v2/alarms/alarm-id/state'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(state, {'alarm': 'alarm'})
+        self.assertEqual({'alarm': 'alarm'}, state)
 
     def test_delete(self):
         deleted = self.mgr.delete(alarm_id='victim-id')
@@ -472,7 +472,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         ]
         self.http_client.assert_called(*expect_put)
         self.assertIsNotNone(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
 
@@ -487,7 +487,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         ]
         self.http_client.assert_called(*expect_put)
         self.assertIsNotNone(alarm)
-        self.assertEqual(alarm.alarm_id, 'alarm-id')
+        self.assertEqual('alarm-id', alarm.alarm_id)
         for (key, value) in six.iteritems(UPDATED_ALARM):
             self.assertEqual(getattr(alarm, key), value)
 

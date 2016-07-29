@@ -46,7 +46,7 @@ class TraitDescriptionManagerTest(utils.BaseTestCase):
             'GET', '/v2/event_types/Foo/traits'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(trait_descriptions), 3)
+        self.assertEqual(3, len(trait_descriptions))
         for i, vals in enumerate([('trait_1', 'string'),
                                   ('trait_2', 'integer'),
                                   ('trait_3', 'datetime')]):
