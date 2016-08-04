@@ -1108,7 +1108,7 @@ def do_resource_show(cc, args={}):
 
 @utils.arg('-q', '--query', metavar='<QUERY>',
            help='key[op]data_type::value; list. data_type is optional, '
-                'but if supplied must be string, integer, float'
+                'but if supplied must be string, integer, float '
                 'or datetime.')
 @utils.arg('--no-traits', dest='no_traits', action='store_true',
            help='If specified, traits will not be printed.')
