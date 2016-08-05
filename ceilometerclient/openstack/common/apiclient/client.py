@@ -26,7 +26,6 @@ OpenStack Client interface. Handles the REST calls and responses.
 # pylint: disable=E0202
 
 import hashlib
-import logging
 import time
 
 try:
@@ -41,7 +40,6 @@ import requests
 from ceilometerclient.openstack.common._i18n import _
 from ceilometerclient.openstack.common.apiclient import exceptions
 
-_logger = logging.getLogger(__name__)
 SENSITIVE_HEADERS = ('X-Auth-Token', 'X-Subject-Token',)
 
 
