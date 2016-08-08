@@ -100,9 +100,9 @@ class ResourceManagerTest(utils.BaseTestCase):
             'GET', '/v2/resources?meter_links=0'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(resources), 2)
-        self.assertEqual(resources[0].resource_id, 'a')
-        self.assertEqual(resources[1].resource_id, 'b')
+        self.assertEqual(2, len(resources))
+        self.assertEqual('a', resources[0].resource_id)
+        self.assertEqual('b', resources[1].resource_id)
 
     def test_list_all_with_links_enabled(self):
         resources = list(self.mgr.list(links=True))
@@ -121,7 +121,7 @@ class ResourceManagerTest(utils.BaseTestCase):
         ]
         self.http_client.assert_called(*expect)
         self.assertIsNotNone(resource)
-        self.assertEqual(resource.resource_id, 'a')
+        self.assertEqual('a', resource.resource_id)
 
     def test_list_by_query(self):
         resources = list(self.mgr.list(q=[{"field": "resource_id",
@@ -132,8 +132,8 @@ class ResourceManagerTest(utils.BaseTestCase):
             '&q.type=&q.value=a&meter_links=0'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(resources), 1)
-        self.assertEqual(resources[0].resource_id, 'a')
+        self.assertEqual(1, len(resources))
+        self.assertEqual('a', resources[0].resource_id)
 
     def test_get_from_resource_class(self):
         resource = self.mgr.get(resource_id='a')

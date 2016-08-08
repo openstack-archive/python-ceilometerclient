@@ -48,7 +48,7 @@ class TraitManagerTest(utils.BaseTestCase):
             'GET', '/v2/event_types/Foo/traits/trait_1'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(traits), 2)
+        self.assertEqual(2, len(traits))
         for i, vals in enumerate([('trait_1',
                                    'datetime',
                                    '2014-01-07T17:22:10.925553'),

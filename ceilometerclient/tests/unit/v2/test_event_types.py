@@ -43,8 +43,8 @@ class EventTypesManagerTest(utils.BaseTestCase):
             'GET', '/v2/event_types/'
         ]
         self.http_client.assert_called(*expect)
-        self.assertEqual(len(event_types), 4)
-        self.assertEqual(event_types[0].event_type, "Foo")
-        self.assertEqual(event_types[1].event_type, "Bar")
-        self.assertEqual(event_types[2].event_type, "Sna")
-        self.assertEqual(event_types[3].event_type, "Fu")
+        self.assertEqual(4, len(event_types))
+        self.assertEqual("Foo", event_types[0].event_type)
+        self.assertEqual("Bar", event_types[1].event_type)
+        self.assertEqual("Sna", event_types[2].event_type)
+        self.assertEqual("Fu", event_types[3].event_type)
