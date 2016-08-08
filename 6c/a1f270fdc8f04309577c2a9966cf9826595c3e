@@ -1,0 +1,9 @@
+Code-Review+1: Clenimar Filemon <clenimar@lsd.ufcg.edu.br>
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: Julien Danjou <julien@danjou.info>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 08 Aug 2016 11:11:16 +0000
+Reviewed-on: https://review.openstack.org/348407
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
