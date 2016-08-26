@@ -296,10 +296,10 @@ def main(args=None):
             raise
         else:
             print(encodeutils.safe_encode(six.text_type(e)), file=sys.stderr)
-        sys.exit(1)
+        return 1
     except KeyboardInterrupt:
         print("Stopping Ceilometer Client", file=sys.stderr)
-        sys.exit(130)
+        return 130
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
