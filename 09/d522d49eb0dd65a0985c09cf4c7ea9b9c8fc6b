@@ -1,0 +1,10 @@
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: gordon chung <gord@live.ca>
+Code-Review+1: venkatamahesh <Venkata.Kotha@infinite.com>
+Workflow+1: Doug Hellmann <doug@doughellmann.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Wed, 07 Sep 2016 21:05:18 +0000
+Reviewed-on: https://review.openstack.org/364929
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/stable/newton
