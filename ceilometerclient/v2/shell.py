@@ -1,5 +1,5 @@
 #
-# Copyright 2013 Red Hat, Inc
+# Copyright 2013-2016 Red Hat, Inc
 # Copyright Ericsson AB 2014. All rights reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -17,6 +17,7 @@
 import argparse
 import functools
 import json
+import warnings
 
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
@@ -396,6 +397,7 @@ def alarm_change_detail_formatter(change):
                 'but if supplied must be string, integer, float, or boolean.')
 def do_alarm_list(cc, args={}):
     """List the user's alarms."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     alarms = cc.alarms.list(q=options.cli_to_array(args.query))
     _display_alarm_list(alarms, sortby=0)
 
@@ -440,6 +442,7 @@ def _display_alarm(alarm):
            action=NotEmptyAction, help='ID of the alarm to show.')
 def do_alarm_show(cc, args={}):
     """Show an alarm."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     alarm = cc.alarms.get(args.alarm_id)
     # alarm.get actually catches the HTTPNotFound exception and turns the
     # result into None if the alarm wasn't found.
@@ -633,6 +636,7 @@ def common_alarm_event_arguments():
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_create(cc, args={}):
     """Create a new alarm (Deprecated). Use alarm-threshold-create instead."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.args_array_to_dict(fields, "matching_metadata")
@@ -648,6 +652,7 @@ def do_alarm_create(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_resources_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -664,6 +669,7 @@ def do_alarm_gnocchi_resources_threshold_create(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_metrics_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -680,6 +686,7 @@ def do_alarm_gnocchi_aggregation_by_metrics_threshold_create(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -716,6 +723,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_create(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_threshold_create(cc, args={}):
     """Create a new alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -739,6 +747,7 @@ def do_alarm_threshold_create(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_create(cc, args={}):
     """Create a new alarm based on state of other alarms."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -753,6 +762,7 @@ def do_alarm_combination_create(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_event_create(cc, args={}):
     """Create a new alarm based on events."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: x[1] is not None, vars(args).items()))
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields['type'] = 'event'
@@ -795,6 +805,7 @@ def do_alarm_event_create(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_update(cc, args={}):
     """Update an existing alarm (Deprecated)."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, "time_constraints")
     fields = utils.args_array_to_dict(fields, "matching_metadata")
@@ -844,6 +855,7 @@ def do_alarm_update(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -875,6 +887,7 @@ def do_alarm_threshold_update(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_resources_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -904,6 +917,7 @@ def do_alarm_gnocchi_resources_threshold_update(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_metrics_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -933,6 +947,7 @@ def do_alarm_gnocchi_aggregation_by_metrics_threshold_update(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
     """Update an existing alarm based on computed statistics."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -966,6 +981,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_update(cc, args={}):
     """Update an existing alarm based on state of other alarms."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
     fields = utils.key_with_slash_to_nested_dict(fields)
@@ -989,6 +1005,7 @@ def do_alarm_combination_update(cc, args={}):
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_event_update(cc, args={}):
     """Update an existing alarm based on events."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: x[1] is not None, vars(args).items()))
     fields = utils.key_with_slash_to_nested_dict(fields)
     fields.pop('alarm_id')
@@ -1010,6 +1027,7 @@ def do_alarm_event_update(cc, args={}):
            action=NotEmptyAction, help='ID of the alarm to delete.')
 def do_alarm_delete(cc, args={}):
     """Delete an alarm."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     try:
         cc.alarms.delete(args.alarm_id)
     except exc.HTTPNotFound:
@@ -1026,6 +1044,7 @@ def do_alarm_delete(cc, args={}):
            '.')
 def do_alarm_state_set(cc, args={}):
     """Set the state of an alarm."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     try:
         state = cc.alarms.set_state(args.alarm_id, args.state)
     except exc.HTTPNotFound:
@@ -1040,6 +1059,7 @@ def do_alarm_state_set(cc, args={}):
            action=NotEmptyAction, help='ID of the alarm state to show.')
 def do_alarm_state_get(cc, args={}):
     """Get the state of an alarm."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     try:
         state = cc.alarms.get_state(args.alarm_id)
     except exc.HTTPNotFound:
@@ -1057,6 +1077,7 @@ def do_alarm_state_get(cc, args={}):
                 'but if supplied must be string, integer, float, or boolean.')
 def do_alarm_history(cc, args={}):
     """Display the change history of an alarm."""
+    warnings.warn("Alarm commands are deprecated, please use aodhclient")
     kwargs = dict(alarm_id=args.alarm_id,
                   q=options.cli_to_array(args.query))
     try:
