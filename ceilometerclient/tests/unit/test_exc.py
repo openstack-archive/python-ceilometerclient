@@ -69,3 +69,19 @@ class HTTPExceptionsTest(utils.BaseTestCase):
                 {"error_message": {"faultstring": "oops"}}))
             ret_str = k + " (HTTP " + str(exception.code) + ") ERROR oops"
             self.assertEqual(ret_str, str(exception))
+
+    def test_from_response(self):
+        class HTTPLibLikeResponse(object):
+            status = 400
+
+        class RequestsLikeResponse(object):
+            status_code = 401
+
+        class UnexpectedResponse(object):
+            code = 200
+
+        self.assertEqual(HTTPLibLikeResponse.status,
+                         exc.from_response(HTTPLibLikeResponse).code)
+        self.assertEqual(RequestsLikeResponse.status_code,
+                         exc.from_response(RequestsLikeResponse).code)
+        self.assertRaises(TypeError, exc.from_response, UnexpectedResponse)

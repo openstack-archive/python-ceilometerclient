@@ -118,6 +118,16 @@ for obj_name in dir(sys.modules[__name__]):
 
 
 def from_response(response, details=None):
-    """Return an instance of an HTTPException based on httplib response."""
-    cls = _code_map.get(response.status, HTTPException)
+    """Return an instance of an HTTPException based on http response."""
+    if hasattr(response, "status"):
+        # it is response from HTTPClient (httplib)
+        code = response.status
+    elif hasattr(response, "status_code"):
+        # it is response from SessionClient (requests)
+        code = response.status_code
+    else:
+        # it is something unexpected
+        raise TypeError("Function 'from_response' expects only response object"
+                        " from httplib or requests libraries.")
+    cls = _code_map.get(code, HTTPException)
     return cls(details)
