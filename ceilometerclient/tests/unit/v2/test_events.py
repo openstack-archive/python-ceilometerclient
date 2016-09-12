@@ -118,6 +118,56 @@ fixtures = {
             }
         ),
     },
+    '/v2/events?limit=3': {
+        'GET': (
+            {},
+            [
+                {
+                    'message_id': '1',
+                    'event_type': 'oldest',
+                    'generated': '1971-01-01T00:00:00',
+                    'traits': {'trait_A': 'abc'},
+                },
+                {
+                    'message_id': '2',
+                    'event_type': 'now',
+                    'generated': '1972-01-01T00:00:00',
+                    'traits': {'trait_A': 'def'},
+                },
+                {
+                    'message_id': '3',
+                    'event_type': 'newest',
+                    'generated': '1973-01-01T00:00:00',
+                    'traits': {'trait_B': 'bartrait'},
+                },
+            ]
+        ),
+    },
+    '/v2/events?limit=3&recent=True': {
+        'GET': (
+            {},
+            [
+                {
+                    'message_id': '1',
+                    'event_type': 'newest',
+                    'generated': '1973-01-01T00:00:00',
+                    'traits': {'trait_A': 'abc'},
+                },
+                {
+                    'message_id': '2',
+                    'event_type': 'now',
+                    'generated': '1972-01-01T00:00:00',
+                    'traits': {'trait_A': 'def'},
+                },
+                {
+                    'message_id': '3',
+                    'event_type': 'oldest',
+                    'generated': '1971-01-01T00:00:00',
+                    'traits': {'trait_B': 'bartrait'},
+                },
+            ]
+        ),
+    },
 }
 
 
@@ -196,3 +246,25 @@ class EventManagerTest(utils.BaseTestCase):
         self.http_client.assert_called(*expect, pos=0)
         self.http_client.assert_called(*expect, pos=1)
         self.assertEqual('Foo', event.event_type)
+
+    def test_list_recent_true(self):
+        events = list(self.mgr.list(limit=3, recent=True))
+        expect = [
+            'GET', '/v2/events?limit=3&recent=True'
+        ]
+        self.http_client.assert_called(*expect)
+        self.assertEqual(3, len(events))
+        self.assertEqual('newest', events[0].event_type)
+        self.assertEqual('now', events[1].event_type)
+        self.assertEqual('oldest', events[2].event_type)
+
+    def test_list_recent_false(self):
+        events = list(self.mgr.list(limit=3, recent=False))
+        expect = [
+            'GET', '/v2/events?limit=3'
+        ]
+        self.http_client.assert_called(*expect)
+        self.assertEqual(3, len(events))
+        self.assertEqual('oldest', events[0].event_type)
+        self.assertEqual('now', events[1].event_type)
+        self.assertEqual('newest', events[2].event_type)

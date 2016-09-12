@@ -32,6 +32,8 @@ Use queries to narrow your search (more info at `Ceilometer V2 API reference`__)
     >>> query = [dict(field='resource_id', op='eq', value='5a301761-f78b-46e2-8900-8b4f6fe6675a'), dict(field='meter',op='eq',value='cpu_util')]
     >>> cclient.new_samples.list(q=query, limit=10)
     [<Sample ...>, ...]
+    >>> cclient.new_samples.list(q=query, limit=10, recent=True)
+    [<Sample ...>, ...]
 
 __  http://docs.openstack.org/developer/ceilometer/webapi/v2.html#Query
 

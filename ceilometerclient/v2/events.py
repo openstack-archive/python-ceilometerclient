@@ -29,9 +29,16 @@ class Event(base.Resource):
 class EventManager(base.Manager):
     resource_class = Event
 
-    def list(self, q=None, limit=None):
+    def list(self, q=None, limit=None, recent=False):
         path = '/v2/events'
-        params = ['limit=%s' % limit] if limit else None
+        params = []
+
+        if limit:
+            params.append('limit=%s' % limit)
+
+        if recent:
+            params.append('recent=%s' % str(recent))
+
         return self._list(options.build_url(path, q, params))
 
     def get(self, message_id):

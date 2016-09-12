@@ -1135,10 +1135,14 @@ def do_resource_show(cc, args={}):
            help='If specified, traits will not be printed.')
 @utils.arg('-l', '--limit', metavar='<NUMBER>',
            help='Maximum number of events to return. %s' % DEFAULT_API_LIMIT)
+@utils.arg('--recent', dest='recent',
+           metavar='{True|False}',
+           type=lambda v: strutils.bool_from_string(v, True),
+           help='Sorts event list in descending order (most recent first)')
 def do_event_list(cc, args={}):
     """List events."""
     events = cc.events.list(q=options.cli_to_array(args.query),
-                            limit=args.limit)
+                            limit=args.limit, recent=args.recent)
     field_labels = ['Message ID', 'Event Type', 'Generated', 'Traits']
     fields = ['message_id', 'event_type', 'generated', 'traits']
     if args.no_traits:

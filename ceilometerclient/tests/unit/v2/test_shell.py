@@ -1553,6 +1553,52 @@ class ShellEventListCommandTest(utils.BaseTestCase):
         },
     ]
 
+    EVENTS_RECENT = [
+        {
+            "generated": "2015-01-12T04:03:28.452495",
+            "message_id": "9b20509a-576b-4995-acfa-1a24ee5cf49f",
+            "event_type": "compute.instance.create.end",
+            "traits": [{
+                "name": "state",
+                "type": "string",
+                "value": "active",
+            }],
+        },
+        {
+            "generated": "2014-01-12T04:03:25.741471",
+            "message_id": "fb2bef58-88af-4380-8698-e0f18fcf452d",
+            "event_type": "compute.instance.create.start",
+            "traits": [{
+                "name": "state",
+                "type": "string",
+                "value": "building",
+            }],
+        },
+    ]
+
+    EVENTS_NOT_RECENT = [
+        {
+            "generated": "2014-01-12T04:03:28.452495",
+            "message_id": "9b20509a-576b-4995-acfa-1a24ee5cf49f",
+            "event_type": "compute.instance.create.end",
+            "traits": [{
+                "name": "state",
+                "type": "string",
+                "value": "active",
+            }],
+        },
+        {
+            "generated": "2015-01-12T04:03:25.741471",
+            "message_id": "fb2bef58-88af-4380-8698-e0f18fcf452d",
+            "event_type": "compute.instance.create.start",
+            "traits": [{
+                "name": "state",
+                "type": "string",
+                "value": "building",
+            }],
+        },
+    ]
+
     def setUp(self):
         super(ShellEventListCommandTest, self).setUp()
         self.cc = mock.Mock()
@@ -1560,6 +1606,7 @@ class ShellEventListCommandTest(utils.BaseTestCase):
         self.args.query = None
         self.args.no_traits = None
         self.args.limit = None
+        self.args.recent = False
 
     @mock.patch('sys.stdout', new=six.StringIO())
     def test_event_list(self):
@@ -1618,6 +1665,82 @@ class ShellEventListCommandTest(utils.BaseTestCase):
 | 2015-01-12T04:03:28.452495 |
 +--------------------------------------+-------------------------------\
 +----------------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_event_list_recent(self):
+        self.args.recent = True
+        ret_events = [events.Event(mock.Mock(), event)
+                      for event in self.EVENTS_RECENT]
+        self.cc.events.list.return_value = ret_events
+        ceilometer_shell.do_event_list(self.cc, self.args)
+        self.assertEqual('''\
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+| Message ID                           | Event Type                    |\
+ Generated                  | Traits                        |
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+| 9b20509a-576b-4995-acfa-1a24ee5cf49f | compute.instance.create.end   |\
+ 2015-01-12T04:03:28.452495 | +-------+--------+--------+   |
+|                                      |                               |\
+                            | |  name |  type  | value  |   |
+|                                      |                               |\
+                            | +-------+--------+--------+   |
+|                                      |                               |\
+                            | | state | string | active |   |
+|                                      |                               |\
+                            | +-------+--------+--------+   |
+| fb2bef58-88af-4380-8698-e0f18fcf452d | compute.instance.create.start |\
+ 2014-01-12T04:03:25.741471 | +-------+--------+----------+ |
+|                                      |                               |\
+                            | |  name |  type  |  value   | |
+|                                      |                               |\
+                            | +-------+--------+----------+ |
+|                                      |                               |\
+                            | | state | string | building | |
+|                                      |                               |\
+                            | +-------+--------+----------+ |
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+''', sys.stdout.getvalue())
+
+    @mock.patch('sys.stdout', new=six.StringIO())
+    def test_event_list_not_recent(self):
+        self.args.recent = True
+        ret_events = [events.Event(mock.Mock(), event)
+                      for event in self.EVENTS_NOT_RECENT]
+        self.cc.events.list.return_value = ret_events
+        ceilometer_shell.do_event_list(self.cc, self.args)
+        self.assertEqual('''\
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+| Message ID                           | Event Type                    |\
+ Generated                  | Traits                        |
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
+| 9b20509a-576b-4995-acfa-1a24ee5cf49f | compute.instance.create.end   |\
+ 2014-01-12T04:03:28.452495 | +-------+--------+--------+   |
+|                                      |                               |\
+                            | |  name |  type  | value  |   |
+|                                      |                               |\
+                            | +-------+--------+--------+   |
+|                                      |                               |\
+                            | | state | string | active |   |
+|                                      |                               |\
+                            | +-------+--------+--------+   |
+| fb2bef58-88af-4380-8698-e0f18fcf452d | compute.instance.create.start |\
+ 2015-01-12T04:03:25.741471 | +-------+--------+----------+ |
+|                                      |                               |\
+                            | |  name |  type  |  value   | |
+|                                      |                               |\
+                            | +-------+--------+----------+ |
+|                                      |                               |\
+                            | | state | string | building | |
+|                                      |                               |\
+                            | +-------+--------+----------+ |
++--------------------------------------+-------------------------------+\
+----------------------------+-------------------------------+
 ''', sys.stdout.getvalue())
 
 
