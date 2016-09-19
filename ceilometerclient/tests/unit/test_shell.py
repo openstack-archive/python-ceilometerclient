@@ -279,7 +279,7 @@ class ShellAlarmUpdateRepeatAction(ShellTestBase):
             args = ['--debug', method, '--state', 'alarm', '123']
             ceilometer_shell.main(args)
             args, kwargs = mocked.call_args
-            self.assertEqual(None, kwargs.get('repeat_actions'))
+            self.assertIsNone(kwargs.get('repeat_actions'))
 
         _test('alarm-update')
         _test('alarm-threshold-update')
