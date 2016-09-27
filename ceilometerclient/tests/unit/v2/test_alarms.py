@@ -400,7 +400,7 @@ class AlarmManagerTest(testtools.TestCase):
             alarm = self.mgr.update(alarm_id='unk-alarm-id', **UPDATE_ALARM)
         except exc.CommandError:
             pass
-        self.assertEqual(alarm, None)
+        self.assertIsNone(alarm)
 
     def test_delete_from_alarm_class(self):
         alarm = self.mgr.get(alarm_id='alarm-id')
