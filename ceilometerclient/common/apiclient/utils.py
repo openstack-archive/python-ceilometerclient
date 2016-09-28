@@ -28,8 +28,8 @@ from oslo_utils import encodeutils
 from oslo_utils import uuidutils
 import six
 
-from ceilometerclient.openstack.common._i18n import _
-from ceilometerclient.openstack.common.apiclient import exceptions
+from ceilometerclient.common._i18n import _
+from ceilometerclient.common.apiclient import exceptions
 
 
 def find_resource(manager, name_or_id, **find_args):

@@ -38,12 +38,11 @@ import sys
 
 import six
 
-from ceilometerclient.openstack.common._i18n import _
+from ceilometerclient.common._i18n import _
 
 
 class ClientException(Exception):
-    """The base exception class for all exceptions this library raises.
-    """
+    """The base exception class for all exceptions this library raises."""
     pass
 
 
@@ -118,8 +117,7 @@ class AmbiguousEndpoints(EndpointException):
 
 
 class HttpError(ClientException):
-    """The base exception class for all HTTP exceptions.
-    """
+    """The base exception class for all HTTP exceptions."""
     http_status = 0
     message = _("HTTP Error")
 
