@@ -43,7 +43,7 @@ import requests
 import six
 from six.moves.urllib import parse
 
-from ceilometerclient.openstack.common.apiclient import client
+from ceilometerclient.common.apiclient import client
 
 
 def assert_has_keys(dct, required=None, optional=None):

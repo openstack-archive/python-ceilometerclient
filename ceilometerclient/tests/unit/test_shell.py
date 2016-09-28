@@ -20,8 +20,8 @@ import six
 from testtools import matchers
 
 from ceilometerclient import client
+from ceilometerclient.common.apiclient import client as api_client
 from ceilometerclient import exc
-from ceilometerclient.openstack.common.apiclient import client as api_client
 from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.tests.unit import utils
 

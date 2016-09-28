@@ -19,9 +19,9 @@ Base utilities to build API operation managers and objects on top of.
 
 import copy
 
+from ceilometerclient.common.apiclient import base
+from ceilometerclient.common.apiclient import exceptions
 from ceilometerclient import exc
-from ceilometerclient.openstack.common.apiclient import base
-from ceilometerclient.openstack.common.apiclient import exceptions
 
 
 def getid(obj):
