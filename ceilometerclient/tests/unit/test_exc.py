@@ -41,7 +41,7 @@ class HTTPExceptionsTest(utils.BaseTestCase):
     def test_str_no_json(self):
         for k, v in HTTPEXCEPTIONS.items():
             exception = v(details="foo")
-            ret_str = k + " (HTTP " + str(exception.code) + ")"
+            ret_str = k + " (HTTP " + str(exception.code) + ") foo"
             self.assertEqual(ret_str, str(exception))
 
     def test_str_no_error_message(self):
@@ -54,13 +54,14 @@ class HTTPExceptionsTest(utils.BaseTestCase):
         for k, v in HTTPEXCEPTIONS.items():
             exception = v(
                 details=json.dumps({"error_message": {"foo": "bar"}}))
-            ret_str = k + " (HTTP " + str(exception.code) + ")"
+            ret_str = (k + " (HTTP " + str(exception.code) + ") " +
+                       "{u'foo': u'bar'}")
             self.assertEqual(ret_str, str(exception))
 
     def test_str_error_message_unknown_format(self):
         for k, v in HTTPEXCEPTIONS.items():
             exception = v(details=json.dumps({"error_message": "oops"}))
-            ret_str = k + " (HTTP " + str(exception.code) + ")"
+            ret_str = k + " (HTTP " + str(exception.code) + ") oops"
             self.assertEqual(ret_str, str(exception))
 
     def test_str_faultstring(self):
