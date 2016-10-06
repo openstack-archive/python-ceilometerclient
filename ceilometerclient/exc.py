@@ -129,5 +129,10 @@ def from_response(response, details=None):
         # it is something unexpected
         raise TypeError("Function 'from_response' expects only response object"
                         " from httplib or requests libraries.")
-    cls = _code_map.get(code, HTTPException)
-    return cls(details)
+    cls = _code_map.get(code)
+    if cls is None:
+        exc = HTTPException(details)
+        exc.code = code
+        return exc
+    else:
+        return cls(details)
