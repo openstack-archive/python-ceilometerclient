@@ -43,15 +43,21 @@ class HTTPException(BaseException):
         self.details = details
 
     def __str__(self):
-        try:
-            data = json.loads(self.details)
-            message = data.get("error_message", {}).get("faultstring")
+        message = ""
+        if self.details:
+            message = self.details
+            try:
+                data = json.loads(self.details)
+                message = data.get("error_message", "")
+                if isinstance(message, dict) and "faultstring" in message:
+                    message = "ERROR %s" % message["faultstring"]
+            except (ValueError, TypeError, AttributeError):
+                pass
+
             if message:
-                return "%s (HTTP %s) ERROR %s" % (
-                    self.__class__.__name__, self.code, message)
-        except (ValueError, TypeError, AttributeError):
-            pass
-        return "%s (HTTP %s)" % (self.__class__.__name__, self.code)
+                message = " %s" % message
+        return "%s (HTTP %s)%s" % (self.__class__.__name__, self.code,
+                                   message)
 
 
 class HTTPMultipleChoices(HTTPException):
@@ -129,5 +135,10 @@ def from_response(response, details=None):
         # it is something unexpected
         raise TypeError("Function 'from_response' expects only response object"
                         " from httplib or requests libraries.")
-    cls = _code_map.get(code, HTTPException)
-    return cls(details)
+    cls = _code_map.get(code)
+    if cls is None:
+        exc = HTTPException(details)
+        exc.code = code
+        return exc
+    else:
+        return cls(details)
