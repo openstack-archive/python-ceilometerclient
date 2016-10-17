@@ -1,0 +1,13 @@
+Code-Review+2: Mehdi Abaakouk (sileht) <sileht@redhat.com>
+Code-Review+1: Artem Tiumentcev <AITyumentsev.SBT@sberbank.ru>
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: gordon chung <gord@live.ca>
+Code-Review+1: Dmitri Plakhov <info@openstack.school>
+Code-Review+1: Ilya Popov <ilya_p@hotmail.com>
+Code-Review+1: Margarita Shakhova <shakhova.margarita@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 17 Oct 2016 14:15:21 +0000
+Reviewed-on: https://review.openstack.org/387391
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
