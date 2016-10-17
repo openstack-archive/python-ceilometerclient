@@ -173,7 +173,7 @@ class ClientTest(utils.BaseTestCase):
     def test_v2_client_insecure(self):
         env = FAKE_ENV.copy()
         env.pop('auth_plugin')
-        env['insecure'] = 'True'
+        env['os_insecure'] = 'True'
         client = self.create_client(env)
         self.assertIn('insecure', client.auth_plugin.opts)
         self.assertEqual('True', client.auth_plugin.opts['insecure'])

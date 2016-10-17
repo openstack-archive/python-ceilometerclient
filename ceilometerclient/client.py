@@ -288,7 +288,7 @@ def _adjust_kwargs(kwargs):
         if timeout <= 0:
             timeout = None
 
-    insecure = strutils.bool_from_string(kwargs.get('insecure'))
+    insecure = strutils.bool_from_string(client_kwargs.get('insecure'))
     verify = kwargs.get('verify')
     if verify is None:
         if insecure:
@@ -388,7 +388,7 @@ def get_auth_plugin(endpoint, **kwargs):
     return auth_plugin
 
 
-LEGACY_OPTS = ('auth_plugin', 'auth_url', 'token', 'insecure',  'cacert',
+LEGACY_OPTS = ('auth_plugin', 'auth_url', 'token', 'insecure', 'cacert',
                'tenant_id', 'project_id', 'username', 'password',
                'project_name', 'tenant_name',
                'user_domain_name', 'user_domain_id',
