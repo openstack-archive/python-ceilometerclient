@@ -40,13 +40,13 @@ Base utilities to build API operation managers and objects on top of.
 import abc
 import copy
 
+from oslo_utils import reflection
 from oslo_utils import strutils
 import six
 from six.moves.urllib import parse
-from oslo_utils import reflection
 
-from ceilometerclient.openstack.common._i18n import _
-from ceilometerclient.openstack.common.apiclient import exceptions
+from ceilometerclient.apiclient import exceptions
+from ceilometerclient.i18n import _
 
 
 def getid(obj):
@@ -470,8 +470,7 @@ class Resource(object):
 
     @property
     def human_id(self):
-        """Human-readable ID which can be used for bash completion.
-        """
+        """Human-readable ID which can be used for bash completion."""
         if self.HUMAN_ID:
             name = getattr(self, self.NAME_ATTR, None)
             if name is not None:

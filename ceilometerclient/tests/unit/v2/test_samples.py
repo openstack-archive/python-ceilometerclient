@@ -15,8 +15,8 @@
 
 import copy
 
-from ceilometerclient.openstack.common.apiclient import client
-from ceilometerclient.openstack.common.apiclient import fake_client
+from ceilometerclient.apiclient import client
+from ceilometerclient.apiclient import fake_client
 from ceilometerclient.tests.unit import utils
 import ceilometerclient.v2.samples
 

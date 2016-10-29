@@ -651,7 +651,7 @@ class ShellAlarmGnocchiCommandTest(test_shell.ShellTestBase):
     def _test_alarm_gnocchi_resources_arguments(self, action, argv):
         self.make_env(test_shell.FAKE_V2_ENV)
         with mock.patch.object(alarms.AlarmManager, action) as mocked:
-            with mock.patch('ceilometerclient.openstack.common.apiclient.'
+            with mock.patch('ceilometerclient.apiclient.'
                             'client.HTTPClient.client_request') as request:
                 request.site_effect = exceptions.EndpointNotFound
                 base_shell.main(argv)
@@ -673,7 +673,7 @@ class ShellAlarmGnocchiCommandTest(test_shell.ShellTestBase):
     def _test_alarm_gnocchi_aggr_by_metrics_arguments(self, action, argv):
         self.make_env(test_shell.FAKE_V2_ENV)
         with mock.patch.object(alarms.AlarmManager, action) as mocked:
-            with mock.patch('ceilometerclient.openstack.common.apiclient.'
+            with mock.patch('ceilometerclient.apiclient.'
                             'client.HTTPClient.client_request') as request:
                 request.site_effect = exceptions.EndpointNotFound
                 base_shell.main(argv)
@@ -695,7 +695,7 @@ class ShellAlarmGnocchiCommandTest(test_shell.ShellTestBase):
     def _test_alarm_gnocchi_aggr_by_resources_arguments(self, action, argv):
         self.make_env(test_shell.FAKE_V2_ENV)
         with mock.patch.object(alarms.AlarmManager, action) as mocked:
-            with mock.patch('ceilometerclient.openstack.common.apiclient.'
+            with mock.patch('ceilometerclient.apiclient.'
                             'client.HTTPClient.client_request') as request:
                 request.site_effect = exceptions.EndpointNotFound
                 base_shell.main(argv)
@@ -1633,7 +1633,7 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
             '--user-id', 'the-user-id-i-want-to-set',
             '--name', 'project-id-test'] + args
         with mock.patch.object(alarms.AlarmManager, method) as mocked:
-            with mock.patch('ceilometerclient.openstack.common.apiclient.'
+            with mock.patch('ceilometerclient.apiclient.'
                             'client.HTTPClient.client_request') as request:
                 request.site_effect = exceptions.EndpointNotFound
                 base_shell.main(cli_args)
@@ -1724,7 +1724,7 @@ class ShellShadowedArgsTest(test_shell.ShellTestBase):
             '--meter-unit', 'ns',
             '--sample-volume', '10086',
         ]
-        with mock.patch('ceilometerclient.openstack.common.apiclient.client.'
+        with mock.patch('ceilometerclient.apiclient.client.'
                         'HTTPClient.client_request') as client_request:
             client_request.site_effect = exceptions.EndpointNotFound
             base_shell.main(cli_args)

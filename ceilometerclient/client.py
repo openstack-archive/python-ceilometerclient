@@ -22,11 +22,11 @@ from keystoneauth1 import session
 from oslo_utils import strutils
 import six.moves.urllib.parse as urlparse
 
+from ceilometerclient.apiclient import auth
+from ceilometerclient.apiclient import client
+from ceilometerclient.apiclient import exceptions
 from ceilometerclient.common import utils
 from ceilometerclient import exc
-from ceilometerclient.openstack.common.apiclient import auth
-from ceilometerclient.openstack.common.apiclient import client
-from ceilometerclient.openstack.common.apiclient import exceptions
 
 
 def _discover_auth_versions(session, auth_url):
