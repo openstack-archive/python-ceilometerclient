@@ -38,8 +38,8 @@ from oslo_utils import encodeutils
 from oslo_utils import importutils
 import requests
 
-from ceilometerclient.openstack.common._i18n import _
-from ceilometerclient.openstack.common.apiclient import exceptions
+from ceilometerclient.apiclient import exceptions
+from ceilometerclient.i18n import _
 
 _logger = logging.getLogger(__name__)
 SENSITIVE_HEADERS = ('X-Auth-Token', 'X-Subject-Token',)
@@ -64,7 +64,7 @@ class HTTPClient(object):
       into terminal and send the same request with curl.
     """
 
-    user_agent = "ceilometerclient.openstack.common.apiclient"
+    user_agent = "ceilometerclient.apiclient"
 
     def __init__(self,
                  auth_plugin,

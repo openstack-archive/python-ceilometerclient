@@ -12,8 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from ceilometerclient.openstack.common.apiclient import client
-from ceilometerclient.openstack.common.apiclient import fake_client
+from ceilometerclient.apiclient import client
+from ceilometerclient.apiclient import fake_client
 from ceilometerclient.tests.unit import utils
 from ceilometerclient.v2 import query
 

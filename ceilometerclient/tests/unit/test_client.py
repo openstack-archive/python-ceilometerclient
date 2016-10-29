@@ -19,9 +19,9 @@ from keystoneauth1 import session as ks_session
 import mock
 import requests
 
+from ceilometerclient.apiclient import exceptions
 from ceilometerclient import client
 from ceilometerclient import exc
-from ceilometerclient.openstack.common.apiclient import exceptions
 from ceilometerclient.tests.unit import utils
 from ceilometerclient.v2 import client as v2client
 
@@ -132,7 +132,7 @@ class ClientTest(utils.BaseTestCase):
             'user_agent': None,
             'debug': None,
         }
-        cls = 'ceilometerclient.openstack.common.apiclient.client.HTTPClient'
+        cls = 'ceilometerclient.apiclient.client.HTTPClient'
         with mock.patch(cls) as mocked:
             self.create_client(env)
             mocked.assert_called_with(**expected)
@@ -194,7 +194,7 @@ class ClientTestWithAodh(ClientTest):
     def create_client(env, api_version=2, endpoint=None, exclude=[]):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
-        with mock.patch('ceilometerclient.openstack.common.apiclient.client.'
+        with mock.patch('ceilometerclient.apiclient.client.'
                         'HTTPClient.client_request',
                         return_value=mock.MagicMock()):
             return client.get_client(api_version, **env)
@@ -219,7 +219,7 @@ class ClientTestWithAodh(ClientTest):
     def test_ceilometerclient_available_without_aodh_services_running(self):
         env = FAKE_ENV.copy()
         env.pop('auth_plugin', None)
-        with mock.patch('ceilometerclient.openstack.common.apiclient.client.'
+        with mock.patch('ceilometerclient.apiclient.client.'
                         'HTTPClient.client_request') as mocked_request:
             mocked_request.side_effect = requests.exceptions.ConnectionError
             ceiloclient = client.get_client(2, **env)
@@ -250,7 +250,7 @@ class ClientAuthTest(utils.BaseTestCase):
     def create_client(env, api_version=2, endpoint=None, exclude=[]):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
-        with mock.patch('ceilometerclient.openstack.common.apiclient.client.'
+        with mock.patch('ceilometerclient.apiclient.client.'
                         'HTTPClient.client_request',
                         return_value=mock.MagicMock()):
             return client.get_client(api_version, **env)

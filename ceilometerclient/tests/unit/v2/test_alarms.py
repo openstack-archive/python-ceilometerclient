@@ -19,9 +19,9 @@ import six
 from six.moves import xrange  # noqa
 import testtools
 
+from ceilometerclient.apiclient import client
+from ceilometerclient.apiclient import fake_client
 from ceilometerclient import exc
-from ceilometerclient.openstack.common.apiclient import client
-from ceilometerclient.openstack.common.apiclient import fake_client
 from ceilometerclient.v2 import alarms
 
 AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],

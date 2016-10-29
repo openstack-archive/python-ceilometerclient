@@ -11,8 +11,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-from ceilometerclient.openstack.common.apiclient import client
-from ceilometerclient.openstack.common.apiclient import fake_client
+from ceilometerclient.apiclient import client
+from ceilometerclient.apiclient import fake_client
 from ceilometerclient.tests.unit import utils
 import ceilometerclient.v2.trait_descriptions
 
