@@ -140,13 +140,6 @@ def print_dict(d, dict_property="Property", wrap=0):
     print(encoded)
 
 
-def import_versioned_module(version, submodule=None):
-    module = 'ceilometerclient.v%s' % version
-    if submodule:
-        module = '.'.join((module, submodule))
-    return importutils.import_module(module)
-
-
 def args_array_to_dict(kwargs, key_to_convert):
     values_to_convert = kwargs.get(key_to_convert)
     if values_to_convert:
