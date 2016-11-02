@@ -19,10 +19,10 @@ from keystoneauth1 import exceptions as ka_exc
 from keystoneauth1.identity import v2 as v2_auth
 from keystoneauth1.identity import v3 as v3_auth
 from keystoneauth1 import session
+from oslo_utils import importutils
 from oslo_utils import strutils
 import six.moves.urllib.parse as urlparse
 
-from ceilometerclient.common import utils
 from ceilometerclient import exc
 from ceilometerclient.openstack.common.apiclient import auth
 from ceilometerclient.openstack.common.apiclient import client
@@ -308,7 +308,8 @@ def _adjust_kwargs(kwargs):
 def Client(version, *args, **kwargs):
     client_kwargs = _adjust_kwargs(kwargs)
 
-    module = utils.import_versioned_module(version, 'client')
+    module = importutils.import_versioned_module('ceilometerclient',
+                                                 version, 'client')
     client_class = getattr(module, 'Client')
     return client_class(*args, **client_kwargs)
 
