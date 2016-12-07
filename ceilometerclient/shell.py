@@ -234,13 +234,6 @@ class CeilometerShell(object):
                                        "either --os-auth-url or via "
                                        "env[OS_AUTH_URL]")
 
-            if "v2.0" not in self.auth_plugin.opts['auth_url']:
-                if (not args.os_project_domain_id and
-                        not args.os_project_domain_name):
-                    setattr(args, "os_project_domain_id", "default")
-                if not args.os_user_domain_id and not args.os_user_domain_name:
-                    setattr(args, "os_user_domain_id", "default")
-
         client_kwargs = vars(args)
         client_kwargs.update(self.auth_plugin.opts)
         client_kwargs['auth_plugin'] = self.auth_plugin
