@@ -87,6 +87,9 @@ class TestResponse(requests.Response):
                 self.headers == other.headers and
                 self._content == other._content)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class FakeHTTPClient(client.HTTPClient):
 
