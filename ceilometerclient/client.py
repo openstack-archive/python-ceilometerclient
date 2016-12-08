@@ -87,13 +87,22 @@ def _get_keystone_session(**kwargs):
     # create the keystone client session
     ks_session = session.Session(verify=verify, cert=cert, timeout=timeout)
     v2_auth_url, v3_auth_url = _discover_auth_versions(ks_session, auth_url)
-
     username = kwargs.pop('username', None)
     user_id = kwargs.pop('user_id', None)
     user_domain_name = kwargs.pop('user_domain_name', None)
     user_domain_id = kwargs.pop('user_domain_id', None)
     project_domain_name = kwargs.pop('project_domain_name', None)
     project_domain_id = kwargs.pop('project_domain_id', None)
+    if v3_auth_url:
+        if (not user_domain_id):
+            user_domain_id = 'default'
+        if (not user_domain_name):
+            user_domain_name = 'default'
+        if (not project_domain_id):
+            project_domain_id = 'default'
+        if (not project_domain_name):
+            project_domain_name = 'default'
+    
     auth = None
 
     use_domain = (user_domain_id or user_domain_name or
