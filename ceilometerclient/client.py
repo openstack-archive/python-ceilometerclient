@@ -221,6 +221,13 @@ class AuthPlugin(auth.BaseAuthPlugin):
             'timeout': http_timeout,
             'token': token() if callable(token) else token,
         }
+        if ('v3' in self.opts.get('auth_url')):
+            if (not self.opts.get('user_domain_id')):
+                ks_kwargs['user_domain_id'] = 'default'
+            if (not self.opts.get('user_domain_name')):
+                ks_kwargs['user_domain_name'] = 'default'
+            if (not self.opts.get('project_domain_id')):
+                ks_kwargs['project_domain_id'] = 'default'
         return ks_kwargs
 
     def token_and_endpoint(self, endpoint_type, service_type):
