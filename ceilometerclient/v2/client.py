@@ -78,7 +78,7 @@ class Client(object):
         self.new_samples = samples.SampleManager(self.http_client)
         self.statistics = statistics.StatisticsManager(self.http_client)
         self.resources = resources.ResourceManager(self.http_client)
-        self.alarms = alarms.AlarmManager(self.alarm_client, aodh_enabled)
+        self.alarms = alarms.AlarmManager(self.alarm_client)
         self.events = events.EventManager(self.event_client)
         self.event_types = event_types.EventTypeManager(self.event_client)
         self.traits = traits.TraitManager(self.event_client)
