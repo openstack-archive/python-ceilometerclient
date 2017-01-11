@@ -62,21 +62,28 @@ class Client(object):
         self.auth_plugin = kwargs.get('auth_plugin')
 
         self.http_client = ceiloclient._construct_http_client(**kwargs)
-        self.alarm_client = self._get_alarm_client(**kwargs)
+        self.alarm_client = self._get_redirect_client(
+            'alarming', 'aodh', **kwargs)
         aodh_enabled = self.alarm_client is not None
         if not aodh_enabled:
             self.alarm_client = self.http_client
+        self.event_client = self._get_redirect_client(
+            'event', 'panko', **kwargs)
+        panko_enabled = self.event_client is not None
+        if not panko_enabled:
+            self.event_client = self.http_client
+
         self.meters = meters.MeterManager(self.http_client)
         self.samples = samples.OldSampleManager(self.http_client)
         self.new_samples = samples.SampleManager(self.http_client)
         self.statistics = statistics.StatisticsManager(self.http_client)
         self.resources = resources.ResourceManager(self.http_client)
         self.alarms = alarms.AlarmManager(self.alarm_client, aodh_enabled)
-        self.events = events.EventManager(self.http_client)
-        self.event_types = event_types.EventTypeManager(self.http_client)
-        self.traits = traits.TraitManager(self.http_client)
+        self.events = events.EventManager(self.event_client)
+        self.event_types = event_types.EventTypeManager(self.event_client)
+        self.traits = traits.TraitManager(self.event_client)
         self.trait_descriptions = trait_descriptions.\
-            TraitDescriptionManager(self.http_client)
+            TraitDescriptionManager(self.event_client)
 
         self.query_samples = query.QuerySamplesManager(
             self.http_client)
@@ -86,36 +93,36 @@ class Client(object):
         self.capabilities = capabilities.CapabilitiesManager(self.http_client)
 
     @staticmethod
-    def _get_alarm_client(**ceilo_kwargs):
-        """Get client for alarm manager that redirect to aodh."""
+    def _get_redirect_client(new_service_type, new_service, **ceilo_kwargs):
+        """Get client for new service manager to redirect to."""
         # NOTE(sileht): the auth_plugin/keystone session cannot be copied
         # because they rely on threading module.
         auth_plugin = ceilo_kwargs.pop('auth_plugin', None)
         session = ceilo_kwargs.pop('session', None)
 
         kwargs = copy.deepcopy(ceilo_kwargs)
-        kwargs["service_type"] = "alarming"
-        aodh_endpoint = ceilo_kwargs.get('aodh_endpoint')
+        kwargs["service_type"] = new_service_type
+        endpoint = ceilo_kwargs.get('%s_endpoint' % new_service)
 
         if session:
             # keystone session can be shared between client
             ceilo_kwargs['session'] = kwargs['session'] = session
-            if aodh_endpoint:
-                kwargs['endpoint_override'] = aodh_endpoint
+            if endpoint:
+                kwargs['endpoint_override'] = endpoint
         elif auth_plugin and kwargs.get('auth_url'):
             ceilo_kwargs['auth_plugin'] = auth_plugin
             kwargs.pop('endpoint', None)
             kwargs['auth_plugin'] = ceiloclient.get_auth_plugin(
-                aodh_endpoint, **kwargs)
+                endpoint, **kwargs)
         else:
             # Users may just provide ceilometer endpoint and token, and no
             # auth_url, in this case, we need 'aodh_endpoint' also to be
             # provided, otherwise we cannot get aodh endpoint from
-            # keystone, and assume aodh is unavailable.
+            # keystone, and assume aodh is unavailable. Same applies to panko.
             return None
 
         try:
-            # NOTE(sileht): try to use aodh
+            # NOTE(sileht): try to use redirect
             c = ceiloclient._construct_http_client(**kwargs)
             c.get("/")
             return c

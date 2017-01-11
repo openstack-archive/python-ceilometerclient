@@ -43,8 +43,9 @@ class ClientTest(utils.BaseTestCase):
     def create_client(env, api_version=2, endpoint=None, exclude=[]):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
-        with mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
-                        return_value=None):
+        with mock.patch(
+                'ceilometerclient.v2.client.Client._get_redirect_client',
+                return_value=None):
             return client.get_client(api_version, **env)
 
     def test_client_v2_with_session(self):
@@ -184,8 +185,9 @@ class ClientTest2(ClientTest):
     def create_client(env, api_version=2, endpoint=None, exclude=[]):
         env = dict((k, v) for k, v in env.items()
                    if k not in exclude)
-        with mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
-                        return_value=None):
+        with mock.patch(
+                'ceilometerclient.v2.client.Client._get_redirect_client',
+                return_value=None):
             return client.Client(api_version, endpoint, **env)
 
 
