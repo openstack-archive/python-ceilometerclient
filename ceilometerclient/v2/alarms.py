@@ -70,13 +70,7 @@ class AlarmChange(base.Resource):
 class AlarmManager(base.Manager):
     resource_class = Alarm
 
-    def __init__(self, api, aodh_enabled=False):
-        self.aodh_enabled = aodh_enabled
-        super(AlarmManager, self).__init__(api)
-
     def _path(self, id=None):
-        # TODO(liusheng) if aodh will only have v1 api, we need to change
-        # following path if aodh enabled (self.aodh_enabled)
         return '/v2/alarms/%s' % id if id else '/v2/alarms'
 
     def list(self, q=None):
