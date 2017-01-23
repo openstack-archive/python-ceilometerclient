@@ -112,7 +112,7 @@ class ShellBashCompletionTest(ShellTestBase):
 class ShellKeystoneV2Test(ShellTestBase):
 
     @mock.patch.object(ks_session, 'Session')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_debug_switch_raises_error(self, mock_ksclient):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
@@ -121,7 +121,7 @@ class ShellKeystoneV2Test(ShellTestBase):
         self.assertRaises(exc.CommandError, ceilometer_shell.main, args)
 
     @mock.patch.object(ks_session, 'Session')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_dash_d_switch_raises_error(self, mock_ksclient):
         mock_ksclient.side_effect = exc.CommandError("FAIL")
@@ -141,7 +141,7 @@ class ShellKeystoneV2Test(ShellTestBase):
 class ShellKeystoneV3Test(ShellTestBase):
 
     @mock.patch.object(ks_session, 'Session')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_debug_switch_raises_error(self, mock_ksclient):
         mock_ksclient.side_effect = exc.HTTPUnauthorized
@@ -194,7 +194,7 @@ class ShellTimeoutTest(ShellTestBase):
         self._test_timeout('0', expected_msg)
 
     @mock.patch.object(ks_session, 'Session')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_timeout_keystone_session(self, mocked_session):
         mocked_session.side_effect = exc.HTTPUnauthorized("FAIL")
@@ -208,7 +208,7 @@ class ShellTimeoutTest(ShellTestBase):
 class ShellInsecureTest(ShellTestBase):
 
     @mock.patch.object(api_client, 'HTTPClient')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_insecure_true_ceilometer(self, mocked_client):
         self.make_env(FAKE_V2_ENV)
@@ -218,7 +218,7 @@ class ShellInsecureTest(ShellTestBase):
         self.assertFalse(kwargs.get('verify'))
 
     @mock.patch.object(ks_session, 'Session')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_insecure_true_keystone(self, mocked_session):
         mocked_session.side_effect = exc.HTTPUnauthorized("FAIL")
@@ -229,7 +229,7 @@ class ShellInsecureTest(ShellTestBase):
         self.assertFalse(kwargs.get('verify'))
 
     @mock.patch.object(api_client, 'HTTPClient')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_insecure_false_ceilometer(self, mocked_client):
         self.make_env(FAKE_V2_ENV)
@@ -239,7 +239,7 @@ class ShellInsecureTest(ShellTestBase):
         self.assertTrue(kwargs.get('verify'))
 
     @mock.patch.object(ks_session, 'Session')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock(return_value=None))
     def test_insecure_false_keystone(self, mocked_session):
         mocked_session.side_effect = exc.HTTPUnauthorized("FAIL")
@@ -270,7 +270,7 @@ class ShellEndpointTest(ShellTestBase):
 
 class ShellAlarmUpdateRepeatAction(ShellTestBase):
     @mock.patch('ceilometerclient.v2.alarms.AlarmManager.update')
-    @mock.patch('ceilometerclient.v2.client.Client._get_alarm_client',
+    @mock.patch('ceilometerclient.v2.client.Client._get_redirect_client',
                 mock.Mock())
     def test_repeat_action_not_specified(self, mocked):
         self.make_env(FAKE_V2_ENV)

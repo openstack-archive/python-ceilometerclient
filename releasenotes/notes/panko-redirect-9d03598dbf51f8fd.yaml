@@ -1,0 +1,7 @@
+---
+prelude: >
+    Panko replaces the API and storage of events previously in Ceilometer
+features:
+  - |
+    Similar to aodh redirect support, specify `panko_endpoint` as a redirect
+    to Panko API.
