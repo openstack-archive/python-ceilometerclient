@@ -62,13 +62,19 @@ class Client(object):
         self.auth_plugin = kwargs.get('auth_plugin')
 
         self.http_client = ceiloclient._construct_http_client(**kwargs)
+
+        # NOTE(sileht): the auth_plugin/keystone session cannot be copied
+        # because they rely on threading module.
+        auth_plugin = kwargs.pop('auth_plugin', None)
+        session = kwargs.pop('session', None)
+
         self.alarm_client = self._get_redirect_client(
-            'alarming', 'aodh', **kwargs)
+            'alarming', 'aodh', auth_plugin, session, **kwargs)
         aodh_enabled = self.alarm_client is not None
         if not aodh_enabled:
             self.alarm_client = self.http_client
         self.event_client = self._get_redirect_client(
-            'event', 'panko', **kwargs)
+            'event', 'panko', auth_plugin, session, **kwargs)
         panko_enabled = self.event_client is not None
         if not panko_enabled:
             self.event_client = self.http_client
@@ -93,13 +99,9 @@ class Client(object):
         self.capabilities = capabilities.CapabilitiesManager(self.http_client)
 
     @staticmethod
-    def _get_redirect_client(new_service_type, new_service, **ceilo_kwargs):
+    def _get_redirect_client(new_service_type, new_service, auth_plugin,
+                             session, **ceilo_kwargs):
         """Get client for new service manager to redirect to."""
-        # NOTE(sileht): the auth_plugin/keystone session cannot be copied
-        # because they rely on threading module.
-        auth_plugin = ceilo_kwargs.pop('auth_plugin', None)
-        session = ceilo_kwargs.pop('session', None)
-
         kwargs = copy.deepcopy(ceilo_kwargs)
         kwargs["service_type"] = new_service_type
         endpoint = ceilo_kwargs.get('%s_endpoint' % new_service)
