@@ -181,15 +181,6 @@ class CeilometerShell(object):
         # Return parsed args
         return api_version, subcommand_parser.parse_args(argv)
 
-    @staticmethod
-    def no_project_and_domain_set(args):
-        if not (args.os_project_id or (args.os_project_name and
-                (args.os_user_domain_name or args.os_user_domain_id)) or
-                (args.os_tenant_id or args.os_tenant_name)):
-            return True
-        else:
-            return False
-
     def main(self, argv):
         parsed = self.parse_args(argv)
         if parsed == 0:
@@ -217,17 +208,12 @@ class CeilometerShell(object):
                                        "either --os-password or via "
                                        "env[OS_PASSWORD]")
 
-            if self.no_project_and_domain_set(args):
+            if not (args.os_project_id or args.os_project_name
+                    or args.os_tenant_id or args.os_tenant_name):
                 # steer users towards Keystone V3 API
-                raise exc.CommandError("You must provide a project_id via "
-                                       "either --os-project-id or via "
-                                       "env[OS_PROJECT_ID] and "
-                                       "a domain_name via either "
-                                       "--os-user-domain-name or via "
-                                       "env[OS_USER_DOMAIN_NAME] or "
-                                       "a domain_id via either "
-                                       "--os-user-domain-id or via "
-                                       "env[OS_USER_DOMAIN_ID]")
+                raise exc.CommandError("You must provide a project_id "
+                                       "(or name) via either --os-project-id "
+                                       "or via env[OS_PROJECT_ID]")
 
             if not self.auth_plugin.opts['auth_url']:
                 raise exc.CommandError("You must provide an auth url via "
