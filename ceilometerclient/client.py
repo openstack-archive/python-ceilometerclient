@@ -388,7 +388,7 @@ def get_auth_plugin(endpoint, **kwargs):
         endpoint=endpoint,
         username=kwargs.get('username'),
         password=kwargs.get('password'),
-        tenant_name=kwargs.get('tenant_name') or kwargs.get('project_name'),
+        tenant_name=kwargs.get('project_name') or kwargs.get('tenant_name'),
         user_domain_name=kwargs.get('user_domain_name'),
         user_domain_id=kwargs.get('user_domain_id'),
         project_domain_name=kwargs.get('project_domain_name'),
