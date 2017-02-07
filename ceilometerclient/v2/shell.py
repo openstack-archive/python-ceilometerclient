@@ -21,7 +21,6 @@ import warnings
 
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
-import six
 from six import moves
 
 from ceilometerclient.common import utils
@@ -328,7 +327,7 @@ def _display_rule(type, rule):
     else:
         # just dump all
         return "\n".join(["%s: %s" % (f, v)
-                          for f, v in six.iteritems(rule)])
+                          for f, v in rule.items()])
 
 
 def alarm_rule_formatter(alarm):
@@ -383,7 +382,7 @@ def alarm_change_detail_formatter(change):
                           _display_time_constraints_brief(
                               detail['time_constraints']))
     elif change.type == 'rule change':
-        for k, v in six.iteritems(detail):
+        for k, v in detail.items():
             if k == 'rule':
                 fields.append('rule: %s' % _display_rule(_infer_type(detail),
                                                          v))

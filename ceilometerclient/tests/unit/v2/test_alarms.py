@@ -15,7 +15,6 @@
 
 import copy
 
-import six
 from six.moves import xrange  # noqa
 import testtools
 
@@ -326,7 +325,7 @@ class AlarmManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_put, pos=1)
         self.assertIsNotNone(alarm)
         self.assertEqual('alarm-id', alarm.alarm_id)
-        for (key, value) in six.iteritems(UPDATED_ALARM):
+        for (key, value) in UPDATED_ALARM.items():
             self.assertEqual(getattr(alarm, key), value)
 
     def test_update_delta(self):
@@ -341,7 +340,7 @@ class AlarmManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_put, pos=1)
         self.assertIsNotNone(alarm)
         self.assertEqual('alarm-id', alarm.alarm_id)
-        for (key, value) in six.iteritems(UPDATED_ALARM):
+        for (key, value) in UPDATED_ALARM.items():
             self.assertEqual(getattr(alarm, key), value)
 
     def test_set_state(self):
@@ -423,7 +422,7 @@ class AlarmManagerTest(testtools.TestCase):
         for i in xrange(len(history)):
             change = history[i]
             self.assertIsInstance(change, alarms.AlarmChange)
-            for k, v in six.iteritems(ALARM_HISTORY[i]):
+            for k, v in ALARM_HISTORY[i].items():
                 self.assertEqual(getattr(change, k), v)
 
     def test_get_all_history(self):
@@ -473,7 +472,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_put)
         self.assertIsNotNone(alarm)
         self.assertEqual('alarm-id', alarm.alarm_id)
-        for (key, value) in six.iteritems(UPDATED_ALARM):
+        for (key, value) in UPDATED_ALARM.items():
             self.assertEqual(getattr(alarm, key), value)
 
     def test_update_counter_name(self):
@@ -488,7 +487,7 @@ class AlarmLegacyManagerTest(testtools.TestCase):
         self.http_client.assert_called(*expect_put)
         self.assertIsNotNone(alarm)
         self.assertEqual('alarm-id', alarm.alarm_id)
-        for (key, value) in six.iteritems(UPDATED_ALARM):
+        for (key, value) in UPDATED_ALARM.items():
             self.assertEqual(getattr(alarm, key), value)
 
 
