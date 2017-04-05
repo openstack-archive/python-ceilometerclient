@@ -99,7 +99,7 @@ def _get_keystone_session(**kwargs):
         if not user_domain_name:
             user_domain_name = 'default'
         if not project_domain_id:
-            project_domain_id = 'default'
+            project_domain_id = None
         if not project_domain_name:
             project_domain_name = 'default'
     auth = None
