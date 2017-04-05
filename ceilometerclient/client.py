@@ -94,12 +94,8 @@ def _get_keystone_session(**kwargs):
     project_domain_name = kwargs.pop('project_domain_name', None)
     project_domain_id = kwargs.pop('project_domain_id', None)
     if v3_auth_url:
-        if not user_domain_id:
-            user_domain_id = 'default'
         if not user_domain_name:
             user_domain_name = 'default'
-        if not project_domain_id:
-            project_domain_id = 'default'
         if not project_domain_name:
             project_domain_name = 'default'
     auth = None
