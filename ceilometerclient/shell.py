@@ -117,18 +117,8 @@ class CeilometerShell(object):
                                                         version, 'shell')
         self._find_actions(subparsers, submodule)
         self._find_actions(subparsers, self)
-        self._add_bash_completion_subparser(subparsers)
 
         return parser
-
-    def _add_bash_completion_subparser(self, subparsers):
-        subparser = subparsers.add_parser(
-            'bash_completion',
-            add_help=False,
-            formatter_class=HelpFormatter
-        )
-        self.subcommands['bash_completion'] = subparser
-        subparser.set_defaults(func=self.do_bash_completion)
 
     def _find_actions(self, subparsers, actions_module):
         for attr in (a for a in dir(actions_module) if a.startswith('do_')):
@@ -243,7 +233,6 @@ class CeilometerShell(object):
                 options.add(option)
 
         commands.remove('bash-completion')
-        commands.remove('bash_completion')
         print(' '.join(commands | options))
 
     @utils.arg('command', metavar='<subcommand>', nargs='?',
