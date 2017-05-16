@@ -19,6 +19,7 @@ from __future__ import print_function
 import argparse
 import logging
 import sys
+import warnings
 
 from oslo_utils import encodeutils
 from oslo_utils import importutils
@@ -172,6 +173,10 @@ class CeilometerShell(object):
         return api_version, subcommand_parser.parse_args(argv)
 
     def main(self, argv):
+        warnings.warn(
+            "ceilometerclient is now deprecated as the Ceilometer API has "
+            "been deprecated. Please use either aodhclient, pankoclient or "
+            "gnocchiclient.")
         parsed = self.parse_args(argv)
         if parsed == 0:
             return 0

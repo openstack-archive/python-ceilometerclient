@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    As the Ceilometer API has been deprecated, this client is also now marked
+    as deprecated and will print a warning when used as a command-line
+    interface tool.
