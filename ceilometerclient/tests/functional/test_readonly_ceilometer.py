@@ -63,9 +63,5 @@ class SimpleReadOnlyCeilometerClientTest(base.ClientTestBase):
 
     # Optional arguments
 
-    def test_ceilometer_version(self):
-        version = self.ceilometer('', flags='--version', merge_stderr=True)
-        self.assertTrue(re.search('^[0-9.]+', version))
-
     def test_ceilometer_debug_list(self):
         self.ceilometer('meter-list', flags='--debug')
