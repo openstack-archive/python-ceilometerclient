@@ -28,6 +28,9 @@ from ceilometerclient.apiclient import client
 from ceilometerclient.apiclient import exceptions
 from ceilometerclient import exc
 
+profiler = importutils.try_import("osprofiler.profiler")
+osprofiler_web = importutils.try_import("osprofiler.web")
+
 
 def _discover_auth_versions(session, auth_url):
     # discover the API versions the server is supporting based on the
@@ -368,6 +371,16 @@ def get_client(version, **kwargs):
     """
     endpoint = kwargs.get('os_endpoint') or kwargs.get('ceilometer_url')
 
+    profile = kwargs.pop('profile', None)
+    if profiler and profile:
+        # Initialize the root of the future trace: the created trace ID
+        # will be used as the very first parent to which all related
+        # traces will be bound to. The given HMAC key must correspond to
+        # the one set in ceilometer-api ceilometer.conf, otherwise the latter
+        # will fail to check the request signature and will skip
+        # initialization of osprofiler on the server side.
+        profiler.init(profile)
+
     return Client(version, endpoint, **kwargs)
 
 
@@ -469,6 +482,12 @@ class SessionClient(adapter.LegacyJsonAdapter):
         # NOTE(sileht): The standard call raises errors from
         # keystoneauth, where we need to raise the ceilometerclient errors.
         raise_exc = kwargs.pop('raise_exc', True)
+
+        # NOTE(tovin07): osprofiler_web.get_trace_id_headers does not add any
+        # headers in case if osprofiler is not initialized.
+        if osprofiler_web:
+            kwargs['headers'].update(osprofiler_web.get_trace_id_headers())
+
         with record_time(self.times, self.timings, method, url):
             resp, body = super(SessionClient, self).request(url,
                                                             method,

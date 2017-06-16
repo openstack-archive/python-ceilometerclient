@@ -30,6 +30,8 @@ from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
 from ceilometerclient import exc
 
+profiler = importutils.try_import("osprofiler.profiler")
+
 
 def _positive_non_zero_int(argument_value):
     if argument_value is None:
@@ -103,6 +105,21 @@ class CeilometerShell(object):
 
         parser.add_argument('--ceilometer_api_version',
                             help=argparse.SUPPRESS)
+
+        if profiler:
+            parser.add_argument('--profile',
+                                metavar='HMAC_KEY',
+                                default=utils.env('OS_PROFILE'),
+                                help='HMAC key to use for encrypting context '
+                                'data for performance profiling of operation. '
+                                'This key should be the value of the HMAC key '
+                                'configured for the OSprofiler middleware in '
+                                'ceilometer; it is specified in the '
+                                'Ceilometer configuration file at '
+                                '"/etc/ceilometer/ceilometer.conf". '
+                                'Without the key, profiling will not be '
+                                'triggered even if OSprofiler is enabled on '
+                                'the server side.')
 
         self.auth_plugin.add_opts(parser)
         self.auth_plugin.add_common_opts(parser)
@@ -218,12 +235,21 @@ class CeilometerShell(object):
         client_kwargs = vars(args)
         client_kwargs.update(self.auth_plugin.opts)
         client_kwargs['auth_plugin'] = self.auth_plugin
+
+        if profiler:
+            client_kwargs['profile'] = args.profile
+
         client = ceiloclient.get_client(api_version, **client_kwargs)
         # call whatever callback was selected
         try:
             args.func(client, args)
         except exc.HTTPUnauthorized:
             raise exc.CommandError("Invalid OpenStack Identity credentials.")
+
+        if profiler and args.profile:
+            trace_id = profiler.get().get_base_id()
+            print("To display trace use the command:\n\n"
+                  "  osprofiler trace show --html %s " % trace_id)
 
     def do_bash_completion(self, args):
         """Prints all of the commands and options to stdout.

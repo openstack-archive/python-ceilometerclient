@@ -41,6 +41,8 @@ import requests
 from ceilometerclient.apiclient import exceptions
 from ceilometerclient.i18n import _
 
+osprofiler_web = importutils.try_import("osprofiler.web")
+
 _logger = logging.getLogger(__name__)
 SENSITIVE_HEADERS = ('X-Auth-Token', 'X-Subject-Token',)
 
@@ -181,6 +183,12 @@ class HTTPClient(object):
         kwargs.setdefault("verify", self.verify)
         if self.cert is not None:
             kwargs.setdefault("cert", self.cert)
+
+        # NOTE(tovin07): osprofiler_web.get_trace_id_headers does not add any
+        # headers in case if osprofiler is not initialized.
+        if osprofiler_web:
+            kwargs['headers'].update(osprofiler_web.get_trace_id_headers())
+
         self.serialize(kwargs)
 
         self._http_log_req(method, url, kwargs)
