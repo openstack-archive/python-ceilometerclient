@@ -11,6 +11,7 @@
 # under the License.
 
 import os
+
 execfile(os.path.join("..", "ext", "gen_ref.py"))
 
 project = 'python-ceilometerclient'
@@ -24,7 +25,7 @@ gen_ref("v2", "Version 2 API Reference",
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'oslosphinx' ]
+extensions = ['sphinx.ext.autodoc', 'openstackdocstheme']
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
@@ -57,6 +58,10 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
 #html_theme = 'nature'
+html_theme = 'openstackdocs'
+
+# Add any paths that contain custom themes here, relative to this directory.
+#html_theme_path = ['_theme']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
