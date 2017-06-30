@@ -304,7 +304,7 @@ class HTTPClient(object):
         ...     from keystoneclient.v2_0 import client
         ...     client.Client(openstack_client)
         ...     # use them
-        ...     openstack_client.identity.tenants.list()
+        ...     openstack_client.identity.projects.list()
         ...     openstack_client.compute.servers.list()
         """
         service_type = base_client_instance.service_type
