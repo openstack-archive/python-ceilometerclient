@@ -23,7 +23,7 @@ from oslo_utils import encodeutils
 import prettytable
 import six
 
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 
 
 # Decorator for cli-args

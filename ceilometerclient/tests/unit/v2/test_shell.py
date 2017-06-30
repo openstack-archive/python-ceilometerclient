@@ -20,7 +20,7 @@ import mock
 import six
 from testtools import matchers
 
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 from ceilometerclient import shell as base_shell
 from ceilometerclient.tests.unit import test_shell
 from ceilometerclient.tests.unit import utils

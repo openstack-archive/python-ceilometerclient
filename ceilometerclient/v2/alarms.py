@@ -17,7 +17,7 @@ import warnings
 
 from ceilometerclient.common import base
 from ceilometerclient.common import utils
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 from ceilometerclient.v2 import options
 
 

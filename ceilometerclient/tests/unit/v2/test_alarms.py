@@ -21,7 +21,7 @@ import testtools
 
 from ceilometerclient.apiclient import client
 from ceilometerclient.apiclient import fake_client
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 from ceilometerclient.v2 import alarms
 
 AN_ALARM = {u'alarm_actions': [u'http://site:8000/alarm'],

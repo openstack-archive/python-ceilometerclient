@@ -21,7 +21,7 @@ import copy
 
 from ceilometerclient.apiclient import base
 from ceilometerclient.apiclient import exceptions
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 
 
 def getid(obj):

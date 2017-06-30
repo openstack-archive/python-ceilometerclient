@@ -21,7 +21,7 @@ from testtools import matchers
 
 from ceilometerclient.apiclient import client as api_client
 from ceilometerclient import client
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 from ceilometerclient import shell as ceilometer_shell
 from ceilometerclient.tests.unit import utils
 

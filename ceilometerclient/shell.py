@@ -28,7 +28,7 @@ import six
 import ceilometerclient
 from ceilometerclient import client as ceiloclient
 from ceilometerclient.common import utils
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 
 
 def _positive_non_zero_int(argument_value):

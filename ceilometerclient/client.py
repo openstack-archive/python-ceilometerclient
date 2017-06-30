@@ -26,7 +26,7 @@ import six.moves.urllib.parse as urlparse
 from ceilometerclient.apiclient import auth
 from ceilometerclient.apiclient import client
 from ceilometerclient.apiclient import exceptions
-from ceilometerclient import exc
+from ceilometerclient import exception as exc
 
 
 def _discover_auth_versions(session, auth_url):
