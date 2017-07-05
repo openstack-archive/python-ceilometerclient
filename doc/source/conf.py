@@ -11,6 +11,8 @@
 # under the License.
 
 import os
+import openstackdocstheme
+
 execfile(os.path.join("..", "ext", "gen_ref.py"))
 
 project = 'python-ceilometerclient'
@@ -24,7 +26,15 @@ gen_ref("v2", "Version 2 API Reference",
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'oslosphinx' ]
+extensions = ['sphinx.ext.autodoc', 'openstackdocstheme' ]
+
+# openstackdocstheme options
+repository_name = 'openstack/python-ceilometerclient'
+bug_project = 'python-ceilometerclient'
+bug_tag = ''
+
+# Must set this variable to include year, month, day, hours, and minutes.
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
