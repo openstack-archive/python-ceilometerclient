@@ -24,6 +24,17 @@ Contents:
    ref/index
    ref/v2/index
 
+The command-line client
+=======================
+
+The ceilometer client is the command-line interface (CLI) for
+the Telemetry Data Collection service (ceilometer) API
+and its extensions.
+
+.. toctree::
+
+   cli
+
 Contributing
 ============
 
