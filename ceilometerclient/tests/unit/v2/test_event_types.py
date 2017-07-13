@@ -20,7 +20,7 @@ import ceilometerclient.v2.event_types
 
 
 fixtures = {
-    '/v2/event_types/': {
+    '/v2/event_types': {
         'GET': (
             {},
             ['Foo', 'Bar', 'Sna', 'Fu']
@@ -40,7 +40,7 @@ class EventTypesManagerTest(utils.BaseTestCase):
     def test_list(self):
         event_types = list(self.mgr.list())
         expect = [
-            'GET', '/v2/event_types/'
+            'GET', '/v2/event_types'
         ]
         self.http_client.assert_called(*expect)
         self.assertEqual(4, len(event_types))
