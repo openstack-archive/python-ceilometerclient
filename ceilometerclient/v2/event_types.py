@@ -17,7 +17,7 @@ from ceilometerclient.common import base
 
 class EventType(base.Resource):
     def __repr__(self):
-        return "<Event %s>" % self._info
+        return "<EventType %s>" % self._info
 
 
 def object_class_str(mgr, value, loaded):
@@ -27,4 +27,4 @@ def object_class_str(mgr, value, loaded):
 class EventTypeManager(base.Manager):
 
     def list(self):
-        return self._list('/v2/event_types/', obj_class=object_class_str)
+        return self._list('/v2/event_types', obj_class=object_class_str)
