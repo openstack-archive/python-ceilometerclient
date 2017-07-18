@@ -21,7 +21,7 @@ provides a Python API (the ``ceilometerclient`` module) and a command-line tool
 * `Source`_
 
 .. _PyPi: https://pypi.python.org/pypi/python-ceilometerclient
-.. _Online Documentation: http://docs.openstack.org/developer/python-ceilometerclient
+.. _Online Documentation: https://docs.openstack.org/python-ceilometerclient/latest/
 .. _Launchpad project: https://launchpad.net/python-ceilometerclient
 .. _Blueprints: https://blueprints.launchpad.net/python-ceilometerclient
 .. _Bugs: https://bugs.launchpad.net/python-ceilometerclient

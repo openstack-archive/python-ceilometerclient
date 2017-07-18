@@ -30,7 +30,7 @@ class OldSample(base.Resource):
     """Represents API v2 OldSample object.
 
     Model definition:
-    http://docs.openstack.org/developer/ceilometer/webapi/v2.html#OldSample
+    https://docs.openstack.org/ceilometer/latest/webapi/v2.html#OldSample
     """
     def __repr__(self):
         return "<OldSample %s>" % self._info
@@ -85,7 +85,7 @@ class Sample(base.Resource):
     """Represents API v2 Sample object.
 
     Model definition:
-    http://docs.openstack.org/developer/ceilometer/webapi/v2.html#Sample
+    https://docs.openstack.org/ceilometer/latest/webapi/v2.html#Sample
     """
     def __repr__(self):
         return "<Sample %s>" % self._info

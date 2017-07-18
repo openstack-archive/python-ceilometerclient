@@ -12,7 +12,7 @@ OpenStack Ceilometer API.
     least -- to get an idea of the concepts. By understanding the concepts
     this library should make more sense.
 
-    __ http://docs.openstack.org/developer/ceilometer/
+    __ https://docs.openstack.org/ceilometer/latest/
 
 Contents:
 
@@ -33,7 +33,7 @@ Code is hosted at `git.openstack.org`_. Submit bugs to the Ceilometer project on
 
 .. _git.openstack.org: https://git.openstack.org/cgit/openstack/python-ceilometerclient
 .. _Launchpad: https://launchpad.net/ceilometer
-.. _Gerrit: http://docs.openstack.org/infra/manual/developers.html#development-workflow
+.. _Gerrit: https://docs.openstack.org/infra/manual/developers.html#development-workflow
 
 Run tests with ``python setup.py test``.
 

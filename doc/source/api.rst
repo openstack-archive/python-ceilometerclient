@@ -33,7 +33,7 @@ Use queries to narrow your search (more info at `Ceilometer V2 API reference`__)
     >>> cclient.new_samples.list(q=query, limit=10)
     [<Sample ...>, ...]
 
-__  http://docs.openstack.org/developer/ceilometer/webapi/v2.html#Query
+__  https://docs.openstack.org/ceilometer/latest/webapi/v2.html#Query
 
 Reference
 ---------
