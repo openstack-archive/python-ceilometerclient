@@ -1,0 +1,9 @@
+Code-Review+2: gordon chung <gord@live.ca>
+Code-Review+2: Mehdi Abaakouk (sileht) <sileht@sileht.net>
+Workflow+1: Mehdi Abaakouk (sileht) <sileht@sileht.net>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 24 Jul 2017 18:53:19 +0000
+Reviewed-on: https://review.openstack.org/484697
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
