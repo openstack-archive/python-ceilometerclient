@@ -324,7 +324,7 @@ def get_client(version, **kwargs):
     :param version: the API version to use ('1' or '2')
     :param kwargs: keyword args containing credentials, either:
 
-            * session: a keystoneauth/keystoneclient session object
+            * session: a keystoneauth session object
             * service_type: The default service_type for URL discovery
             * service_name: The default service_name for URL discovery
             * interface: The default interface for URL discovery
