@@ -1,0 +1,12 @@
+Code-Review+2: Julien Danjou <julien@danjou.info>
+Code-Review+1: Dai Dang Van <daidv@vn.fujitsu.com>
+Code-Review+2: Hanxi Liu <hanxi.liu@easystack.cn>
+Code-Review+1: Nguyen Van Trung <trungnv@vn.fujitsu.com>
+Code-Review+2: gordon chung <gord@live.ca>
+Workflow+1: gordon chung <gord@live.ca>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Tue, 17 Oct 2017 16:50:10 +0000
+Reviewed-on: https://review.openstack.org/512499
+Project: openstack/python-ceilometerclient
+Branch: refs/heads/master
