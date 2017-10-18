@@ -35,7 +35,7 @@ source openrc admin admin
 # Go to the ceilometerclient dir
 cd $CEILOMETERCLIENT_DIR
 
-sudo chown -R jenkins:stack $CEILOMETERCLIENT_DIR
+sudo chown -R $USER:stack $CEILOMETERCLIENT_DIR
 
 # Run tests
 echo "Running ceilometerclient functional test suite"
