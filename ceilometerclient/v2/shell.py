@@ -746,7 +746,7 @@ def do_alarm_threshold_create(cc, args={}):
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_create(cc, args={}):
-    """Create a new alarm based on state of other alarms."""
+    """(Deprecated) Create a new alarm based on state of other alarms."""
     warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
@@ -980,7 +980,7 @@ def do_alarm_gnocchi_aggregation_by_resources_threshold_update(cc, args={}):
 @_restore_shadowed_arg('project_id', 'alarm_project_id')
 @_restore_shadowed_arg('user_id', 'alarm_user_id')
 def do_alarm_combination_update(cc, args={}):
-    """Update an existing alarm based on state of other alarms."""
+    """(Deprecated) Update an existing alarm based on state of other alarms."""
     warnings.warn("Alarm commands are deprecated, please use aodhclient")
     fields = dict(filter(lambda x: not (x[1] is None), vars(args).items()))
     fields = utils.args_array_to_list_of_dicts(fields, 'time_constraints')
