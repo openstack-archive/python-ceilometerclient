@@ -18,10 +18,10 @@ from __future__ import print_function
 import os
 import textwrap
 
-from oslo_serialization import jsonutils
 from oslo_utils import encodeutils
 import prettytable
 import six
+import ujson
 
 from ceilometerclient import exc
 
@@ -117,7 +117,7 @@ def print_dict(d, dict_property="Property", wrap=0):
     for k, v in sorted(six.iteritems(d)):
         # convert dict to str to check length
         if isinstance(v, (list, dict)):
-            v = jsonutils.dumps(v)
+            v = ujson.dumps(v)
         # if value has a newline, add in multiple rows
         # e.g. fault with stacktrace
         if v and isinstance(v, six.string_types) and r'\n' in v:
