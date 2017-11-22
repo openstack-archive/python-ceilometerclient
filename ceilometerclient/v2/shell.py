@@ -19,10 +19,10 @@ import functools
 import json
 import warnings
 
-from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import six
 from six import moves
+import ujson
 
 from ceilometerclient.common import utils
 from ceilometerclient import exc
@@ -1280,6 +1280,6 @@ def do_capabilities(cc, args):
     # so it is safe to format here with json tools.
     for key in capabilities:
         # remove the leading and trailing pair of {}
-        capabilities[key] = jsonutils.dumps(capabilities[key],
+        capabilities[key] = ujson.dumps(capabilities[key],
                                             sort_keys=True, indent=0)[2:-2]
     utils.print_dict(capabilities)
