@@ -1,3 +1,0 @@
----
-deprecations:
-  - Alarm commands are deprecated in favor of aodhclient.
