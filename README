@@ -6,5 +6,5 @@ repository before it reached its end of life, please check out the
 previous commit with "git checkout HEAD^1".
 
 For any further questions, please email
-openstack-dev@lists.openstack.org or join #openstack-dev on
+openstack-discuss@lists.openstack.org or join #openstack-dev on
 Freenode.
